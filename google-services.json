@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "150984925280",
+    "project_id": "clevery-io",
+    "storage_bucket": "clevery-io.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:150984925280:android:4561ffdf6d851eae226305",
+        "android_client_info": {
+          "package_name": "com.clevery.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "150984925280-m74nat8cmq6gdq7sv3kmoakpuurimhs3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZ33xMrl8KzDF0tQWIcA88OS9xbvDUDX0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "150984925280-2qo6sqf9b1qflg6h1gcvpai9p1hb70cq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "150984925280-jps8u1t626oo84s0pf4v82h1jr703lh5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.clevery.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
