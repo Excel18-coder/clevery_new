@@ -1,6 +1,6 @@
 import { useGetConversation, useGetInfiniteMessages, useGetUserById, useSendUserMessage } from "../react-query/queries";
 
-export const userMessages =({currentuserid,userid}:{currentuserid:string,userid:string})=> {
+export const userMessages =(userid:string)=> {
       
   const {
     data: user,

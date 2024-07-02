@@ -9,18 +9,21 @@ import { memo } from 'react';
 import FormField from '@/components/auth/FormField';
 import { User } from '@/types';
 
-interface ServerDetails {
+import { CheckIcon, Select } from "native-base"
+
+interface fields {
     name: string;
     description: string;
-    icon: string;
-    members: string[];
+    icon?: string;
+    members?: string[];
+    channelType?:string
   }
 
   interface CreateProps{
     handleSubmit:()=>void,
     selectedUsers?:User[],
-    serverDetails:ServerDetails;
-    setServerDetails:any;
+    fields:fields;
+    setFields:any;
     setSelectedUsers?:any,
     setPopupVisible?:any,
     type:'server'|'channel'
@@ -28,8 +31,8 @@ interface ServerDetails {
   }
 
 const Create = ({
-  serverDetails,
-  setServerDetails,
+  fields,
+  setFields,
   handleSubmit,
   selectedUsers,
   setPopupVisible,
@@ -40,7 +43,7 @@ const Create = ({
     const chooseImage=async()=>{
       const image = await selectImage()
       if(image){
-        setServerDetails({ ...serverDetails, icon:image[0]})
+        setFields({ ...fields, icon:image[0]})
       }
     }
     
@@ -51,26 +54,26 @@ const Create = ({
 
       {type==='server' &&
         <UploadImage
-          image={serverDetails.icon}
+          image={fields.icon!}
           chooseImage={chooseImage}
-          removeImage={()=>setServerDetails({ ...serverDetails, image:''})}
+          removeImage={()=>setFields({ ...fields, image:''})}
         />
       }
       <View className='mb-2.5'>
         <FormField 
           title={`${type==='server'? 'Server':'Channel'}`}
-          value={serverDetails.name}
+          value={fields.name}
           handleChangeText={(text) =>
-            setServerDetails({ ...serverDetails, name: text })
+            setFields({ ...fields, name: text })
           }
         />
       </View>
       <View className='mb-2.5'>
          <FormField 
           title={`Description`}
-          value={serverDetails.description}
+          value={fields.description}
           handleChangeText={(text) =>
-            setServerDetails({ ...serverDetails, description: text })
+            setFields({ ...fields, description: text })
           }
         />
       </View>
@@ -97,12 +100,28 @@ const Create = ({
         </View>
       </View>
       }
+
+      <Select
+        placeholder='Channel Type'
+        accessibilityLabel='Channel Type'
+        _selectedItem={{bg:"teal.600"}}
+        defaultValue='TEXT'
+        onValueChange={(v)=>setFields({ ...fields, channelType:v })}
+        mt="1"
+        mb="2"
+        w="1/2"
+        borderColor={"gray.400"}
+        selectedValue={fields.channelType} 
+      >
+        <Select.Item label='Text' value='TEXT' endIcon={<Feather name='hash' className='ml-5'/>} />
+        <Select.Item label='Voice' value='AUDIO' endIcon={<Feather name='mic'/>}/>
+        <Select.Item label='Video' value='VIDEO' endIcon={<Feather name='video'/>}/>
+      </Select>
+
       <TouchableOpacity className='w-25 h-9 bg-blue-500 justify-center px-2 rounded-lg mb-3'  onPress={handleSubmit} disabled={loading} >
         <Text className='text-white text-xs pb-1 font-rregular w-auto' >Create {type==='server'? 'Server':'Channel'}</Text>
       </TouchableOpacity>
-      <SectionList sections={[
       
-      ]}/>
     </KeyboardAvoidingView>
   )
 }

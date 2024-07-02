@@ -7,15 +7,18 @@ import * as WebBrowser from "expo-web-browser";
  
 import { Message } from "../types";
 import { format, parseISO } from "date-fns";
-import { Toast } from "react-native-toast-notifications";
 import { PERMISSIONS, requestMultiple } from "react-native-permissions";
+import { Toast } from "native-base";
 
 interface User{
   id:string
   name:string;
 }
 export const showToastMessage = (message:string) => {
-  Toast.show(message);
+  Toast.show({
+    title:message,
+    placement:"top"
+  });
 };
 export const useWarmUpBrowser = () => {
   React.useEffect(() => {

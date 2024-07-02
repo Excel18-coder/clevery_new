@@ -1,15 +1,15 @@
 import { memo, useCallback, useState } from 'react';
-import { router } from 'expo-router';
-import { TouchableOpacity } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 
-import { Chat, Groups, Status, Text, View } from '@/components';
+import { Chat, Groups, ServerList, Text, View } from '@/components';
 import { voiceCallHandler } from '@/lib';
 
 const FILTER_ITEMS = [
   { name: 'chats', icon: 'chatbox-ellipses-outline' },
   { name: 'status', icon: 'people-outline' },
-  { name: 'groups', icon: 'newspaper-outline' },
+  { name: 'servers', icon: 'newspaper-outline' },
 ];
 
 const Messages: React.FC = () => {
@@ -24,7 +24,7 @@ const Messages: React.FC = () => {
         return 'Threads';
       case 'groups':
         return 'Servers';
-      case 'status':
+      case 'servers':
         return 'Communities';
       default:
         return '';
@@ -34,7 +34,7 @@ const Messages: React.FC = () => {
   const handlePress = () => {
     if (activeFilter === 'chats') return router.navigate("/users"); 
     if (activeFilter === 'status') return voiceCallHandler();
-    if (activeFilter === 'groups') return router.navigate("/create-server"); 
+    if (activeFilter === 'servers') return router.navigate("/create-server"); 
   };
 
   const AddButton=()=>{
@@ -45,7 +45,7 @@ const Messages: React.FC = () => {
       >
         <Feather name="user-plus" size={20} color={'gray'}/>
         <Text className='text-right font-rmedium font-sm' >
-          {activeFilter === 'chats' ? 'Add Friend' : activeFilter === 'groups' ? 'Create Server' : activeFilter === 'status' ? 'Create Group' : null}
+          {activeFilter === 'chats' ? 'Add Friend' : activeFilter === 'servers' ? 'Create Server' : activeFilter === 'status' ? 'Create Group' : null}
           
         </Text>
       </TouchableOpacity>
@@ -92,7 +92,7 @@ const Messages: React.FC = () => {
         <Filter /> 
         {activeFilter === 'chats' && <Chat navigate={userNavigate} />}
         {activeFilter === 'status' && <Groups />} 
-        {activeFilter === 'groups' && <Status />} 
+        {activeFilter === 'servers' && <ServerList />} 
     </View> 
   );
 };

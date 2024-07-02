@@ -5,6 +5,7 @@ import { useLocalSearchParams, usePathname } from 'expo-router';
 import { channelHooks, parseIncomingMessage, pusher, selectImage,selector,sortMessages, useSendChannelMessage} from '@/lib';
 import { ChannelTop, ErrorMessage, Loader, MessageInput, Messages, View } from '@/components'
 import { Message } from '@/types';
+import AudioVideoComponent from '@/components/audio-video-call';
 
 interface newMessage {
     caption:string;

@@ -1,7 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
 import { EnterKeyHintTypeOptions, KeyboardType } from "react-native";
-import { View, Text, TextInput, TouchableOpacity, Image, TextInputProps } from "react-native";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 
 interface Props {
   title:string,

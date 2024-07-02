@@ -1,4 +1,4 @@
-import { useLocalSearchParams, usePathname } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import ServerComponent from '@/components/Servers/server';
 import { memo } from 'react';
 

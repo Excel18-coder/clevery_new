@@ -78,17 +78,15 @@ interface Message {
       const result = await axios.get(`${endpoint}/channels/${id}`);
       return result.data
     } catch (error) {
-      console.error(error);
       throw error;
     }
   };
 
   export const createChannel = async ( channel :NewChannel) => {
     try {
-      const response = await axios.post(`${endpoint}/servers/${channel.serverId}/channels/`, { channel });
+      const response = await axios.post(`${endpoint}/servers/${channel.serverId}/channels`, channel);
       return response.data;
     } catch (error) {
-       console.error(error);
        throw error;
     }
   };

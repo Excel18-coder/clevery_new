@@ -7,6 +7,7 @@ import { selector, urlForImage,useCombinedSearchResults} from '@/lib';
 import { Search } from '@/types';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import ImageSkeletons from '@/components/skeletons/images';
 
 type TabBarOptions= 'recents'|'people'|'media-links'|'files'
 
@@ -90,6 +91,11 @@ const ExploreComponent = () => {
         keyExtractor={(item)=>item._id}
         />
       }
+      {selectedTabBar === 'files' &&
+        <ImageSkeletons/>
+      }
+
+
     </View>
   );
 };

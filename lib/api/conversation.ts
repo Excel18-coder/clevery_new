@@ -1,4 +1,4 @@
-import { Message, User} from "@/types";
+import { Message, NewMessage, User} from "@/types";
 import { uploadImage } from "./general";
 import axios from 'axios'
 import { endpoint } from "../env";
@@ -9,11 +9,10 @@ interface conversation{
   messages:Message[]
 }
 
-export const getConversation=async({
-  friendId
-}:{friendId:string}): Promise<conversation>=> {
+export const getConversation=async(friendid:string): Promise<conversation>=> {
   try {
-    const response = await axios.post(`${endpoint}conversations?friendid=${friendId}`)
+    const response = await axios.post(`${endpoint}conversations`,{friendid})
+    console.log(response.data)
     return response.data
   } catch (error:any) {
     console.log(error.message)
@@ -30,17 +29,14 @@ export const getConversations=async(): Promise<User[]>=> {
   }
 }
 
-export async function sendMessage(conversationId: string, message: {
-  image?: string;
-  caption: string;
-}): Promise<any> {
+export async function sendMessage(conversationId: string, message: NewMessage): Promise<any> {
   if (!conversationId) {
-    throw new Error('SenderId and conversationId are required');
+    throw new Error('ConversationId is required');
   }
   
-  if (message.image) {
-    const image = await uploadImage(message.image);
-    message.image= image
+  if (message.file) {
+    const image = await uploadImage(message.file);
+    message.file= image
   }
   try {
     const response = await axios.post(`${endpoint}/conversations/${conversationId}/messages`,message);

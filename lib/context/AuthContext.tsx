@@ -22,18 +22,19 @@ const AuthContext = createContext<any>({
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch<AppDispatch>();
+  const profile = selector((state) => state.profile.profile);
   const {isConnected} = useNetInfo()
   
   const checkAuthUser = async () => {
     try {
       const currentAccount = await getCurrentUser();
-      if(!currentAccount){
+      if(!currentAccount && !profile._id){
         router.push('/sign-in')
         return false 
       }
-      if(currentAccount) {
+      if(currentAccount && !profile._id ) {
         dispatch(
-          setProfile({
+          setProfile({ 
             _id: currentAccount?._id,
             _createdAt:currentAccount?._createdAt,
             name: currentAccount?.name,
@@ -41,10 +42,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email: currentAccount?.email,
             image: currentAccount?.image,
             bio: currentAccount?.bio,
-            friends:currentAccount?.friends
+            friends:currentAccount?.friends||[]
           })
         );
-        router.push('/')
+        router.push("/")
         return true
       }
 
@@ -56,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     checkAuthUser();
-  },[isConnected]);
+  },[]);
   
   const value = {
     checkAuthUser,

@@ -1,8 +1,8 @@
 import { ReactNode } from 'react'
 import { AuthProvider } from './context/AuthContext'
 import { ReduxProvider } from './redux/Provider'
-import { QueryProvider } from './react-query/QueryProvider'
-import { ToastProvider } from 'react-native-toast-notifications'
+import { QueryProvider } from './react-query/QueryProvider' 
+import { NativeBaseProvider } from 'native-base'
 // import { StreamProvider } from './stream/Provider'
 
 export const Providers = ({ children }:{children:ReactNode}) => {
@@ -11,9 +11,9 @@ export const Providers = ({ children }:{children:ReactNode}) => {
     <ReduxProvider>
       <QueryProvider>
         <AuthProvider>
-          <ToastProvider>
-              {children}
-          </ToastProvider>
+          <NativeBaseProvider>
+            {children}
+          </NativeBaseProvider>
         </AuthProvider>
       </QueryProvider>
     </ReduxProvider>

@@ -6,6 +6,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { CustomButton, FormField,Butttons } from "@/components";
 import { authHooks, endpoint, showToastMessage } from "@/lib";
 import axios from "axios";
+import { useToast } from "native-base";
+import ToastAlert from "@/components/toast-alert";
 
 type AuthProviders = "google" | "facebook" | "github";
 const SignIn = () => {
@@ -19,6 +21,7 @@ const SignIn = () => {
     password: "",
   });
 
+  const toast = useToast();
 // const {
 //   mutateAsync:createUser,
 //   isPending:creating,
@@ -29,14 +32,23 @@ const SignIn = () => {
     const password=form.password
     const email=form.email
     if (form.email === "" || form.password === "") {
-      showToastMessage("Error , Please fill in all fields");
+      return  toast.show({
+        title: "Error , Please fill in all fields",
+        placement: "top"
+      })
     }
-    if (!email.length  )return showToastMessage("Enter a valid email address")
-    if (!password)return showToastMessage("Passwords don't match")
+    
+    if (!password.length ){
+      return  toast.show({
+        title: "Password must be atleast 8 characters",
+        placement: "top"
+      })
+    }
     try {
 
-      const result = await axios.post(`${endpoint}/sign-in`)
-      console.log(JSON.stringify(result.data))
+      const result = await axios.post(`${endpoint}/sign-in`,{email,password})
+      console.log(result.data)
+      return<ToastAlert title="Something went wrong" description="Please try again"id="sign-up" />
       // await signIn(form.email, form.password);
       // const result = await getCurrentUser();
       // setUser(result);
@@ -45,8 +57,8 @@ const SignIn = () => {
       // Alert.alert("Success", "User signed in successfully");
       // router.replace("/home");
     } catch (error) {
-      console.log(error)
-      showToastMessage("An error occured")
+      console.log("Sign-in",error)
+      return<ToastAlert title="Something went wrong" description="Please try again"id="sign-up" />
     } 
   };
 
@@ -101,7 +113,7 @@ const signInWithProvider = async (provider: AuthProviders) => {
               Don't have an account?
             </Text>
             <Link
-              href="/sign-up"
+              href="room"
               className="text-lg font-psemibold text-secondary"
             >
               Signup

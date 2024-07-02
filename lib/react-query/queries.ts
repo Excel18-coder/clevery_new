@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 
 import { QUERY_KEYS } from "@/lib/react-query/queryKeys";
-import { Channel, NewChannel, NewChannelMessage, NewPost, NewServer, NewUser, UserUpdate, channelMessage, newChannel} from "@/types";
+import { Channel, NewChannel, NewChannelMessage, NewMessage, NewPost, NewServer, NewUser, UserUpdate, channelMessage, newChannel} from "@/types";
 import { sendMessage,fetchGroupMessages, fetchGroups,getConversation,getGroupById,sendGroupMessage, getConversations } from "@/lib/api/conversation";
 import { createPost, deletePost,getInfinitePosts, getPostById, getTopCreators, getUserPosts, handleComment, likePost, savePost,updatePost } from "@/lib/api/posts";
 import { addFriend,createEmailUser,getGallery,getUserById, getUserFriends, getUsers, updateUser } from "@/lib/api/users";
@@ -65,7 +65,7 @@ export const useCreatePost = () => {
 export const useUpdatePost = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (post:{id:string,caption:string,tags:string,images?:string[],userId:string}) => updatePost(post),
+    mutationFn: (post:{id:string,caption:string,tags:string,images?:string[] }) => updatePost(post),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_POST_BY_ID, data?._id],
@@ -204,7 +204,10 @@ export const useAddFriend=()=> {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_USER_FRIENDS],
-      });
+      }),
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_CONVERSATIONS],
+      })
     },
   })
 }
@@ -282,11 +285,7 @@ export const useGetUserGallery =(userid:string)=> {
 
 export const useSendUserMessage = () => {
   return useMutation({
-    mutationFn: (data: { conversationId: string, message:{
-      senderId:string,
-      caption:string,
-      image?:string,
-    }}) => sendMessage(data.conversationId, data.message),
+    mutationFn: (data: { conversationId: string, message:NewMessage}) => sendMessage(data.conversationId, data.message),
     mutationKey: [QUERY_KEYS.SEND_MESSAGE_ID],
   });
   
@@ -315,7 +314,8 @@ export const useGetInfiniteMessages=({convId}:{convId:string})=>{
 export const useGetConversation = (friendId:string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_USER_MESSAGES,friendId],
-    queryFn: () => getConversation({friendId}),
+    queryFn: () => getConversation(friendId),
+    retryDelay:3
   });
 };
 export const useGetConversations = () => {

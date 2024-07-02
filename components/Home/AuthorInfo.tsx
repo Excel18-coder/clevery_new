@@ -3,8 +3,8 @@ import  CertificateIcon from '../CheckIcon';
 import { Text, View } from '../Themed';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
-import { multiFormatDateString, urlForImage } from '../../lib';
-import { image } from '../../types';
+import { multiFormatDateString, urlForImage } from '@/lib';
+import { image } from '@/types';
 
 type AuthorInfoProps = {
   author: {

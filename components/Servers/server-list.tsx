@@ -1,11 +1,12 @@
 import { FlatList } from 'react-native'
 
+import LoadingServers from '@/components/skeletons/loading-servers'
 import ServerCard from '@/components/Servers/ServerCard'
 import { Text, View } from '@/components/Themed'
-import Loader from '@/components/Loader'
 import { useGetServers } from '@/lib'
 import { router } from 'expo-router'
-export default function Status() {
+
+export default function ServerList() {
   
  const {data:serversDocuments ,isLoading:loading} = useGetServers()
 
@@ -14,7 +15,7 @@ export default function Status() {
  }
  const servers= serversDocuments?.pages[0]
  
- if(loading) return <Loader loadingText='Loading servers'/>
+ if(loading) return <LoadingServers />
  
  return (
     <View style={{flex:1}} >
@@ -32,4 +33,4 @@ export default function Status() {
     />
     </View>
   )
-}
+} 

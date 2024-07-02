@@ -33,7 +33,6 @@ export interface Connections {
 }
 
 export type NewPost = {
-  userId: string;
   caption: string;
   files: string[];
   tags?: string;
@@ -72,7 +71,7 @@ export  interface Profile {
     image:image;
     email:string;
     bio:string;
-    friends?: any[];
+    friends?: User[];
     country?: string;
     bannerImage?:string;
     streamToken?:string;
@@ -158,7 +157,10 @@ export interface Server {
   bannerImage: string;
   creator: author;
   groupAdmins: User[];
-  members: User[];
+  members:{ 
+    joinedAt:string;
+    member:User;
+  }[],
   channels: Channel[];
 }
 
@@ -191,7 +193,6 @@ export interface newChannel {
 }
 export interface NewChannel {
   serverId: string,
-  creatorId:string;
   name: string;
   description: string;
   type: string;
@@ -214,8 +215,8 @@ export interface IMessage {
 }
 export interface NewMessage {
   caption: string;
-  receiver: string;
-  files?:string[];
+  friendid: string;
+  file?:string;
 }
 export interface NewChannelMessage {
   channelId: string;

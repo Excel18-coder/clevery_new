@@ -99,9 +99,9 @@ import { uploadImages } from "./general";
 
   };
 
-  export const updatePost = async ({id, caption, tags, images,userId}:{id:string,caption:string,tags:string,images?:string[],userId:string}) => {
+  export const updatePost = async ({id, caption, tags, images }:{id:string,caption:string,tags:string,images?:string[] }) => {
     try {
-      const response = await axios.patch(`${endpoint}/posts/${id}`, {caption, tags, images,userId})
+      const response = await axios.patch(`${endpoint}/posts/${id}`, {caption, tags, images })
       return response.data
     } catch (error) {
       console.error(error);

@@ -3,7 +3,7 @@ export { View ,Text} from "./Themed";
 export {default as ProfImage} from "./Profile/UserImage";
 export {default as Groups} from "./Messages/Group";
 export {default as Chat} from "./Messages/Chat";
-export {default as Status} from "./Messages/Status";
+export {default as ServerList} from "./Servers/server-list";
 export {default as Gallery} from "./Profile/Gallery"; 
 export {default as Account} from "./Profile/Account"; 
 export {default as MenuItems} from "./Profile/MenuItems"; 

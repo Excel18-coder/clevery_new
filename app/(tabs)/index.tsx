@@ -3,6 +3,7 @@ import { FlatList } from 'react-native';
 
 import { ErrorMessage, Loader, Post, View } from '@/components';
 import { useGetInfinitePosts } from '@/lib';
+import PostsSkeleton from '@/components/skeletons/posts';
 
 export default function Home() {
   const [refreshing, setRefreshing] = useState(false);
@@ -29,7 +30,7 @@ export default function Home() {
   };
 
 
-  if (feedLoading) return <Loader loadingText="loading your feed" />;
+  if (feedLoading) return <PostsSkeleton/>;
   if (postsError)return <ErrorMessage message="There was an error communicating with the servers. Please ensure you have an internet connection then refresh" onRetry={() => handleRefresh()} />
   
 

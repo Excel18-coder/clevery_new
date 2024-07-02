@@ -1,11 +1,13 @@
 import { memo, useCallback, useEffect, useState } from 'react'; 
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { router, useLocalSearchParams, useNavigation, usePathname} from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 
+import { selectImage,sortMessages,pusher, voiceCallHandler, userMessages, parseIncomingMessage, selector, showToastMessage } from '@/lib';
 import { Loader, MessageInput, Text, View, ErrorMessage, Messages } from '@/components';
-import { selectImage,sortMessages,pusher, voiceCallHandler, userMessages, parseIncomingMessage, selector } from '@/lib';
-import { IMessage, Message } from '@/types';
+
 import { PusherEvent } from '@pusher/pusher-websocket-react-native';
+import AudioVideoComponent from '@/components/audio-video-call';
+import { IMessage, Message } from '@/types';
 
 interface newMessage {
   caption:string;
@@ -24,6 +26,8 @@ interface UserMessagesProps {
 
 const UserMessages: React.FC<UserMessagesProps> = () => {
   const [messages, setMessages] = useState<Message[]>()
+  const [audioCall, setAudioCall] = useState(false) 
+  const [videoCall, setVideoCall] = useState(false) 
   const [newMessage, setNewMessage] = useState<newMessage>({
     caption:'',
     file:[]
@@ -31,11 +35,11 @@ const UserMessages: React.FC<UserMessagesProps> = () => {
 
   const profile = selector((state) => state.profile.profile);
   const navigation = useNavigation<any>();
-  const {friendid} = useLocalSearchParams()
+  const { friendid } = useLocalSearchParams()
 const {
   user,loadingUser,userError,conversation,loadingconversation,loadingMessages,conversationError,messagesdata,messagesError,hasNextPage,
   refetchMessages,sendMessage,sendingMessage,sendMessageError,refetchUser
-}=userMessages({currentuserid:profile._id,userid: friendid as string})
+}=userMessages(friendid as string)
 
   useEffect(() => {
     navigation.setOptions({
@@ -89,16 +93,20 @@ const chooseFile = async () => {
 };
 
 const handleSend = async () => {
-  if (!user || !conversation) return;
+  const { caption, file } = newMessage
+  if (!user || !conversation || !friendid) return;
+  if (!caption && !file ) return showToastMessage("Please input a message")
 
   const message = {
-    caption: newMessage.caption,
-    senderId: profile?._id,
-    seen: false,
-    image: newMessage.file[0],
+    caption,
+    friendid,
+    file: newMessage.file[0],
   };
 
-  await sendMessage({ conversationId: conversation._id, message });
+  await sendMessage({ 
+    conversationId: conversation._id, 
+    message 
+  });
 
   setNewMessage({ caption: '', file: [] });
 }
@@ -119,10 +127,18 @@ const handleLastMessage = useCallback(() => {
   }
   if (loadingUser)return <Loader loadingText='Loading user'/>
   if ( loadingconversation)return <Loader loadingText='Loading your conversation'/>
-  if ( loadingMessages)return <Loader loadingText='Loading messages'/>
-  if (userError||!user||conversationError||messagesError)return <ErrorMessage message='Network error' onRetry={()=>refetch()} />
+  // if ( loadingMessages)return <Loader loadingText='Loading messages'/>
+  if (userError||!user||conversationError)return <ErrorMessage message='Network error' onRetry={()=>refetch()} />
   const sortedMessages=sortMessages({messages:messages!})
   
+  if(audioCall || videoCall){
+    return(
+      <AudioVideoComponent
+        channel={`${profile.name}'s call`}
+        video={videoCall}
+      />
+    )
+  }
   return (
     <View
     className='flex-1 p-1 pt-7' > 
@@ -141,8 +157,8 @@ const handleLastMessage = useCallback(() => {
       </Text> 
       <View className='flex-row items-center gap-5' 
       >
-        <Feather name="phone-call" size={18} color={'#007aff'} onPress={()=>voiceCallHandler}/>
-        <Feather name="video" size={18} color={'#007aff'} onPress={()=>voiceCallHandler}/>
+        <Feather name="phone-call" size={18} color={'#007aff'} onPress={()=>setAudioCall(true)}/>
+        <Feather name="video" size={18} color={'#007aff'} onPress={()=>setVideoCall(true)}/>
       </View>
     </View>
 

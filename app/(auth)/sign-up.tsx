@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, ScrollView, Dimensions, Alert, Image } from "react-native";
+import { View, Text, ScrollView, Dimensions, Alert } from "react-native";
 
 import { CustomButton, FormField,Butttons } from "@/components";
 import { authHooks, useCreateEmailUser } from "@/lib";
+import { useToast } from "native-base";
+import ToastAlert from "@/components/toast-alert";
 
 type AuthProviders = "google" | "facebook" | "github";
 const SignUp = () => {
@@ -12,6 +14,7 @@ const SignUp = () => {
   const {
      googleAsync,facebookAsync,gitAsync
    }= authHooks()
+   const toast = useToast();
    
   const [form, setForm] = useState({
     username: "",
@@ -34,15 +37,25 @@ const signInWithProvider = async (provider: AuthProviders) => {
   const submit = async () => {
     const {email,password,username} =form
     if (username === "" || email === "" || password === "") {
-      Alert.alert("Error", "Please fill in all fields");
+      return  toast.show({
+        title: "Please fill in all fields",
+        placement: "top"
+      })
     }
 
     try {
       await createUser(form)
-      
+       
       // router.replace("/");
-    } catch (error) {
-      console.log("Failed to log")
+    } catch (error:any) {
+      console.log("Failed to create user: ",error.message)
+      return(
+      <ToastAlert
+       title="Something went wrong" 
+       description={error.message}
+       id="sign-up" 
+      />
+    )
     }
   };
 

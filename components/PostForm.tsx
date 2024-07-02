@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native";
-
-import { Text, View } from "./Themed";
 import { Ionicons } from "@expo/vector-icons";
-import { chooseImage, selector,showToastMessage,useCreatePost, useUpdatePost } from "@/lib";
-import Loader from "./Loader";
+import { useRouter } from "expo-router";
+
+import { chooseImage, showToastMessage,useCreatePost, useUpdatePost } from "@/lib";
 import SelectedImages from "./SelectedImages";
-import { Post } from "../types";
 import FormField from "./auth/FormField";
+import { Text, View } from "./Themed";
+import { Post } from "@/types";
+import Loader from "./Loader";
 
 type PostFormProps = {
   post?: Post;
@@ -25,8 +25,6 @@ interface formFields {
 
 const PostForm = ({ post, action }: PostFormProps) => {
   const router = useRouter(); 
-  const { profile } = selector((state) => state.profile);
-
 
   const [fields, setFields] = useState<formFields>({
     caption:post?.caption?post.caption:'',
@@ -49,13 +47,11 @@ const PostForm = ({ post, action }: PostFormProps) => {
     }
     
     if(action==='Create'){
-      await createPost({
-        ...fields,userId:profile._id,
-      })
+      await createPost(fields)
     }
     if(action==='Update'){
       await updatePost({
-        ...fields,userId:profile._id,id:post?._id!,
+        ...fields, id:post?._id!,
       })
     }
     router.push("/");
@@ -69,10 +65,6 @@ const PostForm = ({ post, action }: PostFormProps) => {
       setFields({...fields,files:file})
     }
   };
-
-  const handlePostUpdate =async(post:Post)=>{
-    
-  }
 
   const handleImageDelete = (index:any) => {
     const newImages = [...fields.files];

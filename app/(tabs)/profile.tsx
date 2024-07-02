@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { TouchableOpacity ,FlatList } from 'react-native';
 import { router } from 'expo-router';
 
-import { selector, urlForImage, useGetUserFriends, useGetUserGallery, useGetUserPosts } from '@/lib';
+import { selector, urlForImage, useGetUserPosts } from '@/lib';
 import { ErrorMessage, Gallery, Loader, MenuItems, Text, UserCard, UserInfo, View } from '@/components';
-import { Profile, User } from '@/types';
+import { User } from '@/types';
 import { format, parseISO } from 'date-fns';
 import { Image } from 'expo-image';
 
@@ -39,18 +39,12 @@ const UserBanner = ({ bannerImage, profile,stats }: { bannerImage: string; profi
       <Image source={{ uri: bannerImage }} className='w-full justify-end items-center h-52' />
       <View className='flex-row justify-between'>
         <UserInfo profile={profile} />
-        <UserStats stats={stats}/>
+        <View  className='flex-row justify-between items-center gap-1 mr-4 mt-3'>
+          <Stat number={stats.Posts} label="Posts" />
+          <Stat number={stats.Friends} label="Friends" />
+        </View>
       </View>
     </>
-  );
-};
-
-const UserStats = ({ stats }: { stats: { Posts: number; Friends: number } }) => {
-  return (
-    <View  className='flex-row justify-between items-center gap-1 mr-4 mt-3'>
-      <Stat number={stats.Posts} label="Posts" />
-      <Stat number={stats.Friends} label="Friends" />
-    </View>
   );
 };
 
@@ -65,13 +59,9 @@ const Stat = ({ number, label }: StatProps) => {
 
 interface FriendsProps {
   friends:User[]
-  loadingFriends:boolean;
-  friendsError:any;
 }
-const FriendsComponent = ({friends,friendsError,loadingFriends}:FriendsProps) => {
+const FriendsComponent = ({friends}:FriendsProps) => {
 
-  if(loadingFriends) return <Loader loadingText='Loading your friends'/>
-  if(friendsError) return <ErrorMessage message="Failed to get friends, please try again" />
   if(!friends) return <Text>You have no friends yet</Text>
 
   return (
@@ -97,10 +87,9 @@ const FriendsComponent = ({friends,friendsError,loadingFriends}:FriendsProps) =>
 
 const ProfilePage = () => {
   const [activeButton, setActiveButton] = useState('profile');
-
   const profile = selector((state) => state.profile.profile);
    
-  const { data: posts, isPending: loadingPosts, error: postsError } = useGetUserPosts(profile?._id); 
+  const { data: posts } = useGetUserPosts(profile?._id); 
 
   const stats = {
     Posts: posts?.length || 0,
@@ -112,7 +101,7 @@ const ProfilePage = () => {
     if (item.type === 'menu') {
       return <MenuItems />;
     } else if (item.type === 'friends') {
-      // return <FriendsComponent friends={friends} loadingFriends={loadingFriends} friendsError={friendsError} />;
+      return <FriendsComponent friends={profile?.friends!}  />;
     }
     return <Text>Error</Text>
   };
@@ -121,8 +110,6 @@ const ProfilePage = () => {
     { type: 'menu' },
     { type: 'friends' },
   ]
-
-  
 
   if (!profile) return <Loader loadingText='Loading Profile'/>
   

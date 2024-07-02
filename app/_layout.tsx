@@ -7,11 +7,13 @@ import { Providers,pusherConnector, selector } from '@/lib';
 import * as Notifications from 'expo-notifications';
 import { Linking, useColorScheme } from 'react-native';
 import * as TaskManager from "expo-task-manager"
+import { registerGlobals } from '@livekit/react-native';
 
 export { 
   ErrorBoundary,
 } from 'expo-router';
 
+registerGlobals();
 export const unstable_settings = {
   initialRouteName: 'index',
 };
@@ -35,6 +37,13 @@ const [loaded, error] = useFonts({
   "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
 });
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 const ready= useIsFocused()
 useEffect(() => { 
   if (error) throw error;
@@ -88,6 +97,7 @@ function RootLayoutNav() {
       <Stack.Screen name="settings/[setting]" options={{ presentation: 'card', headerShown: false  }} />
       <Stack.Screen name="edit-post/[postid]" options={{ presentation: 'card', headerShown: false  }} />
       <Stack.Screen name="users" options={{ presentation: 'modal' , headerShown: false }} />
+      <Stack.Screen name="room" options={{ presentation: 'modal' , headerShown: false }} />
     </Stack>
   </ThemeProvider>
   );

@@ -17,7 +17,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: 'root',
   storage: ExpoFileSystemStorage,
-  whitelist: ['user', 'search', 'lastMessage', 'messages','auth','theme']
+  whitelist: ['user', 'search', 'lastMessage', 'messages','auth','theme','profile']
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

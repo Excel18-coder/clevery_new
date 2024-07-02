@@ -1,9 +1,10 @@
+import { SocialIcon } from 'react-native-elements';
 import { TouchableOpacity} from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { View, Text  } from '@/components/Themed';
 import * as Clipboard from 'expo-clipboard';
 import Share from 'react-native-share';
-import { SocialIcon } from 'react-native-elements';
+
+import { View, Text  } from '@/components/Themed';
 import { showToastMessage } from '@/lib';
 
 const ButtonsContainer: React.FC = () => {
@@ -11,7 +12,7 @@ const ButtonsContainer: React.FC = () => {
     console.log(`Button with name ${name} pressed`);
   };
 
-  const link = 'https://example.com/my-link';
+  const link = `https://clevery.vercel.app/`;
 
   
   const copyToClipboard = async () => {

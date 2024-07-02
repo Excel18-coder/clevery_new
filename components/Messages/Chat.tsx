@@ -1,32 +1,26 @@
-import ErrorMessage from '@/components/ErrorMessage';
 import { Text, View } from '@/components/Themed';
-import { Button } from 'react-native-elements';
 import UserCard from '@/components/UserCard';
-import { useGetConversations } from '@/lib';
-import Loader from '@/components/Loader';
+import CustomButton from '../CustomButton';
 import { FlatList } from 'react-native';
 import { router } from 'expo-router';
+import { selector } from '@/lib';
 
 interface ChatProps {
   navigate: (userId: string) => void; 
 }
 
 const Chat: React.FC<ChatProps> = ({ navigate }) => {
-  const { 
-    data: friends, 
-    isPending: loading, 
-    error 
-  } = useGetConversations();
+  const {friends} = selector((state)=>state.profile.profile)
   
-  
-  if (loading) return <Loader loadingText='Loading conversations' />;
-  // if (error) return <ErrorMessage message='Failed to get friends' />;
-
-  if(!friends || error){
+  if(!friends?.length ){
     return (
       <View className='flex-1 justify-center p-5 gap-2.5' >
         <Text className='text-sm font-rmedium' >You have no friends yet ,click to add a friend to start a conversation</Text>
-        <Button title={'Add friend'} className='w-[50%] m-2.5 ' onPress={()=>router.push("/users")} />
+        <CustomButton
+         title={'Add friend'} 
+         containerStyles='w-[30%] m-2.5 ' 
+         handlePress={()=>router.push("/users")} 
+        />
       </View>
     )
   }

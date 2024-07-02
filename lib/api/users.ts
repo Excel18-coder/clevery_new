@@ -56,12 +56,16 @@ export const getUserFriends = async (userId:string) => {
   }
 };
 
-export async function addFriend(user2id:string) {
+export async function addFriend(friendId:string) {
+  console.log(friendId)
+  return
   try {
-    const response = await axios.post(`${endpoint}/users/profile/friends`,{user2id})
-    return response.data
+    const response = await axios.post(`${endpoint}/users/profile/friends`,{friendId})
+    console.log(JSON.stringify(response))
+    console.log(response)
+    return response
   } catch (error) {
-    console.log('Error adding friend:', error);
+    console.log(error);
   }
 }
 

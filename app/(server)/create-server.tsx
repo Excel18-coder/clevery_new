@@ -62,8 +62,8 @@ if(creatingServer)return <Loader loadingText='Creating your server'/>
     <ScrollView className='mt-7 p-3 flex-1 bg-primary pb-2' >
       
       <Create
-        serverDetails={serverDetails}
-        setServerDetails={setServerDetails}
+        fields={serverDetails}
+        setFields={setServerDetails}
         handleSubmit={handleSubmit}
         setPopupVisible={setPopupVisible}
         selectedUsers={selectedUsers}

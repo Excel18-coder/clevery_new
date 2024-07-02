@@ -1,14 +1,16 @@
 import {
   TouchableOpacity,
+  ScrollView
 } from 'react-native';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
-import { formatDateString, urlForImage, useGetServerById } from '../../lib';
+import { formatDateString, urlForImage, useGetServerById } from '@/lib';
 import { Text, View } from '../Themed';
 import Loader from '../Loader';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { memo } from 'react';
+import MembersComponent from './members';
 
 interface ServerComponentProps {
   serverId: string;
@@ -17,18 +19,21 @@ interface ServerComponentProps {
 const ServerComponent: React.FC<ServerComponentProps> = ({
   serverId,
 }) => {
+
   const {data:serverInfo,isLoading:loadingServer,error} =useGetServerById(serverId)
+
   const textChannels = serverInfo?.channels.filter((channel)=>channel.type ==="TEXT")
   const audioChannels = serverInfo?.channels.filter((channel)=>channel.type ==="AUDIO")
   const videoChannels = serverInfo?.channels.filter((channel)=>channel.type ==="VIDEO")
+  const members = serverInfo?.members
   
   const bannerImageUrl = serverInfo?.bannerImage?urlForImage(serverInfo?.bannerImage).width(400).height(200).url():'https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&w=400'
   if(loadingServer) return <Loader loadingText='Loading Server'/>
   if(error) return <Loader loadingText='Something went wrong'/>
-// console.log(serverInfo)
+  
   const serverIcon = serverInfo?.icon? urlForImage(serverInfo.icon).width(100).url():'' 
   return (
-    <View className='flex-1'>
+    <ScrollView className='flex-1'>
       <Image
         className='w-full h-[180px] '
         source={{ uri: bannerImageUrl }}
@@ -43,14 +48,20 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
           <Text className='font-rbold  mt-5 mr-auto text-lg'>{serverInfo?.name}</Text>
         </View>
           <TouchableOpacity className='p-2 rounded mt-[-30px]' onPress={()=>router.replace(`/create-channel/${serverId}`)}>
-            <Feather name="link" size={22} color={"gray"} />
+            <Feather name="edit" size={22} color={"gray"} />
           </TouchableOpacity> 
         </View>
-        <Text className='text-xs font-rbold mb-2'>Created on: <Text className='font-rregular  mb-4 text-sm '>{ formatDateString(serverInfo?._createdAt!)}</Text> </Text>
-        <Text className='text-xs font-rbold mb-2'>About: <Text className='font-rregular  mb-4 text-sm '>{serverInfo?.description}</Text> </Text>
+        <Text className='text-xs font-rbold mb-2'>
+          Created on: <Text className='font-rregular  mb-4 text-sm '>{ formatDateString(serverInfo?._createdAt!)}</Text> 
+        </Text>
+
+        <Text className='text-xs font-rbold mb-2'>
+          About: <Text className='font-rregular  mb-4 text-sm '>{serverInfo?.description}</Text> 
+        </Text>
+
         <View className='flex justify-between flex-row'>
           <Text className='text-base font-rmedium mb-2 text-gray-700' >Channels:</Text>
-          <Feather name='plus' color={"gray"} size={20} onPress={()=>router.navigate(`/create-channel/${serverInfo?._id}`)} />
+          <Feather name='plus' color={"gray"} size={20} onPress={()=>router.navigate(`/create-channel/${serverId}`)} />
         </View>
           
         {!!textChannels?.length &&(
@@ -65,7 +76,10 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
                 <View className='flex-row items-center mr-2 mb-2 p-2 rounded-sm'>
                   <Feather name="hash" size={20} color="gray" />
                   <Text 
-                  className='ml-2 font-pregular text-gray-600 text-sm'>{channel.name}</Text>
+                    className='ml-2 font-pregular text-gray-600 text-sm'
+                  >
+                    {channel.name}
+                  </Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -79,7 +93,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
               <TouchableOpacity
                 key={i}
                 className='flex-wrap flex-row'
-                onPress={()=>router.replace(`/channel/${channel?._id}`)}
+                onPress={()=>router.replace(`/room/`)}
               >
                 <View className='flex-row items-center mr-2 mb-2 p-2 rounded-sm'>
                   <Feather name="mic" size={18} color="gray" />
@@ -109,8 +123,12 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
             ))}
           </View> 
         )}
+
+        <MembersComponent
+          userImages={members?.map((usr)=>urlForImage(usr?.member?.image).width(100).url())!}
+        />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 export default memo(ServerComponent)

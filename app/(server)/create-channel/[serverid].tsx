@@ -1,23 +1,23 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import { Toast } from 'native-base';
 
-import { selectImage,selector,showToastMessage, useCreateChannel } from '@/lib';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { selector,showToastMessage, useCreateChannel } from '@/lib';
 import { Loader,View,Create } from '@/components';
+import ToastAlert from '@/components/toast-alert';
 
-interface ServerDetails {
+interface newChannel {
   name: string;
   description: string;
-  icon: string;
-  members: string[];
+  channelType: string;
 }
 
 const CreateChannel: React.FC = () => {
   const profile = selector((state) => state.profile.profile);
-  const [serverDetails, setServerDetails] = useState<ServerDetails>({
+  const [newChannel, setNewChannel] = useState<newChannel>({
     name: `${profile.name}'s channel`,
     description: '',
-    icon: '',
-    members: [],
+    channelType: 'TEXT',
   });
   const {serverid} = useLocalSearchParams()
   const { 
@@ -25,54 +25,36 @@ const CreateChannel: React.FC = () => {
     isPending:creatingServer ,
     error 
   } = useCreateChannel();
-  const navigation = useNavigation()
-
-  useEffect(() => {
-    navigation.setOptions({
-      tabBarStyle: { display: 'none' },
-    });
-
-    return () => {
-      navigation.setOptions({
-        tabBarStyle: { display: 'flex' },
-      });
-    };
-  }, []);
-
 
   const handleSubmit = async () => {
+    const {channelType:type,description,name} =newChannel
+    
     try {
-      if(!serverDetails.name) return showToastMessage('Please provide the server name')
-      if(!serverDetails.description) return showToastMessage('Please provide the server description')
-      if(!!serverid?.length) return;
+      if(!name) return Toast.show({title:'Please provide the channel name',placement:"top"})
+      if(!description) return Toast.show({title:'Please provide the channel description',placement:"top"})
+      if(serverid === '' ) return Toast.show({title:'No server id provided',placement:"top"});
 
-      await createChannel({
-          serverId:serverid as string,
-          name:'',
-          description:'',
-          creatorId:profile._id,
-          type:''
+      const res = await createChannel({
+        serverId:serverid as string,
+        name,
+        description,
+        type
       });
+      console.log(res)
     } catch (error:any) {
-      console.error('Error creating server:', error.message);
-      showToastMessage('Error creating server')
+      console.log(error.message)
+      Toast.show({title:'Error creating server:',placement:"top"});
+      return <ToastAlert id='channel' title='Failed to create channel' description={error.message}/>
     }
   };
   
-  const chooseImage=async()=>{
-    const image = await selectImage()
-    if(image){
-      setServerDetails({ ...serverDetails, icon:image[0]})
-    }
-  } 
-  
-if(creatingServer)return <Loader loadingText='Creating your server'/>
+if(creatingServer)return <Loader loadingText='Creating your channel'/>
 
    return (
     <View className='p-5 flex-1 '>
       <Create
-        serverDetails={serverDetails}
-        setServerDetails={setServerDetails}
+        fields={newChannel}
+        setFields={setNewChannel}
         handleSubmit={handleSubmit}
         loading={creatingServer}
         type='channel'
