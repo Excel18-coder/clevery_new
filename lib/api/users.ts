@@ -1,7 +1,8 @@
 import axios from "axios";
+
+import { registerForPushNotificationsAsync } from "@/lib/notifications";
 import { NewUser, UserUpdate } from "@/types";
 import { endpoint } from "@/lib/env";
-import { registerForPushNotificationsAsync } from "@/lib/notifications";
 
 export const getUserById = async (id:string) => {
     try {
@@ -58,8 +59,6 @@ export const getUserFriends = async (userId:string) => {
 };
 
 export async function addFriend(friendId:string) {
-  console.log(friendId)
-  return
   try {
     const response = await axios.post(`${endpoint}/users/profile/friends`,{friendId})
     console.log(JSON.stringify(response))

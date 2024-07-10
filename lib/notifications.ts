@@ -1,12 +1,12 @@
-import {Platform } from 'react-native';
+import { Platform } from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
   }),
 });
 
@@ -35,10 +35,7 @@ export async function registerForPushNotificationsAsync() {
       return;
     }
     token = await Notifications.getExpoPushTokenAsync();
-    // token = await Notifications.getExpoPushTokenAsync({
-    //   projectId: Constants?.expoConfig?.extra?.eas.projectId,
-    // });
-    console.log( `Token: `, token);
+    
   } else {
     alert('Must use physical device for Push Notifications');
   }

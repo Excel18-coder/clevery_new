@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useState } from 'react';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 
-import { selectImage,sortMessages,pusher, userMessages, parseIncomingMessage, selector, showToastMessage } from '@/lib';
+import { selectImage,sortMessages,pusher, userMessages, parseIncomingMessage, showToastMessage, useProfileStore } from '@/lib';
 import { Loader, MessageInput, Text, View, ErrorMessage, Messages } from '@/components';
 
 import { PusherEvent } from '@pusher/pusher-websocket-react-native';
@@ -32,7 +32,7 @@ const UserMessages: React.FC<UserMessagesProps> = () => {
     file:[]
   })
 
-  const profile = selector((state) => state.profile.profile);
+  const { profile } = useProfileStore();
   const { friendid } = useLocalSearchParams()
 const {
   user,loadingUser,userError,conversation,loadingconversation,conversationError, 

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TouchableOpacity ,FlatList } from 'react-native';
 import { router } from 'expo-router';
 
-import { selector, urlForImage, useGetUserPosts } from '@/lib';
+import { urlForImage, useGetUserPosts, useProfileStore } from '@/lib';
 import { ErrorMessage, Gallery, Loader, MenuItems, Text, UserCard, UserInfo, View } from '@/components';
 import { User } from '@/types';
 import { format, parseISO } from 'date-fns';
@@ -87,7 +87,7 @@ const FriendsComponent = ({friends}:FriendsProps) => {
 
 const ProfilePage = () => {
   const [activeButton, setActiveButton] = useState('profile');
-  const profile = selector((state) => state.profile.profile);
+  const { profile } = useProfileStore();
    
   const { data: posts } = useGetUserPosts(profile?._id); 
 

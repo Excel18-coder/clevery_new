@@ -1,16 +1,17 @@
+import { FlatList } from 'react-native';
+import { router } from 'expo-router';
+
 import { Text, View } from '@/components/Themed';
 import UserCard from '@/components/UserCard';
 import CustomButton from '../CustomButton';
-import { FlatList } from 'react-native';
-import { router } from 'expo-router';
-import { selector } from '@/lib';
+import { useProfileStore } from '@/lib';
 
 interface ChatProps {
   navigate: (userId: string) => void; 
 }
 
 const Chat: React.FC<ChatProps> = ({ navigate }) => {
-  const {friends} = selector((state)=>state.profile.profile)
+  const { profile:{friends} } = useProfileStore();
   
   if(!friends?.length ){
     return (

@@ -1,7 +1,7 @@
 import { memo, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 
-import { selector,showToastMessage, useCreateChannel } from '@/lib';
+import { showToastMessage, useCreateChannel, useProfileStore } from '@/lib';
 import { Loader,View,Create } from '@/components';
 import ToastAlert from '@/components/toast-alert';
 
@@ -12,7 +12,7 @@ interface newChannel {
 }
 
 const CreateChannel: React.FC = () => {
-  const profile = selector((state) => state.profile.profile);
+  const { profile } = useProfileStore();
   const [newChannel, setNewChannel] = useState<newChannel>({
     name: `${profile.name}'s channel`,
     description: '',

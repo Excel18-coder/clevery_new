@@ -1,4 +1,4 @@
-import { Alert, Platform } from "react-native";
+import { Alert, Platform,Permission,PermissionsAndroid } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import * as Updates from 'expo-updates';
 import * as DocumentPicker from 'expo-document-picker';
@@ -7,8 +7,9 @@ import * as WebBrowser from "expo-web-browser";
  
 import { Message } from "../types";
 import { format, parseISO } from "date-fns";
-import { PERMISSIONS, requestMultiple } from "react-native-permissions";
+import { request,PERMISSIONS, requestMultiple } from "react-native-permissions";
 import { Toast } from "native-base";
+
 
 interface User{
   id:string
@@ -204,6 +205,7 @@ export const requestAndUpdatePermissions = async () => {
     ]);
   } else if (Platform.OS === 'android') {
     // Request camera, mic, bluetooth and notification permissions on Android
+    await request(PERMISSIONS.ANDROID.RECORD_AUDIO);
     const results = await requestMultiple([
       PERMISSIONS.ANDROID.CAMERA,
       PERMISSIONS.ANDROID.RECORD_AUDIO,

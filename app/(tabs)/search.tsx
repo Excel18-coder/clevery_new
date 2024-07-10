@@ -1,11 +1,11 @@
-import { FlatList, TextInput,TouchableOpacity } from 'react-native';
 import { useState } from 'react';
-import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-
-import { ErrorMessage, Loader, SearchResults, Suggestions, SearchTabBar as TabBar, Text, View} from '@/components';
-import { urlForImage,useCombinedSearchResults} from '@/lib';
-import { Image } from 'expo-image';
+import { FlatList, TextInput,TouchableOpacity } from 'react-native';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { Image } from 'expo-image';
+
+import { SearchResults, Suggestions, SearchTabBar as TabBar, Text, View} from '@/components';
+import { urlForImage,useCombinedSearchResults} from '@/lib';
 import ImageSkeletons from '@/components/skeletons/images';
 import LoadingUsers from '@/components/skeletons/loading-users';
 

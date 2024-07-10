@@ -8,8 +8,8 @@ import { voiceCallHandler } from '@/lib';
 
 const FILTER_ITEMS = [
   { name: 'chats', icon: 'chatbox-ellipses-outline' },
-  { name: 'status', icon: 'people-outline' },
   { name: 'servers', icon: 'newspaper-outline' },
+  { name: 'status', icon: 'people-outline' },
 ];
 
 const Messages: React.FC = () => {
@@ -88,11 +88,12 @@ const Messages: React.FC = () => {
 
   return (
     <View 
-    className='flex-1 mt-7.5' >
-        <Filter /> 
-        {activeFilter === 'chats' && <Chat navigate={userNavigate} />}
-        {activeFilter === 'status' && <Groups />} 
-        {activeFilter === 'servers' && <ServerList />} 
+      className='flex-1 mt-7.5' 
+    >
+      <Filter /> 
+      {activeFilter === 'chats' && <Chat navigate={userNavigate} />}
+      {activeFilter === 'status' && <Groups />} 
+      {activeFilter === 'servers' && <ServerList />} 
     </View> 
   );
 };

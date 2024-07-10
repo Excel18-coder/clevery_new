@@ -1,11 +1,12 @@
 import { TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { selector, urlForImage } from '@/lib';
 import { Link, router } from 'expo-router';
-import { Search, Server, User, image } from '@/types';
-import { Text, View } from '../Themed';
 import { Image } from 'expo-image';
-import SearchSuggestions from '../skeletons/search-suggestions';
+
+import SearchSuggestions from '@/components/skeletons/search-suggestions';
+import { Search, Server, User, image } from '@/types';
+import { urlForImage, useSearchStore } from '@/lib';
+import { Text, View } from '@/components/Themed';
 
 type RecentItem = {
   _id: string;
@@ -106,7 +107,7 @@ const Suggestions: React.FC<SuggestionsProps> = ({
     onClearSearchHistory(item);
   };
 
-  const {searches}=selector((state)=>state.search)
+  const { searches } = useSearchStore();
 
   const renderRecentItem = ({ item }: { item: RecentItem }) => (
     <View className='flex-row  justify-between items-center '>

@@ -7,13 +7,13 @@ import {
 
 import { router } from 'expo-router';
 import { Text, View } from '@/components/Themed';
-import { selector, showToastMessage, useUpdateUser } from '@/lib';
+import { showToastMessage, useProfileStore, useUpdateUser } from '@/lib';
 import Loader from '@/components/Loader';
 import FormField from '@/components/auth/FormField';
 
 const Account = () => {
   
-  const { profile:userInfo } = selector((state) => state.profile);
+  const { profile:userInfo } = useProfileStore();
   const [editedFields, setEditedFields] = useState({
     username: userInfo.username,
     name: userInfo.name,

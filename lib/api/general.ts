@@ -1,6 +1,5 @@
 import axios from "axios";
 import { endpoint } from "../env";
-import { client } from "../sanity/client";
 
 export  const uploadImage = async (imageUrl:string) => {
   try {

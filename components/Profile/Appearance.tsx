@@ -1,18 +1,15 @@
-import { selector, setMode } from '@/lib';
 import { Feather } from '@expo/vector-icons';
 import {TouchableOpacity, View, } from 'react-native';
 import { Text } from '@/components/Themed';
-import { useDispatch } from 'react-redux';
 import { memo } from 'react';
+import { useThemeStore } from '@/lib/zustand/store';
 
 const Appearance: React.FC = () => {
-  const dispatch = useDispatch();
-  const { mode } = selector((state) => state.theme);
+  const { mode, setMode } = useThemeStore();
 
-  const handlePress = (mode:string) => {
-    //@ts-ignore
-    dispatch(setMode(mode));
-  };
+  function toggleTheme(mode: 'light' | 'dark' | 'default') {
+    setMode(mode);
+  }
 
 const MenuItem: React.FC<any> = ({ iconName, label, route }) => { 
 
@@ -20,7 +17,10 @@ const MenuItem: React.FC<any> = ({ iconName, label, route }) => {
     <>
       <Text
        className='font-rmedium text-[10px]' 
-      >Light mode: Light backgrounds, dark text. Easy to read and reduces eye strain. Dark mode: Dark backgrounds, light text. Ideal when it's dark.</Text>
+      >
+        Light mode: Light backgrounds, dark text. Easy to read and reduces eye strain. 
+        Dark mode: Dark backgrounds, light text. Ideal when it's dark.
+      </Text>
       <TouchableOpacity
        className='flex-row items-center justify-between my-[2.5px] '
       >
@@ -34,7 +34,7 @@ const MenuItem: React.FC<any> = ({ iconName, label, route }) => {
         <TouchableOpacity
           key={theme}
           className='flex-row items-center mb-2.5 '
-          onPress={() => handlePress(theme)}
+          onPress={() => toggleTheme(theme)}
         >
           <View className='bg-white mr-2.5 h-5 w-5 items-center justify-center rounded-[10px] mt-[10px] '
           >

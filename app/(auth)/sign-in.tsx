@@ -8,6 +8,7 @@ import { authHooks, endpoint, showToastMessage } from "@/lib";
 import axios from "axios";
 import { useToast } from "native-base";
 import ToastAlert from "@/components/toast-alert";
+import { Badge } from "@/components/badges/user";
 
 type AuthProviders = "google" | "facebook" | "github";
 const SignIn = () => {
@@ -83,7 +84,6 @@ const signInWithProvider = async (provider: AuthProviders) => {
           <Text className="text-2xl font-semibold text-white mt-10 font-psemibold">
             Log in to Clevery
           </Text>
-
           <FormField
             title="Email" 
             value={form.email}

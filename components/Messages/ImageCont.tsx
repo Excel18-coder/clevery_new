@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity } from 'react-native';
-import { TextInput} from 'react-native';
-import { Text, View } from '@/components/Themed';
+import { TouchableOpacity,TextInput } from 'react-native';
 import { Image } from 'expo-image';
+
+import { Text, View } from '@/components/Themed';
 
 interface ImageWithCaptionProps {
   source: string;

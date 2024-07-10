@@ -5,7 +5,6 @@ import { NativeBaseProvider } from 'native-base'
 
 import { QueryProvider } from './react-query/QueryProvider' 
 import { AuthProvider } from './context/AuthContext'
-import { ReduxProvider } from './redux/Provider'
 
 StreamVideoRN.updateConfig({
   foregroundService: {
@@ -27,16 +26,14 @@ StreamVideoRN.updateConfig({
 export const Providers = ({ children }:{children:ReactNode}) => {
 
   return(
-    <ReduxProvider>
-      <QueryProvider>
+    <QueryProvider>
+      <NativeBaseProvider>
         <AuthProvider>
-          <NativeBaseProvider>
-            {children}
-          </NativeBaseProvider>
+          {children}
         </AuthProvider>
-      </QueryProvider>
-    </ReduxProvider>
-   )
+      </NativeBaseProvider>
+    </QueryProvider>
+  )
 }
 
 export default Providers

@@ -3,9 +3,10 @@ import AudioVideoComponent from '@/components/audio-video-call'
 
 const Room = () => {
   return (
-    <View>
+    <View className='flex-1'>
       <AudioVideoComponent
-        channel='test-channel'
+        channelid='test-channel'
+        callType='default'
         video
       />
     </View>

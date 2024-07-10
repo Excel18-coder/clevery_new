@@ -1,13 +1,14 @@
 import { memo,useState } from 'react';
-import { selector,useLikePost, useSavePost , useDeletePost, urlForImage} from '@/lib';
-import {Text, View } from '../Themed';
-import { User, author, image } from '@/types';
-import ImageCont from './ImagesCont';
-import AuthorInfo from './AuthorInfo';
-import ActionStats from './ActionStats';
 import { router } from 'expo-router';
-import { checkIsLiked } from '@/lib/utils';
 import { Image } from 'expo-image';
+
+import { useLikePost, useSavePost , useDeletePost, urlForImage, useProfileStore} from '@/lib';
+import { User, author, image } from '@/types';
+import { checkIsLiked } from '@/lib/utils';
+import ActionStats from './ActionStats';
+import { Text, View } from '../Themed';
+import AuthorInfo from './AuthorInfo';
+import ImageCont from './ImagesCont';
 
 type PostCardProps = {
   props: {
@@ -25,8 +26,8 @@ type PostCardProps = {
  
 const Post = ({props}:PostCardProps) => {
   const {author, content:caption, _createdAt:timestamp,_id:postId,images,likes:postLikes,bookmarks:savesList,tags,comments}= props
-  const { profile } = selector((state) => state.profile)
-  const userId=profile._id
+  const { profile:{ _id:userId } } = useProfileStore();
+
   const [isSaved, setIsSaved] = useState(false);
   const likesList = postLikes?postLikes?.map((user:any) => user?._ref):[];
   const [likes, setLikes] = useState<string[]>(likesList);

@@ -1,21 +1,15 @@
-import { StreamVideo, StreamVideoClient, User } from '@stream-io/video-react-native-sdk';
+import { StreamVideoClient  } from '@stream-io/video-react-native-sdk';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { router } from 'expo-router';
 
-import { setProfile } from '@/lib/redux/features/profileSlice';
+import { useProfileStore } from '@/lib/zustand/store';
 import { getCurrentUser } from '@/lib/api/users';
-import { selector } from '@/lib/redux/store';
 
 const AuthContext = createContext<any>({});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [client, setClient] = useState<StreamVideoClient>();
-  const profile = selector((state) => state.profile.profile);
-  const dispatch = useDispatch();
-
-  const user: User = { id: profile._id };
-  const apiKey = process.env.EXPO_PUBLIC_STREAM_API_KEY!
+  const { profile,setProfile } = useProfileStore();
 
   useEffect(() => {
     const fetchAndSetProfile = async () => {
@@ -24,11 +18,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!currentAccount && !profile._id) {
           return router.push('/sign-in');
         }
-        dispatch(setProfile({ ...currentAccount }));
-
-        const myClient = new StreamVideoClient({ apiKey, user, tokenProvider: async () => currentAccount?.streamToken });
-        setClient(myClient);
-
+        setProfile(currentAccount);
         return router.push('/');
       } catch (error) {
         console.error(error);
@@ -45,13 +35,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = {
     checkAuthUser: () => {
-      // No need for this function since the logic is already handled in the useEffect
     },
   };
 
   return (
     <AuthContext.Provider value={value}>
-      <StreamVideo client={client!}>{children}</StreamVideo>
+      {children}
     </AuthContext.Provider>
   );
 }

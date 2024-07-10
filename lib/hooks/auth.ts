@@ -5,7 +5,7 @@ import { useAuthRequest,useAutoDiscovery } from 'expo-auth-session';
 
 export const authHooks = () => {
   
-const discovery = useAutoDiscovery("https://clevery.vercel.app/api/auth/signin")
+// const discovery = useAutoDiscovery("https://clevery.vercel.app/api/auth/signin")
   const [googleReq, googleRes, googleAsync] = Google.useAuthRequest({
     androidClientId: env.androidClient,
     iosClientId: env.iosClient,
@@ -16,7 +16,6 @@ const discovery = useAutoDiscovery("https://clevery.vercel.app/api/auth/signin")
     androidClientId: '419395183801398',
     scopes: ['profile', 'email'],
     });
-    if(!discovery) return
     const [gitReq, gitRes, gitAsync] = useAuthRequest({clientId:env.expoClientId!,redirectUri:"/"},{
       authorizationEndpoint:"https://clevery.vercel.app/api/auth/signin",
       userInfoEndpoint:`${endpoint}/profile`,
@@ -24,7 +23,7 @@ const discovery = useAutoDiscovery("https://clevery.vercel.app/api/auth/signin")
 
     async function handleResponse() {
       if (googleRes?.type === 'success') {
-          const { id_token } = googleRes.params;
+          // const { id_token } = googleRes.params;
           console.log(googleRes)
       }
       if (facebookRes?.type === 'success') {

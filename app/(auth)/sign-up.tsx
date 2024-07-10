@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Link } from "expo-router";
+import { View, Text, ScrollView, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, ScrollView, Dimensions, Alert } from "react-native";
+import { Link } from "expo-router";
 
+import { authHooks, showToastMessage, useCreateEmailUser } from "@/lib";
 import { CustomButton, FormField,Butttons } from "@/components";
-import { authHooks, useCreateEmailUser } from "@/lib";
-import { useToast } from "native-base";
 import ToastAlert from "@/components/toast-alert";
 
 type AuthProviders = "google" | "facebook" | "github";
@@ -14,7 +13,6 @@ const SignUp = () => {
   const {
      googleAsync,facebookAsync,gitAsync
    }= authHooks()
-   const toast = useToast();
    
   const [form, setForm] = useState({
     username: "",
@@ -37,10 +35,7 @@ const signInWithProvider = async (provider: AuthProviders) => {
   const submit = async () => {
     const {email,password,username} =form
     if (username === "" || email === "" || password === "") {
-      return  toast.show({
-        title: "Please fill in all fields",
-        placement: "top"
-      })
+      return  showToastMessage("Please fill in all fields")
     }
 
     try {

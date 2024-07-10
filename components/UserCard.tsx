@@ -1,5 +1,5 @@
 import { TouchableOpacity } from 'react-native';
-import { selector, urlForImage } from '../lib';
+import { urlForImage } from '@/lib';
 import { User } from '../types';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { Icon } from 'react-native-elements';
@@ -18,9 +18,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, onSelectUser, showlastMessage
  const { image, name, username, isVerified, _id } = user;
 
  const getLastMessage = (userId: string) => {
-    const messages = selector((state) => state.lastMessage.messages);
-    const lastMessage = messages.find((m) => m._id === userId);
-    return lastMessage ? lastMessage.content : '';
+  
  };
 
  const lastMessage = getLastMessage(_id);

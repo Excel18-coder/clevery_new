@@ -1,15 +1,15 @@
 import { View } from 'react-native'
 import { memo } from 'react' 
 import { Ionicons } from '@expo/vector-icons';
-import { selector, urlForImage } from '@/lib';
+import { urlForImage, useProfileStore } from '@/lib';
 import { Image } from 'expo-image';
 
  
 const ProfImage = () => {
-    const { profile } = selector((state) => state.profile);
-    const userImage = profile.image? urlForImage(profile.image).width(100).url():''
+  const { profile:{image} } = useProfileStore();
+    const userImage = image? urlForImage(image).width(100).url():''
 
-    if(profile.image==''){
+    if(image==''){
         return<Ionicons name="person"size={20} color="grey"/>
     }
     

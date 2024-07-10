@@ -4,7 +4,7 @@ import * as TaskManager from 'expo-task-manager';
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, ThemeProvider, useIsFocused} from '@react-navigation/native';
 
-import { Providers,pusherConnector, selector } from '@/lib';
+import { Providers,pusherConnector, useThemeStore } from '@/lib';
 import { Linking, useColorScheme } from 'react-native';
 import * as Notifications from 'expo-notifications';
 
@@ -66,11 +66,12 @@ const [loaded, error] = useFonts({
   "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
 });
 
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
     shouldPlaySound: true,
-    shouldSetBadge: false,
+    shouldSetBadge: true,
   }),
 });
 const ready= useIsFocused()
@@ -105,7 +106,8 @@ const BACKGROUND_NOTIFICATION_TASK = 'BACKGROUND-NOTIFICATION-TASK';
 }
 
 function RootLayoutNav() {
-  const mode = selector((state) => state.theme.mode);
+  
+  const { mode } = useThemeStore();
   const defaultMode = useColorScheme()
   useNotificationObserver()
   const lightmode = () => {

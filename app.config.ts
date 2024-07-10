@@ -46,7 +46,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         sounds: ['./assets/Sounds/notification.wav'],
       },
     ],
-    '@stream-io/video-react-native-sdk',
+    [
+      '@stream-io/video-react-native-sdk',
+      {
+        androidPictureInPicture: {
+          enableAutomaticEnter: true
+        },
+      }
+    ],
     [
       '@config-plugins/react-native-webrtc',
       {

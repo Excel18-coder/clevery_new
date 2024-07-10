@@ -3,12 +3,13 @@ import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 
 import { ErrorMessage, Loader, MessageInput, Post, Text, UserComment, View } from '@/components'
-import { selector, useCommentPost, useGetPostById } from '@/lib'
+import { useCommentPost, useGetPostById, useProfileStore } from '@/lib'
 
 export default function PostComponent() {
   const [comment, setComment] = useState('')
+  const { profile } = useProfileStore();
   const {id} = useLocalSearchParams()
-  const profile = selector((state) => state.profile.profile);
+
   const {data:post,isLoading:loading,error,refetch} = useGetPostById(id as string);
   const {mutateAsync:sendComment,isPending:commenting,error:errorCommenting} = useCommentPost()
 

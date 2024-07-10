@@ -3,7 +3,7 @@ import { TextInput, FlatList } from 'react-native';
 import { format, parseISO } from 'date-fns';
 import { Text, View, UserCard, Loader, UserInfo } from '@/components';
 import { router, useLocalSearchParams, usePathname } from 'expo-router';
-import { selector, urlForImage, useGetUserById, useGetUsers } from '@/lib';
+import { urlForImage, useGetUserById, useGetUsers } from '@/lib';
 import { Image } from 'expo-image';
 
 interface UserProfileProps {
