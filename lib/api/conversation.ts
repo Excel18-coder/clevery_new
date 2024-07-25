@@ -1,4 +1,3 @@
-import { conversation, Message, NewMessage, User} from "@/types";
 import axios from 'axios'
 import { endpoint } from "../env";
 import { uploadImage } from "../sanity/image";

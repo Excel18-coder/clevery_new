@@ -1,5 +1,4 @@
 import axios from "axios";
-import { Channel, NewChannel, NewChannelMessage, NewServer, Server } from "@/types";
 import { uploadImage, uploadImages } from "./general";
 import { endpoint } from "../env";
 import { Alert } from "react-native";
@@ -88,15 +87,6 @@ interface Message {
       return response.data;
     } catch (error) {
        throw error;
-    }
-  };
-
-  export const addMessageToChannel = async ({channelId, message}:MessageData) => {
-    try {
-      const response = await axios.post(`${endpoint}/channels/${channelId}/message`, message);
-      return response.data;
-    } catch (error:any) {
-      throw Error(error.message);
     }
   };
 

@@ -1,15 +1,15 @@
 import axios from "axios";
 
 import { registerForPushNotificationsAsync } from "@/lib/notifications";
-import { NewUser, User, UserUpdate } from "@/types";
 import { endpoint } from "@/lib/env";
-
-export const getUserById = async (id:string) => {
+import { User } from "@/validations";
+export const getUserById = async (id:string):Promise<User> => {
   try {
     const result = (await axios.get(`${endpoint}/users/${id}`)) 
     return result.data
   } catch (error:any) {
     console.log(error.message)
+    throw error
   }
 };
 
@@ -24,7 +24,7 @@ export const getCurrentUser =async()=> {
   }
 }
 
-export const createEmailUser = async (user:NewUser) => { 
+export const createEmailUser = async (user:any) => { 
   try {
     user.notification_token = await registerForPushNotificationsAsync()
     const response = axios.post(`${endpoint}/sign-up`,user) 
@@ -68,24 +68,6 @@ export async function addFriend(friendId:string) {
     console.log(error);
   }
 }
-
-export const updateUser = async (userupdate:UserUpdate) => {
-  try {
-    const result = await axios.put(`${endpoint}/users/${userupdate.id}`, userupdate)
-    return result.data
-  }catch (error) {
-    console.log(error);
-  }
-};
-   
-export const getGallery = async (id:string) => { 
-  try {
-    const response = await axios.get(`${endpoint}/users/${id}/gallery`);
-    return response.data
-  } catch (error) {
-    console.log('Error fetching gallery:', error);
-  }
-};
 
 export async function sendFriendRequest({currentUserId, recipientId}: {currentUserId:string, recipientId: string}) {
   try {
