@@ -1,28 +1,72 @@
-import { useState, useEffect } from 'react';
-import useDebounce from './useDebounce';
-import { useSearchUsers, useUsers } from './users';
+import { useState, useEffect, useMemo } from 'react';
+import { useQueries, useQuery } from '@tanstack/react-query';
+import searchApi from '@/lib/actions/search';
+import useDebounce from '@/lib/hooks/useDebounce';
+import { useTopCreators } from './users';
+import { useTopServers } from './servers';
 
-export const useCombinedSearchResults = (peopleTerm: string, allTerm: string, postsTerm: string) => {
-  const { data: topCreators, isPending: loadingCreators } = useGetTopCreators();
-  const { data: topServers, isPending: loadingServer } = useGetTopServers();
-  const { data: people } = useUsers();
+const DEBOUNCE_DELAY = 300; // milliseconds
 
-  const { data: userRes, isPending: loadingUserRes } = useSearchUsers(useDebounce(peopleTerm, 1000));
-  const { data: allRes, isPending: loadingAllRes } = useSearch(useDebounce(allTerm, 1000));
-  const { data: postsRes, isPending: loadingPostsRes } = useSearchPosts(useDebounce(postsTerm, 1000));
+type SearchType = 'all' | 'posts' | 'users' | 'servers';
 
-  const [searchResult, setSearchResult] = useState<any[]>([]);
-  const [resultName, setResultName] = useState('');
+export const useCombinedSearch = (initialQuery: string = '', initialType: SearchType = 'all') => {
+  const [query, setQuery] = useState(initialQuery);
+  const [searchType, setSearchType] = useState<SearchType>(initialType);
+  const {data: topCreators, isPending: loadingCreators} = useTopCreators();
+  const {data: topServers, isPending: loadingServers} = useTopServers();
 
-  useEffect(() => {
-    const combineResults = (...resArrays: any) => resArrays.flatMap((arr: any) => (Array.isArray(arr) ? arr : []));
+  const debouncedSetQuery = useMemo(
+    () => useDebounce(setQuery, DEBOUNCE_DELAY),
+    []
+  );
 
-    const results = combineResults(userRes, allRes, postsRes);
-    setSearchResult(results);
+  // TODO: Figure out how to handle errors
+  const searchQueries = useQueries({
+    queries: [
+      {
+        queryKey: ['searchPosts', query],
+        queryFn: () => searchApi.searchPosts(query),
+        enabled: query.length > 0 && (searchType === 'all' || searchType === 'posts'),
+      },
+      {
+        queryKey: ['searchUsers', query],
+        queryFn: () => searchApi.searchUsers(query),
+        enabled: query.length > 0 && (searchType === 'all' || searchType === 'users'),
+      },
+      {
+        queryKey: ['searchServers', query],
+        queryFn: () => searchApi.searchServers(query),
+        enabled: query.length > 0 && (searchType === 'all' || searchType === 'servers'),
+      },
+    ],
+  });
 
-    const resultName = results.length > 0 ? (userRes?.length > 0 ? 'people' : allRes?.length > 0 ? 'all' : 'posts') : '';
-    setResultName(resultName);
-  }, [userRes, allRes, postsRes]);
+  const [postsQuery, usersQuery, serversQuery] = searchQueries;
 
-  return { searchResult, resultName, loadingCreators, loadingServer, loadingUserRes, loadingAllRes, loadingPostsRes, topCreators, topServers, people };
+  const isLoading = searchQueries.some(query => query.isLoading);
+  const error = searchQueries.find(query => query.error)?.error;
+
+  return {
+    query,
+    setQuery: debouncedSetQuery,
+    searchType,
+    setSearchType,
+    results: {
+      posts: postsQuery.data || [],
+      users: usersQuery.data || [],
+      servers: serversQuery.data || [],
+    },
+    isLoading,
+    error,
+    postsLoading: postsQuery.isLoading,
+    usersLoading: usersQuery.isLoading,
+    serversLoading: serversQuery.isLoading,
+    postsError: postsQuery.error,
+    usersError: usersQuery.error,
+    serversError: serversQuery.error,
+    topCreators,
+    topServers,
+    loadingCreators,
+    loadingServers
+  };
 };

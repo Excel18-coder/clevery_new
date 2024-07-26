@@ -25,7 +25,7 @@ export const useServers = () => {
 export const useTopServers = () => {
   return useQuery({
     queryKey: queryKeys.topServers, 
-    queryFn: () => serverApi.getTopServers
+    queryFn: () => serverApi.getTopServers()
   });
 };
 
