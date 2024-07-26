@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { string, z } from "zod";
 
 export const UserRole = z.enum(['ADMIN', 'USER']).Enum;
 export const ChannelType = z.enum(['TEXT', 'AUDIO', 'VIDEO']).Enum;
@@ -61,8 +61,8 @@ export const PostSchema = z.object({
   updatedAt: z.string(),
   author: UserSchema,
   images: z.custom<string[]>(),
-  likes: z.array(UserSchema),
-  saves: z.array(UserSchema),
+  likes: z.custom<string[]>(),
+  saves: z.custom<string[]>(),
   comments: z.array(CommentSchema),
   _count: z.object({
     comments: z.number(),
@@ -104,8 +104,8 @@ export const PostQuerySchema = z.object({
   search: z.string().optional(),
   tag: z.string().optional(),
   authorId: z.string().optional(),
-  sortBy: z.enum(['createdAt', 'likes', 'saves']).default('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  sortBy: z.enum(['createdAt', 'likes', 'saves']).default('createdAt').optional(),
+  sortOrder: z.enum(['asc', 'desc']).default('desc').optional(),
 });
 
 export const ReactionSchema = z.object({
@@ -163,7 +163,7 @@ export const ServerSchema = z.object({
   id: z.string().min(1, "Server ID is required"),
   name: z.string().min(1, "Server name is required"),
   image: z.string().url(),
-  description: z.string().nullable(),
+  description: z.string(),
   inviteCode: z.string(),
   slug: z.string(), 
   creatorId: z.string(),
@@ -172,7 +172,7 @@ export const ServerSchema = z.object({
   serverLogs: z.custom<typeof serverLogSchema>()
 });
 
-const CreateServerSchema = ServerSchema.omit({id: true, members: true, channels: true, serverLogs: true,slug: true,creatorId: true, createdAt: true, updatedAt: true,inviteCode: true});
+const CreateServerSchema = ServerSchema.omit({id: true,members:true, channels: true, serverLogs: true,slug: true,creatorId: true, createdAt: true, updatedAt: true,inviteCode: true}).extend({members:z.custom<string[]>()});
 const UpdateServerSchema = ServerSchema.omit({members: true, channels: true, serverLogs: true,slug: true,creatorId: true, createdAt: true, updatedAt: true,inviteCode: true});
 
 export const ChannelSchema = z.object({

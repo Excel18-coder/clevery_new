@@ -4,15 +4,15 @@ import { Link, router } from 'expo-router';
 import { Image } from 'expo-image';
 
 import SearchSuggestions from '@/components/skeletons/search-suggestions';
-import { Search, Server, User, image } from '@/types';
 import { urlForImage, useSearchStore } from '@/lib';
 import { Text, View } from '@/components/Themed';
 import { Badge } from '../badges/user';
+import { Server, User } from '@/validations';
 
 type RecentItem = {
-  _id: string;
+  id: string;
   name: string;
-  image?:image;
+  image?:string;
 };
 
 type SuggestionsProps = {
@@ -21,24 +21,24 @@ type SuggestionsProps = {
   onClearAllSearches: () => void;
   suggestedUsers:User[];
   suggestedServers:Server[]
-  addSearch:(search:Search)=>any
+  addSearch:(search:any)=>any
 };
 
 interface Users {
     suggestedUsers:User[]
-    addSearch:(search:Search)=>any
+    addSearch:(search:any)=>any
 }
 
 
 const TopUsers =({suggestedUsers,addSearch}:Users)=>{
   const handleUserClick=(user:User)=>{
     addSearch({
-      _id:user._id,
+      id:user.id,
       name:user.name,
       date:Date.now().toString(),
       image:user.image
     })
-    router.push(`/user/${user._id}`)
+    router.push(`/user/${user.id}`)
   }
     return(
     <View
@@ -61,7 +61,7 @@ const TopUsers =({suggestedUsers,addSearch}:Users)=>{
           </TouchableOpacity>
           )
         }
-        keyExtractor={(item) => item._id.toString()}
+        keyExtractor={(item) => item.id.toString()}
       />
     </View>
     )
@@ -76,7 +76,7 @@ const TopServers =({suggestedServers}:{suggestedServers:Server[]})=>{
       renderItem={({ item }) =>  (
         <View className='flex-row items-center p-1.5'>
           <Image
-          source={{ uri: urlForImage(item.icon).width(100).url() }}
+          source={{ uri: urlForImage(item.image).width(100).url() }}
           className='h-[50px] w-[50px] rounded-[25px] border mr-4 '
           />
           <View>
@@ -91,7 +91,7 @@ const TopServers =({suggestedServers}:{suggestedServers:Server[]})=>{
         </View>
         )
       }
-      keyExtractor={(item) => item._id.toString()}
+      keyExtractor={(item) => item.id.toString()}
     />
     </>
   )
@@ -126,7 +126,7 @@ const Suggestions: React.FC<SuggestionsProps> = ({
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => handleClearPress(item?._id)}>
+      <TouchableOpacity onPress={() => handleClearPress(item?.id)}>
         <Ionicons name="close-circle-outline" size={24} color="#666" />
       </TouchableOpacity>
     </View>
@@ -148,7 +148,7 @@ const Suggestions: React.FC<SuggestionsProps> = ({
         <FlatList
           data={searches}
           renderItem={renderRecentItem}
-          keyExtractor={(item) => item._id.toString()}
+          keyExtractor={(item) => item.id.toString()}
           ListHeaderComponent={
           <Text className='font-rbold pb-2 text-base'>
             Recent Searches

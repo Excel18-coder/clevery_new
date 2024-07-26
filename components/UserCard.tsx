@@ -1,21 +1,23 @@
 import { TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 
-import { conversation } from '@/types';
 import { Text, View } from './Themed';
 import { urlForImage } from '@/lib';
+import { Conversation } from '@/validations';
 interface UserCardProps {
-  conversation: conversation
+  conversation: Conversation
  onSelectUser: (id: string) => void;
  lastMessage?: string;
 }
 
 const UserCard: React.FC<UserCardProps> = ({ conversation, onSelectUser }) => {
- const { image, name, username, _id, lastMessage, isOnline, isTyping,unreadMessages } = conversation;
-
+ const { id,user:{image, name, username}, lastMessage, } = conversation;
+  const isOnline = true;
+  const isTyping = false;
+  const unreadMessages = 3 
 
  return (
-    <TouchableOpacity className='flex-row items-center px-4xs py-1' activeOpacity={1} onPress={() => onSelectUser(_id)}>
+    <TouchableOpacity className='flex-row items-center px-4xs py-1' activeOpacity={1} onPress={() => onSelectUser(id)}>
       <View className='mr-2.5'>
         <Image source={{ uri: image?urlForImage(image).url():"https://via.placeholder.com/150" }} className='w-12.5 h-12.5 rounded-[25px]' />
         {isOnline && <View style={{

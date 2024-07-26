@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-import { formatDateString, urlForImage, useGetServerById } from '@/lib';
+import { formatDateString, urlForImage, useServerData } from '@/lib';
 import { Text, View } from '../Themed';
 import Loader from '../Loader';
 import { router } from 'expo-router';
@@ -21,13 +21,13 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
   serverId,
 }) => {
 
-  const {data:serverInfo,isLoading:loadingServer,error} =useGetServerById(serverId)
+  const {server,channels,isLoading:loadingServer,error} =useServerData(serverId)
+  if(loadingServer) return <Loader loadingText='Loading Server'/>
+  if(error) return <Loader loadingText='Something went wrong'/>
 
-  const textChannels = serverInfo?.channels.filter((channel)=>channel.type[ChannelType.TEXT])
-  const audioChannels = serverInfo?.channels.filter((channel)=>channel.type[ChannelType.AUDIO])
-  const videoChannels = serverInfo?.channels.filter((channel)=>channel.type[ChannelType.VIDEO])
-  const members = serverInfo?.members
-  
+  const textChannels = channels?.filter((channel)=>channel.type[ChannelType.TEXT])
+  const audioChannels = channels?.filter((channel)=>channel.type[ChannelType.AUDIO])
+  const videoChannels = channels?.filter((channel)=>channel.type[ChannelType.VIDEO])
   const bannerImageUrl = 'https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&w=400'
   if(loadingServer) return <Loader loadingText='Loading Server'/>
   if(error) return <Loader loadingText='Something went wrong'/>
@@ -42,21 +42,21 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
         <View className='flex-row  justify-between items-center mb-4'>
         <View className='flex-col' >
         <Image 
-          source={{ uri: serverInfo?.image}}  
+          source={{ uri: server?.image}}  
           className='h-[70px] w-[70px] rounded-[35px] border  ' 
         />
-          <Text className='font-rbold  mt-5 mr-auto text-lg'>{serverInfo?.name}</Text>
+          <Text className='font-rbold  mt-5 mr-auto text-lg'>{server?.name}</Text>
         </View>
           <TouchableOpacity className='p-2 rounded mt-[-30px]' onPress={()=>router.replace(`/create-channel/${serverId}`)}>
             <Feather name="edit" size={22} color={"gray"} />
           </TouchableOpacity> 
         </View>
         <Text className='text-xs font-rbold mb-2'>
-          Created on: <Text className='font-rregular  mb-4 text-sm '>{ formatDateString(serverInfo?.createdAt!)}</Text> 
+          Created on: <Text className='font-rregular  mb-4 text-sm '>{ formatDateString(server?.createdAt!)}</Text> 
         </Text>
 
         <Text className='text-xs font-rbold mb-2'>
-          About: <Text className='font-rregular  mb-4 text-sm '>{serverInfo?.description}</Text> 
+          About: <Text className='font-rregular  mb-4 text-sm '>{server?.description}</Text> 
         </Text>
 
         <View className='flex justify-between flex-row'>
@@ -125,7 +125,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
         )}
 
         <MembersComponent
-          userImages={members?.map((usr)=>urlForImage(usr?.image).width(100).url())!}
+          userImages={server?.members?.map((usr)=>usr?.image)!}
         />
       </View>
     </ScrollView>

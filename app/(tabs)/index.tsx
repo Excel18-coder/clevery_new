@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { FlatList } from 'react-native';
 
 import { ErrorMessage, Loader, Post, View } from '@/components';
-import { useGetInfinitePosts } from '@/lib';
+import { usePosts } from '@/lib';
 import PostsSkeleton from '@/components/skeletons/posts';
 
 export default function Home() {
@@ -13,20 +13,13 @@ export default function Home() {
     isPending: feedLoading,
     isError: postsError,
     refetch: refetchPosts,
-    hasNextPage,
-    fetchNextPage 
-  } = useGetInfinitePosts();
+  } = usePosts({page:1, limit:10});
  
   const handleRefresh = () => {
     setRefreshing(true);
     setRefreshing(false);
     refetchPosts();
   };
-  const loadNextPage = () => {
-    if (!hasNextPage) return 
-    fetchNextPage();
-  };
-
   if (feedLoading) return <PostsSkeleton/>;
   // if (postsError)return <ErrorMessage message="There was an error communicating with the servers. Please ensure you have an internet connection then refresh" onRetry={() => handleRefresh()} />
   
@@ -39,7 +32,7 @@ export default function Home() {
   return (
     <View className='pt-7.5 flex-1'>
       <FlatList
-        data={posts?.pages[0]}
+        data={posts}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         ListEmptyComponent={<PostsSkeleton/>}
@@ -48,7 +41,6 @@ export default function Home() {
         onEndReachedThreshold={0.5} 
         refreshing={refreshing}
         onRefresh={() => handleRefresh()}
-        onEndReached={()=>loadNextPage()}
       />
     </View>
   );

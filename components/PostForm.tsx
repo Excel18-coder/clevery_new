@@ -7,9 +7,9 @@ import { chooseImage, showToastMessage,useCreatePost, useUpdatePost } from "@/li
 import SelectedImages from "./SelectedImages";
 import FormField from "./auth/FormField";
 import { Text, View } from "./Themed";
-import { Post } from "@/types";
 import Loader from "./Loader";
 import { Badge } from "./badges/user";
+import { Post } from "@/validations";
 
 type PostFormProps = {
   post?: Post;
@@ -28,11 +28,11 @@ const PostForm = ({ post, action }: PostFormProps) => {
   const router = useRouter(); 
 
   const [fields, setFields] = useState<formFields>({
-    caption:post?.caption?post.caption:'',
+    caption:post?.content?post.content:'',
     files:[],
-    tags:post?.tags?post.tags:'',
+    tags:post?.tags?post.tags:[''],
     timestamp:Date.now(),
-    images:post?.images?post.images.map((img)=>img.asset._ref):[]
+    images:post?.images?post.images.map((img)=>img):[]
   })  
   
   const { mutateAsync: createPost, isPending: creatingPost,isError:createError } =

@@ -25,12 +25,12 @@ export function useThemeColor(
     return theme;
   }
 
-  const colorFromProps = props[lightmode()];
+  const colorFromProps = props[lightmode()!];
 
   if (colorFromProps) {
     return colorFromProps;
   } else {
-    return Colors[lightmode()][colorName];
+    return Colors[lightmode()!][colorName];
   }
 }
 

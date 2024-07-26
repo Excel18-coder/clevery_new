@@ -1,6 +1,6 @@
 import { MasonryFlashList } from '@shopify/flash-list'
 import { Loader, Text, View } from '@/components';
-import { urlForImage, useGetBannerImages } from '@/lib';
+import { urlForImage,  } from '@/lib';
 import { Image } from 'expo-image';
 
 interface GalleryProps {
@@ -8,7 +8,7 @@ interface GalleryProps {
 }
 
 const Gallery: React.FC<GalleryProps> = () => {
-  const { data:images } = useGetBannerImages();
+  const images = []
 
   const renderItem = ({ item }: { item: any }) => {
     return (

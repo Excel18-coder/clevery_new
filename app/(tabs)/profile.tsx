@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TouchableOpacity, FlatList } from 'react-native';
 import { router } from 'expo-router';
 import { Loader, MenuItems, Text, UserCard, UserInfo, View } from '@/components';
-import { urlForImage, useGetUserPosts, useProfileStore } from '@/lib';
+import { urlForImage, useAuthorPosts, useProfileStore } from '@/lib';
 import { format, parseISO } from 'date-fns';
 import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
@@ -10,12 +10,12 @@ import { Feather } from '@expo/vector-icons';
 const ProfilePage = () => {
   const [activeButton, setActiveButton] = useState('profile');
   const { profile } = useProfileStore();
-  const { data: posts } = useGetUserPosts(profile?._id);
+  const { data: posts } = useAuthorPosts(profile?._id);
 
   if (!profile) return <Loader loadingText='Loading Profile'/>;
 
   const stats = {
-    Posts: posts?.length || 0,
+    Posts: posts?.data.length || 0,
     Friends: profile.friends?.length || 0,
   };
 

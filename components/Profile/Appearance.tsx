@@ -24,6 +24,8 @@ const Appearance = () => {
       opacity: withTiming(mode === label.toLowerCase() ? 1 : 0.6, { duration: 300 }),
     }));
 
+    const accentColor = mode === 'light' ? 'black' : mode === 'dark' ? 'white' : 'black';
+
     return (
       <Animated.View style={[styles.menuItem, animatedStyle]}>
         <BlurView intensity={80} tint={mode} style={styles.blurView}>

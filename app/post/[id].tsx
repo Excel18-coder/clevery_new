@@ -3,22 +3,20 @@ import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 
 import { ErrorMessage, Loader, MessageInput, Post, Text, UserComment, View } from '@/components'
-import { useCommentPost, useGetPostById, useProfileStore } from '@/lib'
+import { useCommentPost, usePost } from '@/lib'
 
 export default function PostComponent() {
   const [comment, setComment] = useState('')
-  const { profile } = useProfileStore();
   const {id} = useLocalSearchParams()
 
-  const {data:post,isLoading:loading,error,refetch} = useGetPostById(id as string);
+  const {data:post,isLoading:loading,error,refetch} = usePost(id as string);
   const {mutateAsync:sendComment,isPending:commenting,error:errorCommenting} = useCommentPost()
 
   
 const handleComment=async()=>{
   await sendComment({
-    postid:post?._id!,
-    userid:profile?._id,
-    comment:comment
+    postId:post?.data.id!,
+    comment
   })
   setComment('')
   refetch()
@@ -41,7 +39,7 @@ return (
       />
     </KeyboardAvoidingView>
     <FlatList
-      data={post?.comments}
+      data={post?.data.comments}
       renderItem={({item}) => <UserComment comment={item as any}/>}
     />
   </View>

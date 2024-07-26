@@ -1,3 +1,5 @@
+import { endpoint } from "../env";
+
 /**
  * Represents a post in the search results.
  */
@@ -61,7 +63,7 @@ async function search<T extends 'posts' | 'users' | 'servers'>(
   query: string,
   type: T
 ): Promise<SearchResult<T>> {
-  const url = new URL(`http://localhost:3000/api/search`);
+  const url = new URL(`${endpoint}/search`);
   url.searchParams.append('query', query);
   url.searchParams.append('type', type);
 

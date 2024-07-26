@@ -7,8 +7,7 @@ import { selectImage,sortMessages,pusher, userMessages, parseIncomingMessage, sh
 import { Loader, MessageInput, Text, View, ErrorMessage, Messages } from '@/components';
 
 import AudioVideoComponent from '@/components/audio-video-call';
-import { IMessage, Message } from '@/types';
-
+import { ChannelType, Message } from '@/validations';
 interface newMessage {
   caption:string;
   file:any[]
@@ -16,7 +15,7 @@ interface newMessage {
  
 interface UserMessagesProps {
   user: any;
-  messages: IMessage[];
+  messages: Message[];
   ids: string[];
   created:string;
   convId:string; 
@@ -41,7 +40,7 @@ const {
   useEffect(()=>{
     const messageHandler=(message:Message)=>{
       setMessages((prev)=>{
-        if( prev?.find((msg)=>msg?._id === message?._id)){
+        if( prev?.find((msg)=>msg?.id === message?.id)){
           return prev
         } else {
           if (prev) return[message,...prev]
@@ -49,9 +48,9 @@ const {
         }
       }) 
     }
-    if (conversation?._id){
+    if (conversation?.id){
       pusher.subscribe({
-        channelName: conversation?._id,
+        channelName: conversation?.id,
         onEvent: (event: PusherEvent) => {
           if (event.eventName === 'new-message') {
             const cleanedObject = parseIncomingMessage(event); 
@@ -60,10 +59,10 @@ const {
         }
       });
       return ()=>{
-        pusher.unsubscribe({channelName:conversation?._id});
+        pusher.unsubscribe({channelName:conversation?.id});
       }
     }
-  },[conversation?._id]) 
+  },[conversation?.id]) 
 
   useEffect(()=>{
     setMessages(conversation?.messages)
@@ -87,7 +86,7 @@ const handleSend = async () => {
   };
 
   await sendMessage({ 
-    conversationId: conversation._id, 
+    conversationId: conversation.id, 
     message 
   });
 
@@ -134,14 +133,14 @@ const handleSend = async () => {
         <Feather name="video" size={18} color={'#007aff'} onPress={()=>router.navigate("/room")}/>
       </View>
     </View>
-    default_421f166e-1dee-4357-9762-14de54260b09
+    default421f166e-1dee-4357-9762-14de54260b09
       <Messages
         conversation={conversation!}
         messages={sortedMessages}
         setNewMessage={(text)=>setNewMessage({caption:text,file:newMessage.file})}
         newMessage={newMessage}
         closeFile={closeFile}
-        createdAt={conversation?._createdAt!}
+        createdAt={conversation?.createdAt!}
       />
     <MessageInput
       caption={newMessage.caption}

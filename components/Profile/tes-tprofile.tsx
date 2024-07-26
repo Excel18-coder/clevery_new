@@ -9,11 +9,11 @@ import Animated, {
   interpolate 
 } from 'react-native-reanimated';
 import { Loader, MenuItems, Text, UserCard, UserInfo, View } from '@/components';
-import { urlForImage, useGetUserPosts, useProfileStore } from '@/lib';
-import { User } from '@/types';
+import { urlForImage, useAuthorPosts, useProfileStore } from '@/lib';
 import { format, parseISO } from 'date-fns';
 import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
+import { User } from '@/validations';
 
 const HEADER_HEIGHT = 200;
 
@@ -37,15 +37,11 @@ const FriendsComponent = React.memo(({ friends }: { friends: User[] }) => {
       <Text className="text-lg font-bold m-4">Your Friends</Text>
       <FlatList
         data={friends}
-        keyExtractor={(item) => item?._id}
+        keyExtractor={(item) => item?.id}
         renderItem={({ item }) => (
           <UserCard
-            key={item?._id}
-            user={item}
-            handleAddFriend={() => {}}
-            showlastMessage={false}
-            onSelectUser={() => UserNavigate(item?._id)}
-            isFriend
+            key={item?.id}
+            onSelectUser={() => UserNavigate(item?.id)}
           />
         )}
         initialNumToRender={5}
@@ -83,7 +79,7 @@ const GalleryTab = React.memo(() => (
 
 const ProfilePage = () => {
   const { profile } = useProfileStore();
-  const { data: posts } = useGetUserPosts(profile?._id);
+  const { data: posts } = useAuthorPosts(profile?.id);
   const [index, setIndex] = useState(0);
   const scrollY = useSharedValue(0);
 
@@ -98,7 +94,7 @@ const ProfilePage = () => {
   });
 
   const stats = useMemo(() => ({
-    Posts: posts?.length || 0,
+    Posts: posts?.data.length || 0,
     Friends: profile?.friends?.length || 0,
   }), [posts, profile]);
 

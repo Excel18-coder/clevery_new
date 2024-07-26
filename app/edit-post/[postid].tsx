@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 import { ErrorMessage, Loader, Text, View ,PostForm} from "@/components";
-import { useGetPostById } from "@/lib";
+import { usePost } from "@/lib";
 
 
 const EditPost = () => {
@@ -10,7 +10,7 @@ const EditPost = () => {
     data: post, 
     isPending:loadingPost,
     error 
-  } = useGetPostById(postid as string);
+  } = usePost(postid as string);
 
   if (loadingPost) return <Loader loadingText="loading your post" />
   if(!post) return <ErrorMessage message="Post not found" />

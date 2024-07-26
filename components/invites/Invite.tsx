@@ -8,8 +8,7 @@ import { Image } from 'expo-image';
 
 import { Text, View } from '../Themed';
 import { showToastMessage, urlForImage } from '@/lib';
-import { User } from '@/types';
-import ButtonsContainer from './ButtonsContainer';
+import { User } from '@/validations';
 
 
 const link = `https://clevery.vercel.app/`;
@@ -20,7 +19,7 @@ interface Props {
   onClose: () => void;
   buttonText: string;
   selectedUsers: User[];
-  users: User[];
+  users?: User[];
 }
 
 
@@ -96,11 +95,11 @@ const InviteFriends: React.FC<Props> = ({
         <FlatList
           horizontal
           data={selectedUsers}
-          keyExtractor={item => item._id}
+          keyExtractor={item => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.selectedUser}
-              onPress={() => removeUser(item._id)}
+              onPress={() => removeUser(item.id)}
             >
               <Image source={{ uri: urlForImage(item.image).width(100).url() }} style={styles.selectedUserImage} />
               <Feather name="x" size={16} color="white" style={styles.removeIcon} />
@@ -133,7 +132,7 @@ const InviteFriends: React.FC<Props> = ({
       <FlatList
         data={filteredUsers}
         renderItem={renderUser}
-        keyExtractor={item => item._id}
+        keyExtractor={item => item.id}
         contentContainerStyle={styles.userList}
       />
     </LinearGradient>

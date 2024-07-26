@@ -4,8 +4,8 @@ import { useLocalSearchParams } from 'expo-router';
 
 import { channelHooks, parseIncomingMessage, pusher, selectImage, sortMessages, useSendChannelMessage} from '@/lib';
 import { ChannelTop, ErrorMessage, Loader, MessageInput, Messages, View } from '@/components'
-import { Message } from '@/types';
 import AudioVideoComponent from '@/components/audio-video-call';
+import { ChannelType, Message } from '@/validations';
 
 interface newMessage {
     caption:string;
@@ -37,8 +37,8 @@ const Channel = () => {
 
   const messageHandler = (message:Message) => {
     setMessages((prev) => {
-      const existingMessageIds = new Set(prev?.map((msg) => msg._id));
-      if (existingMessageIds.has(message._id)) {
+      const existingMessageIds = new Set(prev?.map((msg) => msg.id));
+      if (existingMessageIds.has(message.id)) {
         return prev;
       } else {
         if (prev) return[message,...prev]
@@ -46,9 +46,9 @@ const Channel = () => {
       }
     });
   };
-  if (channel?._id){
+  if (channel?.id){
     pusher.subscribe({
-      channelName: channel?._id,
+      channelName: channel?.id,
       onEvent: (event: PusherEvent) => {
         if (event.eventName === 'new-channel-message') {
           const cleanedObject = parseIncomingMessage(event);
@@ -58,21 +58,21 @@ const Channel = () => {
       }
     });
     return ()=>{
-      pusher.unsubscribe({channelName:channel?._id});
+      pusher.unsubscribe({channelName:channel?.id});
     }
   }
-  },[channel?._id])
+  },[channel?.id])
 
 
   const handleSend = async () => {
-    if (!channel?._id) return;
+    if (!channel?.id) return;
     const { caption, file } = newMessage;
     if (caption || file.length > 0) {
       
       await sendMessage({
-        channelId: channel._id,
-        caption,
-        files: file[0],
+        channelId: channel.id,
+        serverId: channel.serverId,
+        text:caption,
       }).then(() => {
         setNewMessage({ caption: '', file: [] });
       });
@@ -95,10 +95,10 @@ const closeFile = () => {
     
   const sortedMessages=messages ?sortMessages({messages:messages!}):[]
 
-  if (channel?.type === "VIDEO"){
+  if (channel.type === ChannelType.AUDIO){
     return ( 
       <AudioVideoComponent
-        channelName={channel.name}
+        channelName={channel?.name!}
         callType='default'
         video
       />
@@ -114,7 +114,7 @@ const closeFile = () => {
         setNewMessage={(text)=>setNewMessage({caption:text,file:newMessage.file})}
         newMessage={newMessage}
         closeFile={closeFile}
-        createdAt={channel?._createdAt!}
+        createdAt={channel?.createdAt!}
         channel={channel}
       />
       <MessageInput

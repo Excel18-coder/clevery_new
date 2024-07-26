@@ -6,8 +6,7 @@ import {
 import { FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 import * as ImagePicker from 'expo-image-picker';
-import { showToastMessage, urlForImage, useProfileStore, useUpdateUser } from '@/lib';
-import { dataset, projectId } from '@/lib/sanity/env';
+import { showToastMessage, urlForImage, useProfileStore, useUpdateCurrentUser } from '@/lib';
 import { uploadImage } from '@/lib/sanity/image';
 import { router } from 'expo-router';
 
@@ -33,7 +32,7 @@ const UserProfileEdit = () => {
     mutateAsync:updateProfile,
     isPending,
     error
-  } = useUpdateUser()
+  } = useUpdateCurrentUser()
   const [avatarUri, setAvatarUri] = useState(userinfo.image?urlForImage(userinfo.image).url():'https://via.placeholder.com/150');
   const [isLoading, setIsLoading] = useState(false);
 

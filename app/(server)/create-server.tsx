@@ -1,16 +1,16 @@
 import { memo, useState } from 'react';
 import { Modal, ScrollView } from 'react-native';
-import { showToastMessage,useCreateServer, useGetUsers, useProfileStore } from '@/lib';
+import { showToastMessage,useCreateServer, useUsers, useProfileStore } from '@/lib';
 import { Create, InviteFriends, Loader, } from '@/components';
-import { NewServer, User } from '@/types';
+import { CreateServer, User } from '@/validations';
 
 
 const CreateServer = () => {
   const { profile } = useProfileStore();
-  const [serverDetails, setServerDetails] = useState<NewServer>({
+  const [serverDetails, setServerDetails] = useState<CreateServer>({
     name: `${profile.name}'s server`,
     description: 'Lets connect',
-    icon: '',
+    image: '',
     members: [],
   });
 
@@ -22,14 +22,14 @@ const CreateServer = () => {
   const { 
     data:users,
     isPending:loading
-  } = useGetUsers()
+  } = useUsers()
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [isPopupVisible, setPopupVisible] = useState(false);
 
   const handleSubmit = async () => {
-    const members= selectedUsers?.map(user => user._id)
+    const members= selectedUsers?.map(user => user.id)
     serverDetails.members=members
-      if(!serverDetails.icon) return showToastMessage('Please select an icon')
+      if(!serverDetails.image) return showToastMessage('Please select an icon')
       if(!serverDetails.name) return showToastMessage('Please provide the server name')
       if(!serverDetails.description) return showToastMessage('Please provide the server description')
       if(members.length<2) return showToastMessage('Please select atleast two users')
@@ -40,7 +40,7 @@ const CreateServer = () => {
       setServerDetails({
         name: '',
         description: '',
-        icon: '',
+        image: '',
         members:[],
       });
     } catch (error:any) {
@@ -55,7 +55,7 @@ const CreateServer = () => {
     }
   };
   const removeMember = (userId: string) => {
-    setSelectedUsers(selectedUsers.filter((user) => user._id !== userId));
+    setSelectedUsers(selectedUsers.filter((user) => user.id !== userId));
   };
 if(creatingServer)return <Loader loadingText='Creating your server'/>
    return (

@@ -1,7 +1,6 @@
 import { Post, PostQuery } from "@/validations";
 import axios, { AxiosError } from "axios";
-
-const baseUrl = 'http://localhost:3000/api/';
+import { endpoint } from "../env";
 
 interface ApiResponse<T> {
   data: T;
@@ -18,7 +17,7 @@ export const postsApi = {
   getPosts: async (params: PostQuery): Promise<ApiResponse<Post[]>> => {
     try {
       const queryString = new URLSearchParams(params as Record<number, string>).toString();
-      const response = await axios.get<ApiResponse<Post[]>>(`${baseUrl}posts/?${queryString}`);
+      const response = await axios.get<ApiResponse<Post[]>>(`${endpoint}posts/?${queryString}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to fetch posts");
@@ -32,7 +31,7 @@ export const postsApi = {
    */
   getTopPosts: async (): Promise<ApiResponse<Post[]>> => {
     try {
-      const response = await axios.get<ApiResponse<Post[]>>(`${baseUrl}posts/top`);
+      const response = await axios.get<ApiResponse<Post[]>>(`${endpoint}posts/top`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to fetch top posts");
@@ -47,7 +46,7 @@ export const postsApi = {
    */
   createPost: async (postData: Omit<Post, 'id' | 'authorId' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<Post>> => {
     try {
-      const response = await axios.post<ApiResponse<Post>>(`${baseUrl}posts`, postData);
+      const response = await axios.post<ApiResponse<Post>>(`${endpoint}posts`, postData);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to create post");
@@ -62,7 +61,7 @@ export const postsApi = {
    */
   getPostById: async (postId: string): Promise<ApiResponse<Post>> => {
     try {
-      const response = await axios.get<ApiResponse<Post>>(`${baseUrl}posts/${postId}`);
+      const response = await axios.get<ApiResponse<Post>>(`${endpoint}posts/${postId}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to fetch post with ID ${postId}`);
@@ -75,7 +74,7 @@ export const postsApi = {
  */
   getPostsByAuthorId: async (authorId: string): Promise<ApiResponse<Post[]>> => {
     try {
-      const response = await axios.get<ApiResponse<Post[]>>(`${baseUrl}posts/author/${authorId}`);
+      const response = await axios.get<ApiResponse<Post[]>>(`${endpoint}posts/author/${authorId}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to fetch posts with author ID ${authorId}`);
@@ -89,7 +88,7 @@ export const postsApi = {
    */
   updatePost: async (postData: Partial<Omit<Post, 'authorId' | 'createdAt' | 'updatedAt'>>): Promise<ApiResponse<Post>> => {
     try {
-      const response = await axios.patch<ApiResponse<Post>>(`${baseUrl}posts/${postData.id}`, postData);
+      const response = await axios.patch<ApiResponse<Post>>(`${endpoint}posts/${postData.id}`, postData);
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to update post with ID ${postData.id}`);
@@ -104,7 +103,7 @@ export const postsApi = {
    */
   likePost: async (postId: string): Promise<ApiResponse<Post>> => {
     try {
-      const response = await axios.post<ApiResponse<Post>>(`${baseUrl}posts/${postId}/interact`, { action: 'like' });
+      const response = await axios.post<ApiResponse<Post>>(`${endpoint}posts/${postId}/interact`, { action: 'like' });
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to like post with ID ${postId}`);
@@ -119,7 +118,7 @@ export const postsApi = {
    */
   savePost: async (postId: string): Promise<ApiResponse<Post>> => {
     try {
-      const response = await axios.post<ApiResponse<Post>>(`${baseUrl}posts/${postId}/interact`, { action: 'save' });
+      const response = await axios.post<ApiResponse<Post>>(`${endpoint}posts/${postId}/interact`, { action: 'save' });
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to save post with ID ${postId}`);
@@ -134,7 +133,7 @@ export const postsApi = {
    */
   commentPost: async (commentObj: { postId: string; comment: string }): Promise<ApiResponse<Post>> => {
     try {
-      const response = await axios.post<ApiResponse<Post>>(`${baseUrl}posts/${commentObj.postId}/interact`, {
+      const response = await axios.post<ApiResponse<Post>>(`${endpoint}posts/${commentObj.postId}/interact`, {
         comment: commentObj.comment,
         action: 'comment'
       });
@@ -152,7 +151,7 @@ export const postsApi = {
    */
   deletePost: async (postId: string): Promise<ApiResponse<void>> => {
     try {
-      const response = await axios.delete<ApiResponse<void>>(`${baseUrl}posts/${postId}`);
+      const response = await axios.delete<ApiResponse<void>>(`${endpoint}posts/${postId}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to delete post with ID ${postId}`);

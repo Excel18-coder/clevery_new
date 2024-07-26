@@ -3,8 +3,8 @@ import { StreamVideoRN } from '@stream-io/video-react-native-sdk';
 import { AndroidImportance } from '@notifee/react-native';
 import { NativeBaseProvider } from 'native-base'
 
-import { QueryProvider } from './react-query/QueryProvider' 
 import { AuthProvider } from '@/lib/auth.context'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 StreamVideoRN.updateConfig({
   foregroundService: {
@@ -25,6 +25,7 @@ StreamVideoRN.updateConfig({
 });
 export const Providers = ({ children }:{children:ReactNode}) => {
 
+  const queryClient = new QueryClient();
 
   const config = {
     dependencies: {
@@ -32,13 +33,13 @@ export const Providers = ({ children }:{children:ReactNode}) => {
     },
   };
   return(
-    <QueryProvider>
+    <QueryClientProvider client={queryClient}>
       <NativeBaseProvider config={config} >
         <AuthProvider>
           {children}
         </AuthProvider>
       </NativeBaseProvider>
-    </QueryProvider>
+      </QueryClientProvider>
   )
 }
 

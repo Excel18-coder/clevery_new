@@ -4,6 +4,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { showToastMessage, useCreateChannel, useProfileStore } from '@/lib';
 import { Loader,View,Create } from '@/components';
 import ToastAlert from '@/components/toast-alert';
+import { ChannelType } from '@/validations';
 
 interface newChannel {
   name: string;
@@ -23,7 +24,7 @@ const CreateChannel: React.FC = () => {
     mutateAsync: createChannel,
     isPending:creatingServer ,
     error 
-  } = useCreateChannel();
+  } = useCreateChannel(serverid as string);
 
   const handleSubmit = async () => {
     const {channelType:type,description,name} =newChannel
@@ -37,7 +38,7 @@ const CreateChannel: React.FC = () => {
         serverId:serverid as string,
         name,
         description,
-        type
+        type:ChannelType.TEXT
       });
       console.log(res)
     } catch (error:any) {

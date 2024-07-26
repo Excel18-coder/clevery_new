@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 
-import { showToastMessage, useProfileStore, useUpdateUser } from '@/lib';
+import { showToastMessage, useProfileStore, useUpdateCurrentUser } from '@/lib';
 import FormField from '@/components/auth/FormField';
 import { Text, View } from '@/components/Themed';
 import Loader from '@/components/Loader';
@@ -26,7 +26,7 @@ const Account = () => {
     mutateAsync:updateUser,
     isPending:updatingUser,
     isError:failed
-  } = useUpdateUser()
+  } = useUpdateCurrentUser()
   const handleFieldChange =
     (field: string, text: string) => {
       setEditedFields((prevFields) => ({ ...prevFields, [field]: text }));
@@ -34,7 +34,6 @@ const Account = () => {
 
   const handleSavePress = async() => {
     const updated = await updateUser({
-      id:userInfo._id,
       name:editedFields.name,
       username:editedFields.username,
       email:editedFields.email

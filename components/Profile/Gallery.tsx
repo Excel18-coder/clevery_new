@@ -4,9 +4,7 @@ import { router } from 'expo-router';
 import { Image } from 'expo-image';
 
 import {Text, View } from '@/components/Themed'
-import Loader from '@/components/Loader';
-import { urlForImage } from '@/lib';
-import { image } from '@/types';
+import Loader from '@/components/Loader'; 
 
 interface GalleryProps {
   images: string[];

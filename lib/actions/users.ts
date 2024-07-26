@@ -1,6 +1,7 @@
 import { TopCreator, TopCreatorSchema, UpdateUser, User, UserSchema } from "@/validations";
 import axios, { AxiosError } from "axios";
 import { z } from "zod";
+import { endpoint } from "../env";
 
 type UserResponse = Omit<User, 'password'>;
 type UserDetailsResponse = UserResponse & {
@@ -14,8 +15,6 @@ export type UpdateUserInput = Partial<CreateUserInput>;
 
 export const userSchema = UserSchema.omit({ id: true, createdAt: true, updatedAt: true, bannerImage: true, bio: true, phone: true });
 
-const baseUrl = '/api/';
-
 /**
  * API client for user-related operations.
  */
@@ -27,7 +26,7 @@ export const userApi = {
    */
   getCurrentUser: async (): Promise<UserResponse> => {
     try {
-      const response = await axios.get<UserResponse>(`${baseUrl}users/me`);
+      const response = await axios.get<UserResponse>(`${endpoint}users/me`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to fetch current user");
@@ -41,7 +40,7 @@ export const userApi = {
    */
   getUsers: async (page = 1): Promise<User[]> => {
     try {
-      const response = await axios.get<User[]>(`${baseUrl}users?page=${page}`);
+      const response = await axios.get<User[]>(`${endpoint}users?page=${page}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to fetch users");
@@ -56,7 +55,7 @@ export const userApi = {
    */
   getTopCreators: async (limit = 3): Promise<TopCreator[]> => {
     try {
-      const response = await axios.get<TopCreator[]>(`${baseUrl}users/creators`, {
+      const response = await axios.get<TopCreator[]>(`${endpoint}users/creators`, {
         params: { limit },
       });
       return z.array(TopCreatorSchema).parse(response.data);
@@ -73,7 +72,7 @@ export const userApi = {
    */
   getUserById: async (userId: string): Promise<UserDetailsResponse> => {
     try {
-      const response = await axios.get<UserDetailsResponse>(`${baseUrl}users/${userId}`);
+      const response = await axios.get<UserDetailsResponse>(`${endpoint}users/${userId}`);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -89,9 +88,9 @@ export const userApi = {
    * @returns A promise that resolves to the updated user details.
    * @throws Error with a descriptive message if the request fails
    */
-  updateCurrentUser: async (userData: UpdateUser): Promise<UserResponse> => {
+  updateCurrentUser: async (userData: UpdateUserInput): Promise<UserResponse> => {
     try {
-      const response = await axios.patch<UserResponse>(`${baseUrl}users/me`, userData);
+      const response = await axios.patch<UserResponse>(`${endpoint}users/me`, userData);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to update user");
@@ -106,7 +105,7 @@ export const userApi = {
    */
   addFriend: async (friendId: string): Promise<void> => {
     try {
-      await axios.post(`${baseUrl}users`, { friendId });
+      await axios.post(`${endpoint}users`, { friendId });
     } catch (error) {
       throw handleApiError(error, "Failed to add friend");
     }
@@ -120,7 +119,7 @@ export const userApi = {
    */
   removeFriend: async (friendId: string): Promise<void> => {
     try {
-      await axios.delete(`${baseUrl}users/friends/${friendId}`);
+      await axios.delete(`${endpoint}users/friends/${friendId}`);
     } catch (error) {
       throw handleApiError(error, "Failed to remove friend");
     }
@@ -133,7 +132,7 @@ export const userApi = {
    */
   getFriends: async (): Promise<UserResponse[]> => {
     try {
-      const response = await axios.get<UserResponse[]>(`${baseUrl}users/friends`);
+      const response = await axios.get<UserResponse[]>(`${endpoint}users/friends`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to fetch friends");
@@ -147,7 +146,7 @@ export const userApi = {
    */
   deleteAccount: async (): Promise<void> => {
     try {
-      await axios.delete(`${baseUrl}users/me`);
+      await axios.delete(`${endpoint}users/me`);
     } catch (error) {
       throw handleApiError(error, "Failed to delete account");
     }
@@ -163,7 +162,7 @@ export const userApi = {
     try {
       const formData = new FormData();
       formData.append('image', imageFile);
-      const response = await axios.put<UserResponse>(`${baseUrl}users/me/profile-picture`, formData, {
+      const response = await axios.put<UserResponse>(`${endpoint}users/me/profile-picture`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data;
@@ -179,7 +178,7 @@ export const userApi = {
    */
   getUserServers: async (): Promise<Array<{ id: string; name: string; image: string | null }>> => {
     try {
-      const response = await axios.get<Array<{ id: string; name: string; image: string | null }>>(`${baseUrl}users/me/servers`);
+      const response = await axios.get<Array<{ id: string; name: string; image: string | null }>>(`${endpoint}users/me/servers`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to fetch user servers");
@@ -194,7 +193,7 @@ export const userApi = {
    */
   searchUsers: async (query: string): Promise<UserResponse[]> => {
     try {
-      const response = await axios.get<UserResponse[]>(`${baseUrl}users/search`, {
+      const response = await axios.get<UserResponse[]>(`${endpoint}users/search`, {
         params: { q: query },
       });
       return response.data;
