@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
 
-import { authHooks, showToastMessage, useCreateEmailUser } from "@/lib";
+import { authHooks, showToastMessage } from "@/lib";
 import { CustomButton, FormField,Butttons } from "@/components";
 import ToastAlert from "@/components/toast-alert";
 
@@ -20,11 +20,11 @@ const SignUp = () => {
     password: "",
   });
   
-const {
-  mutateAsync:createUser,
-  isPending:creating,
-  isError:error
-} = useCreateEmailUser()
+// const {
+//   mutateAsync:createUser,
+//   isPending:creating,
+//   isError:error
+// } = useCreateEmailUser()
 
 const signInWithProvider = async (provider: AuthProviders) => {
   if (provider === 'google') return googleAsync();
@@ -39,7 +39,7 @@ const signInWithProvider = async (provider: AuthProviders) => {
     }
 
     try {
-      await createUser(form)
+      // await createUser(form)
        
       // router.replace("/");
     } catch (error:any) {
@@ -94,7 +94,7 @@ const signInWithProvider = async (provider: AuthProviders) => {
             title="Sign Up"
             handlePress={submit}
             containerStyles="mt-7 mb-3"
-            isLoading={creating}
+            // isLoading={creating}
           />
 
         <Butttons

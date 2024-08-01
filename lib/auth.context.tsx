@@ -3,7 +3,7 @@ import { StreamVideoClient } from '@stream-io/video-react-native-sdk';
 import { router } from 'expo-router';
 
 import { useProfileStore } from '@/lib/zustand/store';
-import { getCurrentUser } from '@/lib/api/users';
+import { userApi } from './actions/users';
 
 const AuthContext = createContext<any>({});
 
@@ -13,8 +13,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchAndSetProfile = async () => {
     try {
-      const currentAccount = await getCurrentUser();
-      if (!currentAccount && !profile._id) {
+      const currentAccount = await userApi.getCurrentUser();
+      if (!currentAccount && !profile.id) {
         return router.push('/sign-in');
       }
       setProfile(currentAccount);

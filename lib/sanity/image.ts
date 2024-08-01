@@ -1,7 +1,6 @@
 import createImageUrlBuilder from '@sanity/image-url'
 
-import { dataset, projectId, token} from './env'
-import { dataTagSymbol } from '@tanstack/react-query'
+import { dataset, projectId } from './env'
 
 const imageBuilder = createImageUrlBuilder({
   projectId: projectId||'',
@@ -23,7 +22,6 @@ export async function uploadImage(file:string) {
     const response = await fetch(`https://${projectId}.api.sanity.io/v2021-06-07/assets/images/${dataset}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/octet-stream'
       }, 
       body: blob

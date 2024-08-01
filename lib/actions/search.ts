@@ -1,20 +1,6 @@
+import { Post } from "@/validations";
 import { endpoint } from "../env";
 
-/**
- * Represents a post in the search results.
- */
-interface PostResult {
-  id: string;
-  content: string;
-  tags: string[];
-  createdAt: string;
-  author: {
-    id: string;
-    name: string;
-    username: string;
-    image: string;
-  };
-}
 
 /**
  * Represents a user in the search results.
@@ -42,7 +28,7 @@ interface ServerResult {
  * Maps search types to their corresponding result interfaces.
  */
 type SearchResultMap = {
-  posts: PostResult[];
+  posts: Post[];
   users: UserResult[];
   servers: ServerResult[];
 };

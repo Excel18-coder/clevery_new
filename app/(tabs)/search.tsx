@@ -86,7 +86,7 @@ const renderContent = (
         <FlatList
           data={results.users}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => router.push(`/user/${item._id}`)}>
+            <TouchableOpacity onPress={() => router.push(`/user/${item.id}`)}>
               <Text>{item.name}</Text>
             </TouchableOpacity>
           )}
