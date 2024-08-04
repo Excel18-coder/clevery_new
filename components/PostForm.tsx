@@ -9,29 +9,19 @@ import FormField from "./auth/FormField";
 import { Text, View } from "./Themed";
 import Loader from "./Loader";
 import { Badge } from "./badges/user";
-import { Post } from "@/validations";
+import { CreatePostData, Post } from "@/types";
 
 type PostFormProps = {
   post?: Post;
   action: "Create" | "Update";
 };
 
-interface formFields {
-  caption:string;
-  files:any[];
-  tags:string;
-  timestamp:number;
-  images:string[]
-}
-
 const PostForm = ({ post, action }: PostFormProps) => {
   const router = useRouter(); 
 
-  const [fields, setFields] = useState<formFields>({
-    caption:post?.content?post.content:'',
-    files:[],
+  const [fields, setFields] = useState<CreatePostData>({
+    content:post?.content?post.content:'',
     tags:post?.tags?post.tags:[''],
-    timestamp:Date.now(),
     images:post?.images?post.images.map((img)=>img):[]
   })  
   
@@ -43,7 +33,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
     /** @TODO add a useEffect which adds the post values to the fields if the post values are defined*/
 
   const submitPost = async () => {
-    if (!fields.caption) {
+    if (!fields.content) {
       return showToastMessage('Please fill in all the necessary fields.');
     }
     
@@ -52,7 +42,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
     }
     if(action==='Update'){
       await updatePost({
-        ...fields, id:post?._id!,
+        ...fields, id:post?.id!,
       })
     }
     router.push("/");
@@ -63,14 +53,14 @@ const PostForm = ({ post, action }: PostFormProps) => {
     
     if(file){
       console.log(file)
-      setFields({...fields,files:file})
+      setFields({...fields,images:file})
     }
   };
 
   const handleImageDelete = (index:any) => {
-    const newImages = [...fields.files];
+    const newImages = [...fields.images];
     newImages.splice(index, 1);
-    setFields({ ...fields,files:newImages})
+    setFields({ ...fields,images:newImages})
   }; 
 
   
@@ -79,15 +69,15 @@ if(creatingPost || updatingPost) return <Loader loadingText="Uploading your post
     <View 
       className="flex-1 h-full mb-[-30px]"
     >
-      <SelectedImages images={fields.files} onDeleteImage={handleImageDelete} handleSelectImages={chooseFile} />
+      <SelectedImages images={fields.images} onDeleteImage={handleImageDelete} handleSelectImages={chooseFile} />
       <View style={{ marginBottom: 20 }}>
         
         <FormField 
-          title='Caption'
+          title='Content'
           placeholder="Describe your post"
           enterKeyHint="next"
-          value={fields.caption}
-          handleChangeText={(v) => setFields({ ...fields, caption:v})}
+          value={fields.content}
+          handleChangeText={(v) => setFields({ ...fields, content:v})}
         />
       </View>
       <View className="mb-5">
@@ -99,7 +89,7 @@ if(creatingPost || updatingPost) return <Loader loadingText="Uploading your post
           autoCapitalize="none"
           enterKeyHint="done"
           value={fields.tags}
-          handleChangeText={(v) => setFields({ ...fields, caption:v})}
+          handleChangeText={(v) => setFields({ ...fields, content:v})}
         />
       </View>
       

@@ -13,7 +13,11 @@ export default function Home() {
     isPending: feedLoading,
     isError: postsError,
     refetch: refetchPosts,
-  } = usePosts({page:1, limit:10});
+  } = usePosts({
+    limit: 10,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+  });
  
   const handleRefresh = () => {
     setRefreshing(true);
@@ -24,16 +28,13 @@ export default function Home() {
   // if (postsError)return <ErrorMessage message="There was an error communicating with the servers. Please ensure you have an internet connection then refresh" onRetry={() => handleRefresh()} />
   
 
-  const renderItem = ({ item }: { item: any }) => {
-    return <Post key={item?._id} props={item} />;
-  }; 
   const keyExtractor = (item: any) => item?._id;
   
   return (
     <View className='pt-7.5 flex-1'>
       <FlatList
-        data={posts}
-        renderItem={renderItem}
+        data={posts?.pages[0]?.data}
+        renderItem={({ item }) => <Post key={item?.id} {...item} />}
         keyExtractor={keyExtractor}
         ListEmptyComponent={<PostsSkeleton/>}
         showsVerticalScrollIndicator={false}

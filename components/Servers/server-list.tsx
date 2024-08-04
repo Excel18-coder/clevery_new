@@ -4,23 +4,23 @@ import { router } from 'expo-router'
 import LoadingServers from '@/components/skeletons/loading-servers'
 import ServerCard from '@/components/Servers/ServerCard'
 import { Text, View } from '@/components/Themed'
-import { useGetServers } from '@/lib'
+import { useServers } from '@/lib'
 
 export default function ServerList() {
   
- const {data:serversDocuments ,isLoading:loading} = useGetServers()
+ const {data:servers ,isLoading:loading,error} = useServers()
 
  const onPress=(serverId:string)=>{
  router.push(`/server/${serverId}`)
  }
- const servers= serversDocuments?.pages[0]
  
  if(loading) return <LoadingServers />
+ if(error) return <LoadingServers />
  
  return (
     <View style={{flex:1}} >
       <FlatList
-        data={servers}
+        data={servers!}
         renderItem={({ item }) => (
           <ServerCard {...item}
           id={item._id}

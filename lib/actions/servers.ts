@@ -1,27 +1,24 @@
 import axios, { AxiosError } from 'axios';
-import { Server, CreateServer, UpdateServer, Channel, CreateChannel, UpdateChannel, Member, Message } from '@/validations';
+import {
+  Server,
+  Channel,
+  Message,
+  ServerMember,
+  CreateServerData,
+  UpdateServerData,
+  CreateChannelData,
+  UpdateChannelData,
+  SendMessageData,
+  PaginatedResponse,
+  FullModel,
+  ChannelMessagePayload,
+  UpdateChannelMessagePayload,
+  SendMessageDataPayload,
+  DeleteMessagePayload
+} from '@/types'; // Adjust the import path as needed
 import { endpoint } from '../env';
-
-export interface UpdateMessagePayload {
-  serverId: string;
-  channelId: string;
-  messageId: string;
-  text?: string;
-  image?: string;
-}
-
-export interface DeleteMessagePayload {
-  serverId: string;
-  channelId: string;
-  messageId: string;
-}
-
-export interface ChannelMessagePayload {
-  serverId: string;
-  channelId: string;
-  text?: string;
-  image?: string;
-}
+import { handleApiError } from './error';
+import { serverPaths as apiPaths } from '@/routes';
 
 /**
  * API client for managing servers, channels, and messages.
@@ -29,12 +26,12 @@ export interface ChannelMessagePayload {
 export const serverApi = {
   /**
    * Retrieves all servers.
-   * @returns A promise that resolves to an array of servers.
+   * @returns A promise that resolves to an API response containing a paginated list of servers.
    * @throws Error with a descriptive message if the request fails.
    */
-  getAllServers: async (): Promise<Server[]> => {
+  getAllServers: async (): Promise<PaginatedResponse<FullModel<Server>>> => {
     try {
-      const response = await axios.get<Server[]>(`${endpoint}/servers`);
+      const response = await axios.get<PaginatedResponse<FullModel<Server>>>(`${endpoint}${apiPaths.servers}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to fetch servers");
@@ -43,12 +40,12 @@ export const serverApi = {
 
   /**
    * Retrieves the top 10 servers with the most members.
-   * @returns A promise that resolves to an array of servers.
+   * @returns A promise that resolves to an API response containing an array of top servers.
    * @throws Error with a descriptive message if the request fails.
    */
-  getTopServers: async (): Promise<Server[]> => {
+  getTopServers: async (): Promise<FullModel<Server>[]> => {
     try {
-      const response = await axios.get<Server[]>(`${endpoint}/servers/top`);
+      const response = await axios.get<FullModel<Server>[]>(`${endpoint}${apiPaths.topServers}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to fetch top servers");
@@ -58,12 +55,12 @@ export const serverApi = {
   /**
    * Retrieves a server by its ID, including its channels, logs, and members.
    * @param serverId - The ID of the server to fetch.
-   * @returns A promise that resolves to the server with its details.
+   * @returns A promise that resolves to an API response containing the server with its details.
    * @throws Error with a descriptive message if the request fails.
    */
-  getServerById: async (serverId: string): Promise<Server> => {
+  getServerById: async (serverId: string): Promise<FullModel<Server>> => {
     try {
-      const response = await axios.get<Server>(`${endpoint}/servers/${serverId}`);
+      const response = await axios.get<FullModel<Server>>(`${endpoint}${apiPaths.server(serverId)}`);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -76,12 +73,12 @@ export const serverApi = {
   /**
    * Creates a new server.
    * @param serverData - The data for creating a new server.
-   * @returns A promise that resolves to the created server.
+   * @returns A promise that resolves to an API response containing the created server.
    * @throws Error with a descriptive message if the request fails.
    */
-  createServer: async (serverData: CreateServer): Promise<Server> => {
+  createServer: async (serverData: CreateServerData): Promise<FullModel<Server>> => {
     try {
-      const response = await axios.post<Server>(`${endpoint}/servers`, serverData);
+      const response = await axios.post<FullModel<Server>>(`${endpoint}${apiPaths.servers}`, serverData);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to create server");
@@ -92,12 +89,12 @@ export const serverApi = {
    * Updates an existing server.
    * @param serverId - The ID of the server to update.
    * @param updateData - The data to update on the server.
-   * @returns A promise that resolves to the updated server.
+   * @returns A promise that resolves to an API response containing the updated server.
    * @throws Error with a descriptive message if the request fails.
    */
-  updateServer: async (serverId: string, updateData: UpdateServer): Promise<Server> => {
+  updateServer: async (serverId: string, updateData: UpdateServerData): Promise<FullModel<Server>> => {
     try {
-      const response = await axios.patch<Server>(`${endpoint}/servers/${serverId}`, updateData);
+      const response = await axios.patch<FullModel<Server>>(`${endpoint}${apiPaths.server(serverId)}`, updateData);
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to update server with ID ${serverId}`);
@@ -107,12 +104,13 @@ export const serverApi = {
   /**
    * Deletes a server.
    * @param serverId - The ID of the server to delete.
-   * @returns A promise that resolves when the server is successfully deleted.
+   * @returns A promise that resolves to an API response when the server is successfully deleted.
    * @throws Error with a descriptive message if the request fails.
    */
   deleteServer: async (serverId: string): Promise<void> => {
     try {
-      await axios.delete(`${endpoint}/servers/${serverId}`);
+      const response = await axios.delete<void>(`${endpoint}${apiPaths.server(serverId)}`);
+      return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to delete server with ID ${serverId}`);
     }
@@ -121,12 +119,12 @@ export const serverApi = {
   /**
    * Retrieves a channel by its ID, including its messages and server details.
    * @param channelId - The ID of the channel to fetch.
-   * @returns A promise that resolves to the channel with its details.
+   * @returns A promise that resolves to an API response containing the channel with its details.
    * @throws Error with a descriptive message if the request fails.
    */
-  getChannelById: async (channelId: string): Promise<Channel> => {
+  getChannelById: async (channelId: string): Promise<FullModel<Channel>> => {
     try {
-      const response = await axios.get<Channel>(`${endpoint}/channels/${channelId}`);
+      const response = await axios.get<FullModel<Channel>>(`${endpoint}${apiPaths.channel(channelId)}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to fetch channel with ID ${channelId}`);
@@ -136,12 +134,12 @@ export const serverApi = {
   /**
    * Retrieves all channels for a specific server.
    * @param serverId - The ID of the server to fetch channels from.
-   * @returns A promise that resolves to an array of channels.
+   * @returns A promise that resolves to an API response containing a paginated list of channels.
    * @throws Error with a descriptive message if the request fails.
    */
-  getServerChannels: async (serverId: string): Promise<Channel[]> => {
+  getServerChannels: async (serverId: string): Promise<PaginatedResponse<FullModel<Channel>>> => {
     try {
-      const response = await axios.get<Channel[]>(`${endpoint}/servers/${serverId}/channels`);
+      const response = await axios.get<PaginatedResponse<FullModel<Channel>>>(`${endpoint}${apiPaths.serverChannels(serverId)}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to fetch channels for server with ID ${serverId}`);
@@ -152,12 +150,12 @@ export const serverApi = {
    * Creates a new channel in a server.
    * @param serverId - The ID of the server to create the channel in.
    * @param channelData - The data for creating a new channel.
-   * @returns A promise that resolves to the created channel.
+   * @returns A promise that resolves to an API response containing the created channel.
    * @throws Error with a descriptive message if the request fails.
    */
-  createChannel: async (serverId: string, channelData: CreateChannel): Promise<Channel> => {
+  createChannel: async (serverId: string, channelData: CreateChannelData): Promise<FullModel<Channel>> => {
     try {
-      const response = await axios.post<Channel>(`${endpoint}/servers/${serverId}/channels`, channelData);
+      const response = await axios.post<FullModel<Channel>>(`${endpoint}${apiPaths.serverChannels(serverId)}`, channelData);
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to create channel in server with ID ${serverId}`);
@@ -167,14 +165,15 @@ export const serverApi = {
   /**
    * Sends a new message to a channel.
    * @param messageData - The data for the new message, including serverId and channelId.
-   * @returns A promise that resolves to the created message with sender details.
+   * @returns A promise that resolves to an API response containing the created message with sender details.
    * @throws Error with a descriptive message if the request fails.
    */
-  sendChannelMessage: async (messageData: ChannelMessagePayload): Promise<Message> => {
+  sendChannelMessage: async (messageData: SendMessageDataPayload): Promise<FullModel<Message>> => {
     try {
-      const response = await axios.post<Message>(
-        `${endpoint}/servers/${messageData.serverId}/channels/${messageData.channelId}/msg`,
-        messageData
+      console.log(messageData);
+      const response = await axios.post<FullModel<Message>>(
+        `${endpoint}${apiPaths.sendMessage(messageData.serverId, messageData.channelId)}`,
+        messageData.message
       );
       return response.data;
     } catch (error) {
@@ -185,12 +184,12 @@ export const serverApi = {
   /**
    * Retrieves all messages for a specific channel.
    * @param channelId - The ID of the channel to fetch messages from.
-   * @returns A promise that resolves to an array of messages.
+   * @returns A promise that resolves to an API response containing a paginated list of messages.
    * @throws Error with a descriptive message if the request fails.
    */
-  getChannelMessages: async (channelId: string): Promise<Message[]> => {
+  getChannelMessages: async (channelId: string): Promise<PaginatedResponse<FullModel<Message>>> => {
     try {
-      const response = await axios.get<Message[]>(`${endpoint}/channels/${channelId}/messages`);
+      const response = await axios.get<PaginatedResponse<FullModel<Message>>>(`${endpoint}${apiPaths.channelMessages(channelId)}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to fetch messages for channel with ID ${channelId}`);
@@ -200,12 +199,12 @@ export const serverApi = {
   /**
    * Retrieves a single message by its ID.
    * @param messageId - The ID of the message to fetch.
-   * @returns A promise that resolves to the message with its details.
+   * @returns A promise that resolves to an API response containing the message with its details.
    * @throws Error with a descriptive message if the request fails.
    */
-  getMessageById: async (messageId: string): Promise<Message> => {
+  getMessageById: async (messageId: string): Promise<FullModel<Message>> => {
     try {
-      const response = await axios.get<Message>(`${endpoint}/messages/${messageId}`);
+      const response = await axios.get<FullModel<Message>>(`${endpoint}${apiPaths.message(messageId)}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to fetch message with ID ${messageId}`);
@@ -215,13 +214,13 @@ export const serverApi = {
   /**
    * Edits a message in a channel.
    * @param updateData - The data to update on the message, including serverId, channelId, and messageId.
-   * @returns A promise that resolves to the updated message.
+   * @returns A promise that resolves to an API response containing the updated message.
    * @throws Error with a descriptive message if the request fails.
    */
-  editChannelMessage: async (updateData: UpdateMessagePayload): Promise<Message> => {
+  editChannelMessage: async (updateData: UpdateChannelMessagePayload): Promise<FullModel<Message>> => {
     try {
-      const response = await axios.patch<Message>(
-        `${endpoint}/server/${updateData.serverId}/channels/${updateData.channelId}/messages/${updateData.messageId}`,
+      const response = await axios.patch<FullModel<Message>>(
+        `${endpoint}${apiPaths.editMessage(updateData.serverId, updateData.channelId, updateData.messageId)}`,
         updateData
       );
       return response.data;
@@ -233,14 +232,15 @@ export const serverApi = {
   /**
    * Deletes a message in a channel.
    * @param deleteData - The data identifying the message to delete, including serverId, channelId, and messageId.
-   * @returns A promise that resolves when the message is successfully deleted.
+   * @returns A promise that resolves to an API response when the message is successfully deleted.
    * @throws Error with a descriptive message if the request fails.
    */
   deleteChannelMessage: async (deleteData: DeleteMessagePayload): Promise<void> => {
     try {
-      await axios.delete(
-        `${endpoint}/server/${deleteData.serverId}/channels/${deleteData.channelId}/messages/${deleteData.messageId}`
+      const response = await axios.delete<void>(
+        `${endpoint}${apiPaths.deleteMessage(deleteData.serverId, deleteData.channelId, deleteData.messageId)}`
       );
+      return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to delete message with ID ${deleteData.messageId}`);
     }
@@ -249,12 +249,12 @@ export const serverApi = {
   /**
    * Retrieves all members for a specific server.
    * @param serverId - The ID of the server to fetch members from.
-   * @returns A promise that resolves to an array of members.
+   * @returns A promise that resolves to an API response containing a paginated list of server members.
    * @throws Error with a descriptive message if the request fails.
    */
-  getServerMembers: async (serverId: string): Promise<Member[]> => {
+  getServerMembers: async (serverId: string): Promise<PaginatedResponse<FullModel<ServerMember>>> => {
     try {
-      const response = await axios.get<Member[]>(`${endpoint}/servers/${serverId}/members`);
+      const response = await axios.get<PaginatedResponse<FullModel<ServerMember>>>(`${endpoint}${apiPaths.serverMembers(serverId)}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to fetch members for server with ID ${serverId}`);
@@ -266,12 +266,12 @@ export const serverApi = {
    * @param serverId - The ID of the server containing the channel.
    * @param channelId - The ID of the channel to update.
    * @param updateData - The data to update on the channel.
-   * @returns A promise that resolves to the updated channel.
+   * @returns A promise that resolves to an API response containing the updated channel.
    * @throws Error with a descriptive message if the request fails.
    */
-  updateChannel: async (serverId: string, channelId: string, updateData: UpdateChannel): Promise<Channel> => {
+  updateChannel: async (serverId: string, channelId: string, updateData: UpdateChannelData): Promise<FullModel<Channel>> => {
     try {
-      const response = await axios.patch<Channel>(`${endpoint}/servers/${serverId}/channels/${channelId}`, updateData);
+      const response = await axios.patch<FullModel<Channel>>(`${endpoint}${apiPaths.channel(channelId)}`, updateData);
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to update channel with ID ${channelId}`);
@@ -282,32 +282,15 @@ export const serverApi = {
    * Deletes a channel from a server.
    * @param serverId - The ID of the server containing the channel.
    * @param channelId - The ID of the channel to delete.
-   * @returns A promise that resolves when the channel is successfully deleted.
+   * @returns A promise that resolves to an API response when the channel is successfully deleted.
    * @throws Error with a descriptive message if the request fails.
    */
   deleteChannel: async (serverId: string, channelId: string): Promise<void> => {
     try {
-      await axios.delete(`${endpoint}/servers/${serverId}/channels/${channelId}`);
+      const response = await axios.delete<void>(`${endpoint}${apiPaths.channel(channelId)}`);
+      return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to delete channel with ID ${channelId}`);
     }
   },
 };
-
-/**
- * Handles API errors and returns a more informative error message
- * @param error - The error object from the API call
- * @param defaultMessage - A default message to use if a more specific one can't be determined
- * @returns An Error object with a descriptive message
- */
-function handleApiError(error: unknown, defaultMessage: string): Error {
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError<{ message: string }>;
-    if (axiosError.response) {
-      return new Error(axiosError.response.data.message || `${defaultMessage}: ${axiosError.response.status}`);
-    } else if (axiosError.request) {
-      return new Error(`${defaultMessage}: No response received`);
-    }
-  }
-  return new Error(defaultMessage);
-}

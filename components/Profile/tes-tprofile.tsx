@@ -9,11 +9,11 @@ import Animated, {
   interpolate 
 } from 'react-native-reanimated';
 import { Loader, MenuItems, Text, UserCard, UserInfo, View } from '@/components';
-import { urlForImage, useAuthorPosts, useProfileStore } from '@/lib';
-import { format, parseISO } from 'date-fns';
+import { multiFormatDateString, urlForImage, useAuthorPosts, useProfileStore } from '@/lib';
 import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
-import { User } from '@/validations';
+import FriendCard from '../user-card';
+import { User } from '@/types';
 
 const HEADER_HEIGHT = 200;
 
@@ -39,8 +39,9 @@ const FriendsComponent = React.memo(({ friends }: { friends: User[] }) => {
         data={friends}
         keyExtractor={(item) => item?.id}
         renderItem={({ item }) => (
-          <UserCard
+          <FriendCard
             key={item?.id}
+            user={item}
             onSelectUser={() => UserNavigate(item?.id)}
           />
         )}
@@ -94,7 +95,7 @@ const ProfilePage = () => {
   });
 
   const stats = useMemo(() => ({
-    Posts: posts?.data.length || 0,
+    Posts: posts?.length || 0,
     Friends: profile?.friends?.length || 0,
   }), [posts, profile]);
 
@@ -151,7 +152,7 @@ const ProfilePage = () => {
           <Text className="text-base font-bold mb-2">About Me:</Text>
           <Text className="text-sm text-gray-700 mb-2">{profile?.bio}</Text>
           <Text className="text-xs text-gray-600">
-            Member Since: {profile?._createdAt && format(parseISO(profile?._createdAt as string), 'dd MMM yyyy')}
+            Member Since: {profile?.createdAt && multiFormatDateString(profile?.createdAt)}
           </Text>
         </View>
 

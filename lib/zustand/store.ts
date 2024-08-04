@@ -1,14 +1,26 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { create } from 'zustand';
-
-import { Profile, Search } from '@/types';
+import { User } from '@/types';
 
 interface ProfileState {
   profile: Profile;
-  setProfile: (profile: Profile) => void;
+  setProfile: (profile: User) => void;
 }
 
+interface Profile extends User {
+  bannerImage: string | null;
+  friends?: User[];
+  streamToken?: string | undefined;
+  country?: string | undefined;
+  connections:[]
+  phoneNumber:string
+}
+interface Search {
+  id: string;
+  name: string;
+  image: string;
+}
 interface SearchState {
   searches: Search[];
   addSearch: (search: Search) => void;
@@ -23,15 +35,23 @@ interface ThemeState {
 
 const initialProfileState: Profile = {
   name: 'Guest Doe',
-  _id: '',
+  id: '',
+  createdAt: new Date().toDateString(),
+  updatedAt: new Date().toDateString(),
+  address: '',
+  emailVerified: null,
+  phone: '',
   username: 'janedoe',
   email: '',
   image: '' as any,
   bio: '',
   friends: [],
   country: '',
-  bannerImage: undefined,
+  bannerImage: 'https://via.placeholder.com/350x150',
   streamToken: '',
+  notificationToken: '',
+  phoneNumber:'',
+  connections:[]
 };
 
 

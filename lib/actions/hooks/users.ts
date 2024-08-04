@@ -1,6 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { userApi, CreateUserInput, UpdateUserInput } from '@/lib/actions/users';
-import { User, TopCreator } from "@/validations";
+import { 
+  useQuery, 
+  useMutation, 
+  useQueryClient 
+} from '@tanstack/react-query';
+import { userApi, UpdateUserInput } from '@/lib/actions/users';
 
 const queryKeys = {
   currentUser: ['currentUser'],

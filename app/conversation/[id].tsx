@@ -1,13 +1,13 @@
-import { memo, useCallback, useEffect, useState } from 'react'; 
+import { memo,useEffect, useState } from 'react'; 
 import { PusherEvent } from '@pusher/pusher-websocket-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 
-import { selectImage,sortMessages,pusher, userMessages, parseIncomingMessage, showToastMessage } from '@/lib';
+import { selectImage,sortMessages,pusher,parseIncomingMessage, showToastMessage, useMessage, useGetConversation, useSendMessage } from '@/lib';
 import { Loader, MessageInput, Text, View, ErrorMessage, Messages } from '@/components';
 
 import AudioVideoComponent from '@/components/audio-video-call';
-import { ChannelType, Message } from '@/validations';
+import { Message } from '@/types';
 interface newMessage {
   caption:string;
   file:any[]
@@ -33,9 +33,16 @@ const UserMessages: React.FC<UserMessagesProps> = () => {
 
   const { id } = useLocalSearchParams()
 const {
-  conversation,loadingconversation,conversationError, 
-  sendMessage,sendingMessage,sendMessageError
-}=userMessages(id as string)
+  data:conversation,
+  isPending:loadingconversation,
+  error:conversationError
+}=useGetConversation(id as string)
+
+const {
+  mutateAsync:sendMessage,
+  isPending:sendingMessage,
+  isError:sendFailed
+}= useSendMessage()
 
   useEffect(()=>{
     const messageHandler=(message:Message)=>{
@@ -87,7 +94,9 @@ const handleSend = async () => {
 
   await sendMessage({ 
     conversationId: conversation.id, 
-    message 
+    message:{
+      text:caption
+    }
   });
 
   setNewMessage({ caption: '', file: [] });
@@ -125,7 +134,7 @@ const handleSend = async () => {
      >
       <Text className='text-sm font-pbold ml-[20%] mt-1.5  '
        >
-        @{conversation?.username}
+        @{conversation?.user?.username}
       </Text> 
       <View className='flex-row items-center gap-5' 
       >

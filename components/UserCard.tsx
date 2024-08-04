@@ -6,12 +6,12 @@ import { urlForImage } from '@/lib';
 import { Conversation } from '@/validations';
 interface UserCardProps {
   conversation: Conversation
- onSelectUser: (id: string) => void;
- lastMessage?: string;
+  onSelectUser: (id: string) => void;
+  lastMessage?: string;
 }
 
 const UserCard: React.FC<UserCardProps> = ({ conversation, onSelectUser }) => {
- const { id,user:{image, name, username}, lastMessage, } = conversation;
+ const { id,user:{image, name, username}, lastMessage } = conversation;
   const isOnline = true;
   const isTyping = false;
   const unreadMessages = 3 

@@ -15,7 +15,7 @@ export default function PostComponent() {
   
 const handleComment=async()=>{
   await sendComment({
-    postId:post?.data.id!,
+    postId:post?.id!,
     comment
   })
   setComment('')
@@ -39,7 +39,7 @@ return (
       />
     </KeyboardAvoidingView>
     <FlatList
-      data={post?.data.comments}
+      data={post?.comments}
       renderItem={({item}) => <UserComment comment={item as any}/>}
     />
   </View>

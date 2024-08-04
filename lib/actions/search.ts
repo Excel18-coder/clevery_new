@@ -1,34 +1,30 @@
-import { Post } from "@/validations";
-import { endpoint } from "../env";
+import axios from 'axios';
+import { handleApiError } from './error';
+import { Post, Server, User } from '@/types';
+import { endpoint } from '../env';
 
+/**
+ * Represents a post in the search results.
+ */
+type PostResult = Pick<Post, 'id' | 'content' | 'tags' | 'createdAt'> & {
+  author: Pick<User, 'id' | 'name' | 'username' | 'image'>;
+};
 
 /**
  * Represents a user in the search results.
  */
-interface UserResult {
-  id: string;
-  name: string;
-  username: string;
-  image: string;
-  bio: string | null;
-}
+type UserResult = Pick<User, 'id' | 'name' | 'username' | 'image' | 'bio'>;
 
 /**
  * Represents a server in the search results.
  */
-interface ServerResult {
-  id: string;
-  name: string;
-  icon: string | null;
-  description: string | null;
-  slug: string;
-}
+type ServerResult = Pick<Server, 'id' | 'name' | 'image' | 'description' | 'slug'>;
 
 /**
  * Maps search types to their corresponding result interfaces.
  */
 type SearchResultMap = {
-  posts: Post[];
+  posts: PostResult[];
   users: UserResult[];
   servers: ServerResult[];
 };
@@ -42,76 +38,75 @@ type SearchResult<T extends keyof SearchResultMap> = SearchResultMap[T];
  * Performs a search based on the given parameters.
  * @param query - The search query string.
  * @param type - The type of search to perform: 'posts', 'users', or 'servers'.
- * @returns A promise that resolves to the search results.
- * @throws An error if the search fails.
+ * @returns A promise that resolves to the API response containing the search results.
+ * @throws Error with a descriptive message if the request fails.
  */
 async function search<T extends 'posts' | 'users' | 'servers'>(
   query: string,
   type: T
 ): Promise<SearchResult<T>> {
-  const url = new URL(`${endpoint}/search`);
-  url.searchParams.append('query', query);
-  url.searchParams.append('type', type);
-
-  const response = await fetch(url.toString());
-
-  if (!response.ok) {
-    throw new Error(`Search failed: ${response.statusText}`);
+  try {
+    const response = await axios.get<SearchResult<T>>(`${endpoint}/search`, {
+      params: { query, type }
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, `Search failed for ${type}`);
   }
-
-  const data = await response.json();
-  return data.results as SearchResult<T>;
 }
 
 /**
  * searchApi provides methods to perform searches for posts, users, and servers.
  */
 const searchApi = {
-
   /**
    * Performs a search for all the search types.
-   *  @param query - The search query string.
-   *  @returns A promise that resolves to an object containing all the search results.
-   *  @throws An error if the search fails.
-   * */
-  search: (query: string) => search<'posts' | 'users' | 'servers'>(query, 'posts'),
+   * @param query - The search query string.
+   * @returns A promise that resolves to an API response containing all the search results.
+   * @throws Error with a descriptive message if the request fails.
+   */
+  search: async (query: string): Promise<SearchResultMap> => {
+    try {
+      const response = await axios.get<SearchResultMap>(`${endpoint}/search`, {
+        params: { query }
+      });
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error, "Search failed for all types");
+    }
+  },
   
   /**
    * Performs a search for posts.
    * @param query - The search query string.
-   * @returns A promise that resolves to an array of PostResult.
+   * @returns A promise that resolves to an API response containing an array of PostResult.
+   * @throws Error with a descriptive message if the request fails.
    */
   searchPosts: (query: string) => search<'posts'>(query, 'posts'),
 
   /**
    * Performs a search for users.
    * @param query - The search query string.
-   * @returns A promise that resolves to an array of UserResult.
+   * @returns A promise that resolves to an API response containing an array of UserResult.
+   * @throws Error with a descriptive message if the request fails.
    */
   searchUsers: (query: string) => search<'users'>(query, 'users'),
 
   /**
    * Performs a search for servers.
    * @param query - The search query string.
-   * @returns A promise that resolves to an array of ServerResult.
+   * @returns A promise that resolves to an API response containing an array of ServerResult.
+   * @throws Error with a descriptive message if the request fails.
    */
   searchServers: (query: string) => search<'servers'>(query, 'servers'),
 };
 
+/**
+ * Handles API errors and returns a more informative error message
+ * @param error - The error object from the API call
+ * @param defaultMessage - A default message to use if a more specific one can't be determined
+ * @returns An Error object with a descriptive message
+ */
+
+
 export default searchApi;
-
-// Usage example:
-async function performSearch() {
-  try {
-    const postResults = await searchApi.searchPosts('nextjs');
-    console.log('Post results:', postResults);
-
-    const userResults = await searchApi.searchUsers('john');
-    console.log('User results:', userResults);
-
-    const serverResults = await searchApi.searchServers('gaming');
-    console.log('Server results:', serverResults);
-  } catch (error) {
-    console.error('Search failed:', error);
-  }
-}

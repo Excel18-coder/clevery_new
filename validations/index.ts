@@ -1,19 +1,21 @@
-import { string, z } from "zod";
+import { z } from 'zod';
 
-export const UserRole = z.enum(['ADMIN', 'USER']).Enum;
-export const ChannelType = z.enum(['TEXT', 'AUDIO', 'VIDEO']).Enum;
-export const MemberRole = z.enum(['ADMIN', 'MEMBER', 'MODERATOR', 'GUEST']).Enum;
+// Enums
+export const UserRoleEnum = z.enum(['ADMIN', 'USER']);
+export const ChannelTypeEnum = z.enum(['TEXT', 'AUDIO', 'VIDEO']);
+export const MemberRoleEnum = z.enum(['ADMIN', 'MEMBER', 'MODERATOR', 'GUEST']);
 
+// Base schema
 const baseSchema = z.object({
   id: z.string().cuid(),
   createdAt: z.string(),
-  updatedAt: z.date(),
+  updatedAt: z.string(),
 });
 
-export const UserSchema = z.object({
-  id: z.string().min(1, "User ID is required"),
+// User schema
+export const UserSchema = baseSchema.extend({
   name: z.string().min(3, "Name must be at least 3 characters"),
-  username: z.string().min(3, "Username must be at least 3 characters"),
+  username: z.string().min(3, "Username must be at least 3 characters").nullable(),
   email: z.string().email("Invalid email address"),
   image: z.string().url(),
   bannerImage: z.string().url().nullable(),
@@ -21,201 +23,167 @@ export const UserSchema = z.object({
   notificationToken: z.string().nullable(),
   phone: z.string().nullable(),
   address: z.string().nullable(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  role: z.enum(['ADMIN', 'MEMBER', 'MODERATOR', 'GUEST']).optional()
+  emailVerified: z.date().nullable(),
 });
 
-export const UserUpdateSchema = UserSchema.omit({id: true, createdAt: true, updatedAt: true, role: true});
+// Comment schema
+export const CommentSchema = baseSchema.extend({
+  text: z.string().min(3, "Minimum 3 characters."),
+  authorId: z.string(),
+  postId: z.string(),
+});
 
-export const messageSchema = baseSchema.extend({
+// Post schema
+export const PostSchema = baseSchema.extend({
+  content: z.string().min(3, "Minimum 3 characters."),
+  authorId: z.string(),
+  tags: z.array(z.string()).optional(),
+  images: z.array(z.string().url()),
+  author: UserSchema,
+  comments: z.array(CommentSchema),
+  likes: z.array(z.string()),
+  saves: z.array(z.string()),
+});
+
+// Message schema
+export const MessageSchema = baseSchema.extend({
   text: z.string(),
   senderId: z.string(),
-  file: z.string().nullable(),
+  file: z.string().url().nullable(),
   seen: z.boolean(),
   conversationId: z.string().nullable(),
   channelId: z.string().nullable(),
-  sender:UserSchema
-});
-
-export const CommentSchema = z.object({
-  id: z.string().min(1, "Comment ID is required"),
-  text: z.string(),
-  authorId: z.string().min(1, "Author ID is required"),
-  postId: z.string().min(1, "Post ID is required"),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  author: UserSchema,
-});
-
-const UpdateCommentSchema = CommentSchema.omit({id: true, createdAt: true, updatedAt: true, author: true});
-
-const CreateCommentSchema = CommentSchema.omit({id: true, createdAt: true, updatedAt: true, author: true});
-
-export const PostSchema = z.object({
-  id: z.string().min(1, "Post ID is required"),
-  content: z.string(),
-  authorId: z.string().min(1, "Author ID is required"),
-  tags: z.array(z.string()).optional(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  author: UserSchema,
-  images: z.custom<string[]>(),
-  likes: z.custom<string[]>(),
-  saves: z.custom<string[]>(),
-  comments: z.array(CommentSchema),
-  _count: z.object({
-    comments: z.number(),
-    likes: z.number(),
-    saves: z.number(),
-  }),
-})
-
-export const CreatePostSchema = PostSchema.omit({id: true, createdAt: true, updatedAt: true, author: true, images: true, comments: true, likes: true, saves: true, _count: true});
-
-export const PostUpdateSchema = PostSchema.omit({id: true, createdAt: true, updatedAt: true, author: true, images: true, comments: true, likes: true, saves: true, _count: true});
-
-export const TopCreatorSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  username: z.string(),
-  image: z.string().nullable(),
-  postCount: z.number(),
-  likesCount: z.number(),
-  commentsCount: z.number(),
-  savesCount: z.number(),
-  score: z.number(),
-});
-
-export const commentSchema = baseSchema.extend({
-  text: z.string(),
-  postId: z.string(),
-  user:z.object({
+  sender:z.object({
     id: z.string(),
     name: z.string(),
-    username: z.string(),
-    image: z.string().nullable(),
+    username: z.string().nullable(),
+    image: z.string().url().nullable(),
   })
 });
 
+// Conversation schema
+export const ConversationSchema = baseSchema.extend({
+  user1Id: z.string(),
+  user2Id: z.string(),
+  user: UserSchema,
+  messages: z.array(MessageSchema),
+  lastMessage: MessageSchema,
+  unreadMessages: z.number(),
+});
+
+
+// ServerMember schema
+export const ServerMemberSchema = baseSchema.extend({
+  serverId: z.string(),
+  userId: z.string(),
+  image: z.string().url().nullable(),
+  name: z.string().nullable(),
+  username: z.string().nullable(),
+  role: MemberRoleEnum,
+  joinedAt: z.date(),
+});
+
+// Channel schema
+export const ChannelSchema = baseSchema.extend({
+  name: z.string().min(1, "Channel name is required"),
+  description: z.string().nullable(),
+  type: ChannelTypeEnum,
+  isPrivate: z.boolean(),
+  serverId: z.string(),
+  messages: z.array(MessageSchema),
+});
+
+// Server schema
+export const ServerSchema = baseSchema.extend({
+  name: z.string().min(1, "Server name is required"),
+  description: z.string().nullable(),
+  creatorId: z.string(),
+  inviteCode: z.string(),
+  slug: z.string(),
+  image: z.string().url().nullable(),
+  members: z.array(ServerMemberSchema),
+  channels: z.array(ChannelSchema),
+});
+
+
+export const ChannelMessagePayloadSchema = z.object({
+  serverId: z.string(),
+  channelId: z.string(),
+  text: z.string().optional(),
+  image: z.string().optional(),
+});
+
+export const UpdateMessagePayloadSchema = z.object({
+  serverId: z.string(),
+  channelId: z.string(),
+  messageId: z.string(),
+  text: z.string().optional(),
+  image: z.string().optional(),
+});
+
 export const PostQuerySchema = z.object({
+  page: z.number().optional().default(1),
+  limit: z.number().optional().default(10),
+  search: z.string().optional(),
+  tag: z.string().optional(), 
+  authorId: z.string().optional(),
+  sortBy: z.string().optional().default('createdAt').nullable(), 
+  sortOrder: z.string().optional().default('desc'),
+});
+// Validation schemas for operations
+export const Validations = {
+  SignUp: z.object({
+    name: z.string().min(4, { message: "Name must be at least 4 characters." }),
+    username: z.string().min(4, { message: "Username must be at least 4 characters." }),
+    email: z.string().email(),
+    password: z.string().min(8, { message: "Password must be at least 8 characters." }),
+  }),
+
+  SignIn: z.object({
+    email: z.string().email(),
+    password: z.string().min(8, { message: "Password must be at least 8 characters." }),
+  }),
+
+  CreatePost: PostSchema.omit({ id: true, createdAt: true, updatedAt: true, authorId: true ,author: true, comments: true,likes:true, saves:true}),
+
+  CreateComment: CommentSchema.omit({ id: true, createdAt: true, updatedAt: true, authorId: true }),
+
+  CreateServer: ServerSchema.omit({ id: true, createdAt: true, updatedAt: true, creatorId: true, inviteCode: true, slug: true, members: true, channels: true}),
+
+  CreateChannel: ChannelSchema.omit({ id: true, createdAt: true, updatedAt: true, serverId: true, messages: true }),
+
+  SendMessage: MessageSchema.omit({ id: true, createdAt: true, updatedAt: true, senderId: true, seen: true,sender: true,file: true,conversationId: true,channelId: true}),
+
+  UpdateMessage: MessageSchema.omit({ createdAt: true, updatedAt: true, senderId: true, seen: true,sender: true}),
+
+  UpdateUser: UserSchema.partial().omit({ id: true, createdAt: true, updatedAt: true, emailVerified: true }),
+
+  UpdateServer: ServerSchema.partial().omit({ id: true, createdAt: true, updatedAt: true, creatorId: true, inviteCode: true, slug: true, members: true, channels: true }),
+
+  UpdateChannel: ChannelSchema.partial().omit({ id: true, createdAt: true, updatedAt: true, serverId: true, messages: true }),
+};
+
+// Query schemas
+export const QuerySchema = z.object({
   page: z.string().regex(/^\d+$/).transform(Number).default('1'),
   limit: z.string().regex(/^\d+$/).transform(Number).default('10'),
   search: z.string().optional(),
   tag: z.string().optional(),
   authorId: z.string().optional(),
-  sortBy: z.enum(['createdAt', 'likes', 'saves']).default('createdAt').optional(),
-  sortOrder: z.enum(['asc', 'desc']).default('desc').optional(),
+  sortBy: z.enum(['createdAt', 'likes', 'saves']).default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
-export const ReactionSchema = z.object({
-  type: z.string(),
-  count: z.number(),
-  messageId: z.string(),
-});
-
-// Conversation and Messages
-
-export const MessageSchema = z.object({
-  id: z.string(),
-  text: z.string(),
-  file: z.string().nullable(),
-  senderId: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  seen: z.boolean(),
-  conversationId: z.string().nullable(),
-  channelId: z.string().nullable(),
-  sender:UserSchema
-})
-
-const CreateMessageSchema = MessageSchema.omit({id: true, createdAt: true, seen: true, sender: true, conversationId: true, channelId: true, updatedAt: true});
-const UpdateMessageSchema = MessageSchema.omit({ createdAt: true, seen: true, sender: true, conversationId: true, channelId: true, updatedAt: true});
-const DeleteMessageSchema = z.object({id: z.string()});
-
-export const ConversationSchema = z.object({
-  id: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  user:UserSchema,
-  lastMessage: MessageSchema,
-  messages: z.array(MessageSchema),
-})
-export const serverLogSchema = baseSchema.extend({
-  serverId: z.string(),
-  logType: z.string(),
-  message: z.string(),
-});
-
-export const serverMemberSchema = baseSchema.extend({
-  serverId: z.string(),
-  userId: z.string(),
-  role:  z.enum(['ADMIN', 'MEMBER', 'MODERATOR', 'GUEST']),
-  joinedAt: z.date(),
-  username:z.string(),
-  image:z.string(),
-});
-
-
-export const ServerSchema = z.object({
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  id: z.string().min(1, "Server ID is required"),
-  name: z.string().min(1, "Server name is required"),
-  image: z.string().url(),
-  description: z.string(),
-  inviteCode: z.string(),
-  slug: z.string(), 
-  creatorId: z.string(),
-  members:z.custom<Member[]>(),
-  channels: z.custom<Channel[]>(),
-  serverLogs: z.custom<typeof serverLogSchema>()
-});
-
-const CreateServerSchema = ServerSchema.omit({id: true,members:true, channels: true, serverLogs: true,slug: true,creatorId: true, createdAt: true, updatedAt: true,inviteCode: true}).extend({members:z.custom<string[]>()});
-const UpdateServerSchema = ServerSchema.omit({members: true, channels: true, serverLogs: true,slug: true,creatorId: true, createdAt: true, updatedAt: true,inviteCode: true});
-
-export const ChannelSchema = z.object({
-  id: z.string().min(1, "Channel ID is required"),
-  name: z.string().min(1, "Channel name is required"),
-  description: z.string().nullable(),
-  type: z.custom<typeof ChannelType>(), 
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  serverId: z.string(),
-  creatorId: z.string(),
-  isPrivate: z.boolean().optional(),
-  messages: z.custom<Message[]>().optional(),
-});
-
-const CreateChannelSchema = ChannelSchema.omit({id: true, serverId: true, creatorId: true,createdAt: true,updatedAt: true, messages: true});
-const UpdateChannelSchema = ChannelSchema.omit({creatorId: true,createdAt: true,updatedAt: true, messages: true});
-
-export type User = z.infer<typeof UserSchema>;
-export type UpdateUser = z.infer<typeof UserUpdateSchema>;
-
-export type Message = z.infer<typeof messageSchema>;
-export type DeleteMessage = z.infer<typeof DeleteMessageSchema>;
-export type Reaction = z.infer<typeof ReactionSchema>;
-export type Conversation = z.infer<typeof ConversationSchema>;
-export type CreateMessage = z.infer<typeof CreateMessageSchema>;
-export type UpdateMessage = z.infer<typeof UpdateMessageSchema>;
-export type CreateReaction = z.infer<typeof ReactionSchema>;
-
-export type Post = z.infer<typeof PostSchema>;
-export type Comment = z.infer<typeof commentSchema>;
-export type PostQuery = z.infer<typeof PostQuerySchema>;
-export type TopCreator = z.infer<typeof TopCreatorSchema>;
-export type CreatePost = z.infer<typeof CreatePostSchema>;
-export type UpdatePost = z.infer<typeof PostUpdateSchema>;
-
-
-export type Server = z.infer<typeof ServerSchema>;
-export type CreateServer = z.infer<typeof CreateServerSchema>;
-export type UpdateServer = z.infer<typeof UpdateServerSchema>;
-export type Member = z.infer<typeof serverMemberSchema>;
-export type ServerLog = z.infer<typeof serverLogSchema>;
-
-export type Channel = z.infer<typeof ChannelSchema>;
-export type CreateChannel = z.infer<typeof CreateChannelSchema>;
-export type UpdateChannel = z.infer<typeof UpdateChannelSchema>;
+// Export all schemas
+export const Schemas = {
+  User: UserSchema,
+  Post: PostSchema,
+  Comment: CommentSchema,
+  Conversation: ConversationSchema,
+  Message: MessageSchema,
+  Server: ServerSchema,
+  ServerMember: ServerMemberSchema,
+  Channel: ChannelSchema,
+  ChannelMessagePayload: ChannelMessagePayloadSchema,
+  UpdateMessagePayload: UpdateMessagePayloadSchema
+};

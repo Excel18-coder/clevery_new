@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View } from 'react-native'
 import AudioVideoComponent from '@/components/audio-video-call'
 
 const Room = () => {

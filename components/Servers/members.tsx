@@ -1,5 +1,6 @@
-import { FlatList, View } from 'react-native';
 import { Skeleton, HStack, Image } from 'native-base';
+import { FlatList, View } from 'react-native';
+
 import { Text } from '../Themed';
 
 interface MembersComponentProps {

@@ -6,18 +6,14 @@ import { SvgFromXml} from 'react-native-svg';
 import { createSvg } from '../assets/images/svgs';
 import { Image } from 'expo-image';
 
-interface ImageType {
-  uri: string;
-}
-
 interface SelectedImagesProps {
-  images: ImageType[];
+  images: string[];
   onDeleteImage: (index: number) => void;
   handleSelectImages: () => void;
 }
 
 const SelectedImages: FC<SelectedImagesProps> = ({ images, onDeleteImage,handleSelectImages }) => {
-  const renderItem: FlatListProps<ImageType>['renderItem'] = ({ item ,index}) => {
+  const renderItem: FlatListProps<string>['renderItem'] = ({ item ,index}) => {
     return (
       <View style={{ marginRight: 10 }}>
         <Image source={{ uri: item.uri }} style={{ width: 100, height: 100, borderRadius: 8 }} />

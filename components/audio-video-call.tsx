@@ -86,7 +86,7 @@ export default function AudioVideoComponent({
               borderColor="white"
               borderWidth={2}
             >
-              {member.name[0]}
+              {member.custom.name[0]}
             </Avatar>
           ))}
         </Avatar.Group>

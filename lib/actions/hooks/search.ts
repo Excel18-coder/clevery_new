@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useQueries, useQuery } from '@tanstack/react-query';
+import { useState, useMemo } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import searchApi from '@/lib/actions/search';
 import useDebounce from '@/lib/hooks/useDebounce';
 import { useTopCreators } from './users';

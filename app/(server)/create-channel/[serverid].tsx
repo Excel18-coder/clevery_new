@@ -35,10 +35,10 @@ const CreateChannel: React.FC = () => {
       if(serverid === '' ) return showToastMessage('No server id provided' );
 
       const res = await createChannel({
-        serverId:serverid as string,
         name,
         description,
-        type:ChannelType.TEXT
+        type:ChannelType.Enum.TEXT,
+        isPrivate:false
       });
       console.log(res)
     } catch (error:any) {

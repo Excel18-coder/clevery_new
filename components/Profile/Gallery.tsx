@@ -1,49 +1,105 @@
-import { MasonryFlashList } from '@shopify/flash-list'
-import { Button } from 'react-native-elements';
+import React, { useState } from 'react';
+import { MasonryFlashList } from '@shopify/flash-list';
+import { Button, Overlay } from 'react-native-elements';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
+import { TouchableOpacity, Dimensions } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { Ionicons } from '@expo/vector-icons';
 
-import {Text, View } from '@/components/Themed'
-import Loader from '@/components/Loader'; 
+import { Text, View } from '@/components/Themed';
+import Loader from '@/components/Loader';
 
 interface GalleryProps {
   images: string[];
-  loading?:boolean
+  loading?: boolean;
 }
 
-const Gallery: React.FC<GalleryProps> = ({ images,loading }) => {
+const { width } = Dimensions.get('window');
+const columnWidth = width / 3 - 8; // 3 columns with 4px gap on each side
+
+const Gallery: React.FC<GalleryProps> = ({ images, loading }) => {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   const renderItem = ({ item }: { item: string }) => {
     return (
-      <View className='flex-1 m-[3px]'>
-        <Image 
-        source={{ uri:item}} 
-        className='h-40 w-40 bg-cover'
-      />
-      </View>
+      <TouchableOpacity
+        onPress={() => setSelectedImage(item)}
+        className="m-1 overflow-hidden rounded-lg"
+        style={{ width: columnWidth, height: columnWidth * 1.5 }}
+      >
+        <Image
+          source={{ uri: item }}
+          style={{ width: '100%', height: '100%' }}
+          contentFit="cover"
+          transition={1000}
+          placeholder={require('@/assets/images/placeholder.png')}
+        />
+      </TouchableOpacity>
     );
   };
 
-  if(loading) return <Loader loadingText='Loading your grid'/>
+  if (loading) return <Loader loadingText="Creating your masterpiece..." />;
 
-  if(images?.length <1){
-    return(
-      <View  className='justify-center p-5 gap-[5px]' >
-        <Text className='text-sm font-rmedium' >You have no images on your grid yet ,click to add and image. </Text>
-        <Button title={'Add friend'} className='w-[50px] m-2.5' onPress={()=>router.push("/users")} />
+  if (images?.length < 1) {
+    return (
+      <View className="flex-1 justify-center items-center p-5">
+        <Ionicons name="images-outline" size={64} color="#888" />
+        <Text className="text-lg font-medium text-center mt-4 mb-2">
+          Your gallery is empty
+        </Text>
+        <Text className="text-sm text-center mb-6">
+          Add some images to start creating your beautiful grid.
+        </Text>
+        <Button
+          title="Add Image"
+          icon={<Ionicons name="add-circle-outline" size={24} color="white" />}
+          buttonStyle={{
+            backgroundColor: '#4CAF50',
+            borderRadius: 25,
+            paddingHorizontal: 20,
+          }}
+          titleStyle={{ marginLeft: 10 }}
+          onPress={() => router.push('/add-image')}
+        />
       </View>
-    )
+    );
   }
+
   return (
-    <View className='flex-1'>
+    <View className="flex-1">
       <MasonryFlashList
         data={images}
         numColumns={3}
         renderItem={renderItem}
-        estimatedItemSize={122}  
+        estimatedItemSize={columnWidth * 1.5}
+        contentContainerStyle={{ paddingHorizontal: 4 }}
       />
+      <Overlay
+        isVisible={!!selectedImage}
+        onBackdropPress={() => setSelectedImage(null)}
+        overlayStyle={{ backgroundColor: 'transparent', padding: 0 }}
+        fullScreen
+      >
+        <BlurView intensity={100} tint="dark" style={{ flex: 1 }}>
+          <TouchableOpacity
+            onPress={() => setSelectedImage(null)}
+            className="absolute top-10 right-5 z-10"
+          >
+            <Ionicons name="close-circle" size={32} color="white" />
+          </TouchableOpacity>
+          {selectedImage && (
+            <Image
+              source={{ uri: selectedImage }}
+              style={{ width: '100%', height: '100%' }}
+              contentFit="contain"
+              transition={300}
+            />
+          )}
+        </BlurView>
+      </Overlay>
     </View>
   );
 };
 
 export default Gallery;
-

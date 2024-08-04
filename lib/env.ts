@@ -9,7 +9,7 @@ export const env =({
 })
  
 
-export const endpoint ='https://clevery.vercel.app/api/'
+export const endpoint ='https://clevery-api.vercel.app/api/'
 // export const endpoint ='http://192.168.43.237:3000'
 
 

@@ -88,3 +88,5 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     url: 'https://u.expo.dev/3df3e8bc-4bda-4ac6-bfbe-a38f7122ff3a',
   },
 });
+
+// eas build -p android --profile preview

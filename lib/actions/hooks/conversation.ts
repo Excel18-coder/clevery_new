@@ -1,6 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { conversationApi, SendMessagePayload, SendUpdateMessagePayload } from '@/lib/actions/conversations';
-import { Conversation, Message, UpdateMessage } from "@/validations";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
+import { 
+  conversationApi, 
+  SendMessagePayload, 
+  SendUpdateMessagePayload 
+} from '@/lib/actions/conversations';
 
 const queryKeys = {
   conversations: ['conversations'],
@@ -23,6 +26,18 @@ export const useGetConversations = () => {
   });
 };
 
+export const useGetMessages = (conversationId: string) => {
+  return useInfiniteQuery({
+    queryKey: [queryKeys.messages, conversationId],
+    queryFn: ({ pageParam = 1 }) => conversationApi.getMessages(conversationId, pageParam),
+    getNextPageParam: (lastPage, allPages) => {
+      // Assuming each page has 20 messages
+      const nextPage = allPages.length + 1;
+      return lastPage?.length === 20 ? nextPage : undefined;
+    },
+    initialPageParam: 1,
+  });
+};
 export const useGetConversation = (conversationId: string) => {
   return useQuery({
     queryKey: queryKeys.conversation(conversationId),

@@ -3,7 +3,7 @@ import { StreamVideoClient } from '@stream-io/video-react-native-sdk';
 import { router } from 'expo-router';
 
 import { useProfileStore } from '@/lib/zustand/store';
-import { userApi } from './actions/users';
+import { userApi } from '../actions/users';
 
 const AuthContext = createContext<any>({});
 

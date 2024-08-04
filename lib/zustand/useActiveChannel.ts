@@ -1,41 +1,49 @@
+import { useState, useEffect } from 'react';
 import { pusher } from "../pusher/config";
-import useActiveList from "./useActiveList";
-import { useEffect, useState } from "react";
 
-const useActiveChannel = () => {
-  const { set, add, remove } = useActiveList();
-  const [activeChannel, setActiveChannel] = useState<any | null>(null);
+/**
+ * Custom hook to check if a user is online
+ * @param {string} userId - The ID of the user to check
+ * @returns {boolean} Whether the user is online
+ */
+const useUserOnlineStatus = (userId: string): boolean => {
+  const [isOnline, setIsOnline] = useState<boolean>(false);
 
   useEffect(() => {
-    let channel = activeChannel;
+    const channel = await pusher.subscribe({channelName: 'presence-messenger'});
 
-    if (!channel) {
-      channel = pusher.subscribe({channelName: 'presence-messenger'});
-      setActiveChannel(channel);
-    }
+    /**
+     * Check if the user is in the current member list
+     * @param {any} members - The members object from Pusher
+     */
+    const checkUserPresence = (members: any) => {
+      setIsOnline(members.has(userId));
+    };
 
     channel.bind('pusher:subscription_succeeded', (members: any) => {
-      const initialMembers: string[] = [];
-
-      members.each((member: Record<string, any>) => initialMembers.push(member.id));
-      set(initialMembers);
+      checkUserPresence(members);
     });
 
     channel.bind("pusher:member_added", (member: Record<string, any>) => {
-      add(member.id);
+      if (member.id === userId) setIsOnline(true);
     });
 
     channel.bind("pusher:member_removed", (member: Record<string, any>) => {
-      remove(member.id);
+      if (member.id === userId) setIsOnline(false);
     });
 
-    return () => {
-      if (activeChannel) {
-        pusher.unsubscribe({channelName: 'presence-messenger'});
-        setActiveChannel(null);
-      }
+    // Check if the user is already online when the component mounts
+    if (channel.members.has(userId)) {
+      setIsOnline(true);
     }
-  }, [activeChannel, set, add, remove]);
+
+    return () => {
+      channel.unbind_all();
+      pusher.unsubscribe({channelName: 'presence-messenger'});
+    };
+  }, [userId]);
+
+  return isOnline;
 };
 
-export default useActiveChannel;
+export default useUserOnlineStatus;

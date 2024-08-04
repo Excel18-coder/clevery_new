@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { serverApi, ChannelMessagePayload, UpdateMessagePayload, DeleteMessagePayload} from '@/lib/actions/servers';
-import { Server, CreateServer, UpdateServer, Channel, CreateChannel, UpdateChannel, Message } from '@/validations';
+import { serverApi } from '../servers';
+import { CreateChannelData, CreateServerData, DeleteMessagePayload, SendMessageDataPayload, UpdateChannelData, UpdateChannelMessagePayload, UpdateServerData } from '@/types';
 
 // Define query keys
 const queryKeys = {
@@ -39,7 +39,7 @@ export const useServer = (serverId: string) => {
 export const useCreateServer = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (server: CreateServer) => serverApi.createServer(server),
+    mutationFn: (server: CreateServerData) => serverApi.createServer(server),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: queryKeys.servers});
     }
@@ -49,7 +49,7 @@ export const useCreateServer = () => {
 export const useUpdateServer = (serverId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (updateData: UpdateServer) => serverApi.updateServer(serverId, updateData),
+    mutationFn: (updateData: UpdateServerData) => serverApi.updateServer(serverId, updateData),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: queryKeys.servers});
     }
@@ -83,7 +83,7 @@ export const useServerChannels = (serverId: string) => {
 export const useCreateChannel = (serverId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (channelData: CreateChannel) => serverApi.createChannel(serverId, channelData),
+    mutationFn: (channelData: CreateChannelData) => serverApi.createChannel(serverId, channelData),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: queryKeys.channels(serverId)});
     }
@@ -93,7 +93,7 @@ export const useCreateChannel = (serverId: string) => {
 export const useSendChannelMessage = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: ChannelMessagePayload) => serverApi.sendChannelMessage(data),
+    mutationFn: (data: SendMessageDataPayload) => serverApi.sendChannelMessage(data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({queryKey: queryKeys.channels(variables.serverId)});
     }
@@ -117,7 +117,7 @@ export const useMessage = (messageId: string) => {
 export const useEditChannelMessage = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: UpdateMessagePayload) => serverApi.editChannelMessage(data),
+    mutationFn: (data: UpdateChannelMessagePayload) => serverApi.editChannelMessage(data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({queryKey: queryKeys.messages(variables.channelId)});
     }
@@ -143,7 +143,7 @@ export const useServerMembers = (serverId: string) => {
 export const useUpdateChannel = (serverId: string, channelId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (updateData: UpdateChannel) => serverApi.updateChannel(serverId, channelId, updateData),
+    mutationFn: (updateData: UpdateChannelData) => serverApi.updateChannel(serverId, channelId, updateData),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: queryKeys.channels(serverId)});
       queryClient.invalidateQueries({queryKey:queryKeys.channel(channelId)});

@@ -21,6 +21,7 @@ export {
 
 export {
   useGetConversations,
+  useGetMessages,
   useGetCreateConversations,
   useGetConversation,
   useDeleteMessage,
@@ -74,7 +75,8 @@ export {
   useSendChannelMessage,
   useServer,
   useServerChannels,
-  useServerData,
   useServerMembers,
   useTopServers
 } from "@/lib/actions/hooks/servers";
+
+export {useChannelData,useServerData} from "@/lib/hooks/server"

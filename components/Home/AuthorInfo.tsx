@@ -10,7 +10,7 @@ type AuthorInfoProps = {
   author: {
     id:string;
     name: string;
-    username?: string;
+    username?: string | null;
     image?: string | null;
   };
   timestamp:string;

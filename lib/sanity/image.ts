@@ -1,7 +1,13 @@
 import createImageUrlBuilder from '@sanity/image-url'
 
-import { dataset, projectId } from './env'
+import { env } from "../env";
 
+export const apiVersion =
+  process.env.NEXT_PUBLIC_SANITY_API_VERSION ||'2023-09-25' || '2023-05-30'
+
+ const dataset = env.sanityDataset;
+ const projectId = env.sanityProjectId
+ 
 const imageBuilder = createImageUrlBuilder({
   projectId: projectId||'',
   dataset: dataset||'', 

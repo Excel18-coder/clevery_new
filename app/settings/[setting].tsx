@@ -2,7 +2,7 @@ import { TouchableOpacity } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 
-import { Account, Appearance, FriendRequests, MenuItems, Notifications, Text, View } from '@/components';
+import { Account, Appearance, FriendRequests, LogoutComponent, MenuItems, Notifications, Text, View } from '@/components';
 
 const Settings = () => {
   const { setting } = useLocalSearchParams();
@@ -31,6 +31,8 @@ const renderContent = (setting: string | any) => {
       return <Notifications />;
     case 'friend-requests':
       return <FriendRequests friendRequests={[]} />;
+    case 'logout':
+      return <LogoutComponent onCancel={()=>{}} onLogout={()=>{}} username='' />;
     default:
       return <MenuItems />;
   }

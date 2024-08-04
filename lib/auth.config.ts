@@ -1,6 +1,7 @@
 import * as AuthSession from 'expo-auth-session';
 import * as Google from 'expo-auth-session/providers/google';
 import * as SecureStore from 'expo-secure-store';
+import { endpoint } from './env';
 // For Google
 const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
   iosClientId: 'YOUR_IOS_CLIENT_ID',
@@ -14,8 +15,8 @@ const githubDiscovery = {
   tokenEndpoint: 'https://github.com/login/oauth/access_token',
   revocationEndpoint: 'https://api.github.com/applications/YOUR_GITHUB_CLIENT_ID/token',
   userInfoEndpoint: 'https://api.github.com/user',
-  clientId: 'YOUR_GITHUB_CLIENT_ID',
-  redirectUri : 'YOUR_GITHUB_REDIRECT',
+  clientId: process.env.GITHUB_CLIENT_ID!,
+  redirectUri : 'https://clevery.vercel.app/api/auth/callback/github',
 };
 
 const [githubRequest, githubResponse, githubPromptAsync] = AuthSession.useAuthRequest(githubDiscovery,{
@@ -40,7 +41,7 @@ const handleGithubLogin = async () => {
 
 const handleServerAuth = async (provider: 'google' | 'github', token: string) => {
   try {
-    const response = await fetch('https://your-nextjs-app.com/api/auth/expo-auth', {
+    const response = await fetch(`${endpoint}/auth/callback/${provider}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ provider, token }),

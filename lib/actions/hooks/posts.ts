@@ -1,6 +1,11 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { 
+  useQuery, 
+  useMutation, 
+  useQueryClient, 
+  useInfiniteQuery
+} from '@tanstack/react-query';
 import { postsApi } from '@/lib/actions/posts';
-import { Post, PostQuery } from "@/validations";
+import { CreatePostData, Post, PostQuery } from '@/types';
 
 const queryKeys = {
   posts: ['posts'],
@@ -9,10 +14,15 @@ const queryKeys = {
   authorPosts: (authorId: string) => ['posts', 'author', authorId],
 };
 
-export const usePosts = (params: PostQuery) => {
-  return useQuery({
+export const usePosts = (params?: Omit<PostQuery, 'page'>) => {
+  return useInfiniteQuery({
     queryKey: [...queryKeys.posts, params],
-    queryFn: () => postsApi.getPosts(params)
+    queryFn: ({ pageParam = 1 }) => postsApi.getPosts({ ...params!, page: pageParam }),
+    getNextPageParam: (lastPage, allPages) => {
+      const nextPage = allPages.length + 1;
+      return lastPage.length === params?.limit ? nextPage : undefined;
+    },
+    initialPageParam: 1,
   });
 };
 
@@ -26,7 +36,7 @@ export const useTopPosts = () => {
 export const useCreatePost = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (postData: Omit<Post, 'id' | 'authorId' | 'createdAt' | 'updatedAt'>) => 
+    mutationFn: (postData: CreatePostData) => 
       postsApi.createPost(postData),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: queryKeys.posts});
@@ -54,7 +64,7 @@ export const useUpdatePost = () => {
     mutationFn: (postData: Partial<Omit<Post, 'authorId' | 'createdAt' | 'updatedAt'>>) => 
       postsApi.updatePost(postData),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({queryKey: queryKeys.post(data.data.id)});
+      queryClient.invalidateQueries({queryKey: queryKeys.post(data.id)});
       queryClient.invalidateQueries({queryKey: queryKeys.posts});
     }
   });
@@ -65,7 +75,7 @@ export const useLikePost = () => {
   return useMutation({
     mutationFn: (postId: string) => postsApi.likePost(postId),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({queryKey: queryKeys.post(data.data.id)});
+      queryClient.invalidateQueries({queryKey: queryKeys.post(data.id)});
       queryClient.invalidateQueries({queryKey: queryKeys.posts});
     }
   });
@@ -76,7 +86,7 @@ export const useSavePost = () => {
   return useMutation({
     mutationFn: (postId: string) => postsApi.savePost(postId),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({queryKey: queryKeys.post(data.data.id)});
+      queryClient.invalidateQueries({queryKey: queryKeys.post(data.id)});
       queryClient.invalidateQueries({queryKey: queryKeys.posts});
     }
   });
@@ -88,7 +98,7 @@ export const useCommentPost = () => {
     mutationFn: (commentObj: { postId: string; comment: string }) => 
       postsApi.commentPost(commentObj),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({queryKey: queryKeys.post(data.data.id)});
+      queryClient.invalidateQueries({queryKey: queryKeys.post(data.id)});
       queryClient.invalidateQueries({queryKey: queryKeys.posts});
     }
   });

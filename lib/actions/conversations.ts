@@ -1,27 +1,19 @@
-import axios, { AxiosError } from 'axios';
-import { Conversation, Message, UpdateMessage } from "@/validations";
-import { endpoint } from '../env';
-
-
-interface ApiResponse<T> {
-  data: T;
-  message: string;
-}
-
+import axios from 'axios';
+import { Conversation, Message, SendMessageData } from '@/types';
+import { endpoint } from '@/lib/env';
+import { handleApiError } from './error';
+import { conversationPaths as apiPaths } from '@/routes';
 export interface SendMessagePayload {
   conversationId: string;
-  message: Omit<Message, 'id' | 'createdAt' | 'updatedAt'>;
+  message: SendMessageData
 }
 
 export interface SendUpdateMessagePayload {
   conversationId: string;
   messageId: string;
-  message:UpdateMessage;
+  message: Omit<Message, 'createdAt' | 'updatedAt'>;
 }
 
-interface UpdateMessagePayload {
-  serverId: string;
-}
 /**
  * API client for conversation-related operations.
  */
@@ -34,8 +26,8 @@ export const conversationApi = {
    */
   getCreateConversations: async (otherUserId: string): Promise<Conversation[]> => {
     try {
-      const response = await axios.post<ApiResponse<Conversation[]>>('/api/conversations', { otherUserId });
-      return response.data.data;
+      const response = await axios.post<Conversation[]>(apiPaths.getCreateConversations, { otherUserId });
+      return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to get or create conversation");
     }
@@ -48,8 +40,8 @@ export const conversationApi = {
    */
   getConversations: async (): Promise<Conversation[]> => {
     try {
-      const response = await axios.get<ApiResponse<Conversation[]>>(`${endpoint}/conversations`);
-      return response.data.data;
+      const response = await axios.get<Conversation[]>(`${endpoint}${apiPaths.getConversations}`);
+      return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to fetch conversations");
     }
@@ -63,10 +55,26 @@ export const conversationApi = {
    */
   getConversation: async (conversationId: string): Promise<Conversation> => {
     try {
-      const response = await axios.get<ApiResponse<Conversation>>(`${endpoint}/conversations/${conversationId}`);
-      return response.data.data;
+      const response = await axios.get<Conversation>(`${endpoint}${apiPaths.getConversation(conversationId)}`);
+      return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to fetch conversation with ID ${conversationId}`);
+    }
+  },
+
+  /**
+   *  Gets a list of messages in a conversation.
+   * @param conversationId - The ID of the conversation.
+   * @param pageParam - The page number to fetch.
+   * @returns A promise that resolves to an array of messages.
+   * @throws Error with a descriptive message if the request fails.
+   */
+  getMessages: async (conversationId: string,pageParam?: number): Promise<Message[]> => {
+    try {
+      const response = await axios.get<Message[]>(`${endpoint}${apiPaths.getConversation(conversationId)}/messages?page=${pageParam}`);
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error, `Failed to fetch messages in conversation with ID ${conversationId}`);
     }
   },
 
@@ -76,10 +84,10 @@ export const conversationApi = {
    * @returns A promise that resolves to the sent message.
    * @throws Error with a descriptive message if the request fails.
    */
-  sendMessage: async (payload:SendMessagePayload): Promise<Message> => {
+  sendMessage: async (payload: SendMessagePayload): Promise<Message> => {
     try {
-      const response = await axios.post<ApiResponse<Message>>(`${endpoint}/conversations/${payload.conversationId}/messages`, payload);
-      return response.data.data;
+      const response = await axios.post<Message>(`${endpoint}${apiPaths.sendMessage(payload.conversationId)}`, payload.message);
+      return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to send message");
     }
@@ -87,14 +95,14 @@ export const conversationApi = {
 
   /**
    * Updates an existing message.
-   * @param message - The updated message data.
+   * @param payload - The updated message data.
    * @returns A promise that resolves to the updated message.
    * @throws Error with a descriptive message if the request fails.
    */
   updateMessage: async (payload: SendUpdateMessagePayload): Promise<Message> => {
     try {
-      const response = await axios.patch<ApiResponse<Message>>(`${endpoint}/conversations/${payload.conversationId}/messages/${payload.message.id}`, payload.message);
-      return response.data.data;
+      const response = await axios.patch<Message>(`${endpoint}${apiPaths.updateMessage(payload.conversationId, payload.message.id)}`, payload.message);
+      return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to update message with ID ${payload.message.id}`);
     }
@@ -102,13 +110,14 @@ export const conversationApi = {
 
   /**
    * Deletes a message.
+   * @param conversationId - The ID of the conversation.
    * @param messageId - The ID of the message to delete.
    * @returns A promise that resolves when the message is deleted.
    * @throws Error with a descriptive message if the request fails.
    */
   deleteMessage: async (conversationId: string, messageId: string): Promise<void> => {
     try {
-      await axios.delete(`${endpoint}/conversations/${conversationId}/messages/${messageId}`);
+      await axios.delete(`${endpoint}${apiPaths.deleteMessage(conversationId, messageId)}`);
     } catch (error) {
       throw handleApiError(error, `Failed to delete message with ID ${messageId}`);
     }
@@ -116,13 +125,14 @@ export const conversationApi = {
 
   /**
    * Marks messages as seen.
+   * @param conversationId - The ID of the conversation.
    * @param messageIds - An array of message IDs to mark as seen.
    * @returns A promise that resolves when the messages are marked as seen.
    * @throws Error with a descriptive message if the request fails.
    */
   markMessagesAsSeen: async (conversationId: string, messageIds: string[]): Promise<void> => {
     try {
-      await axios.post(`${endpoint}/conversations/${conversationId}/messages`, { messageIds });
+      await axios.post(`${endpoint}${apiPaths.markMessagesAsSeen(conversationId)}`, { messageIds });
     } catch (error) {
       throw handleApiError(error, "Failed to mark messages as seen");
     }
@@ -138,31 +148,13 @@ export const conversationApi = {
    */
   editMessage: async (messageId: string, conversationId: string, editedText: string): Promise<Message> => {
     try {
-      const response = await axios.put<ApiResponse<Message>>(`${endpoint}/conversations/${conversationId}/messages/${messageId}`, {
+      const response = await axios.put<Message>(`${endpoint}${apiPaths.editMessage(conversationId, messageId)}`, {
         conversationId,
         text: editedText
       });
-      return response.data.data;
+      return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to edit message with ID ${messageId}`);
     }
   }
 };
-
-/**
- * Handles API errors and returns a more informative error message
- * @param error - The error object from the API call
- * @param defaultMessage - A default message to use if a more specific one can't be determined
- * @returns An Error object with a descriptive message
- */
-function handleApiError(error: unknown, defaultMessage: string): Error {
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError<{ message: string }>;
-    if (axiosError.response) {
-      return new Error(axiosError.response.data.message || `${defaultMessage}: ${axiosError.response.status}`);
-    } else if (axiosError.request) {
-      return new Error(`${defaultMessage}: No response received`);
-    }
-  }
-  return new Error(defaultMessage);
-}

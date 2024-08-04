@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { Post } from '@/types';
+import { Image } from 'expo-image';
+import { Text, View } from './Themed';
 
-const PostComponent = ({ post }) => {
+const PostComponent = ({ post }:{post:Post}) => {
   const [likeScale] = useState(new Animated.Value(1));
   const [commentScale] = useState(new Animated.Value(1));
   const [saveScale] = useState(new Animated.Value(1));
 
-  const animateButton = (animation) => {
+  const animateButton = (animation:any) => {
     Animated.sequence([
       Animated.timing(animation, {
         toValue: 1.2,
@@ -30,10 +33,10 @@ const PostComponent = ({ post }) => {
         style={styles.gradientBackground}
       >
         <View style={styles.header}>
-          <Image source={{ uri: post.avatar }} style={styles.avatar} />
+          <Image source={{ uri: post.author.image! }} style={styles.avatar} />
           <View>
-            <Text style={styles.username}>{post.username}</Text>
-            <Text style={styles.timestamp}>{post.timestamp}</Text>
+            <Text style={styles.username}>{post.author.username}</Text>
+            <Text style={styles.timestamp}>{post.createdAt}</Text>
           </View>
         </View>
         <Text style={styles.content}>{post.content}</Text>

@@ -9,27 +9,13 @@ import { Text, View } from '../Themed';
 import AuthorInfo from './AuthorInfo';
 import ImageCont from './ImagesCont';
 import { User } from '@/validations';
+import { Post } from '@/types';
 
-type PostCardProps = {
-  props: {
-    _id:string;
-    author:User;
-    content:string;
-    images:string[];
-    _createdAt:string;
-    likes:string[];
-    tags:any[];
-    bookmarks:string[]
-    comments:any
-  };
-};
- 
-const Post = ({props}:PostCardProps) => {
-  const {author, content:caption, _createdAt:timestamp,_id:postId,images,likes:postLikes,bookmarks:savesList,tags,comments}= props
+const Post = (post:Post) => {
+  const {author, content:caption, createdAt:timestamp,id:postId,comments, images, tags, likes:likesList, saves:savesList}= post
   const { profile:{ _id:userId } } = useProfileStore();
 
   const [isSaved, setIsSaved] = useState(false);
-  const likesList = postLikes?postLikes?.map((user:any) => user?._ref):[];
   const [likes, setLikes] = useState<string[]>(likesList);
 
   
@@ -38,10 +24,7 @@ const Post = ({props}:PostCardProps) => {
   const { mutate: deletePost } = useDeletePost();
   
   const maxImages = 3;
-  const commentedUserImages = comments && comments.length>0 &&
-    comments?.map((comment: any) => 
-    urlForImage(comment?.user?.image).width(20).url())
-    .slice(0, maxImages);
+  const commentedUserImages = comments && comments.length>0 && comments?.map((comment: any) => comment?.user?.image).slice(0, maxImages)|| [];
 
   const handleLikePost = () => {
     const updatedLikes = likes.includes(userId)
@@ -49,11 +32,11 @@ const Post = ({props}:PostCardProps) => {
       : [...likes, userId];
 
     setLikes(updatedLikes);
-    likePost({ postId, userId });
+    likePost(postId);
   };
 
   const handleSavePost = async() => {
-    savePost({ userId: userId, postId: postId });
+    savePost(postId);
     setIsSaved(true);
   };
   
@@ -62,7 +45,7 @@ const Post = ({props}:PostCardProps) => {
     router.push(`/edit-post/${postId}`)
   }
 
-  const OverlappingImages = ({ images, numberofcomments }:{ images:string[], numberofcomments:string }) => {
+  const OverlappingImages = ({ images, numberofcomments }:{ images:string[], numberofcomments:number }) => {
     return (
       <View className='flex-row items-center gap-4xs py-[2.5px]' >
         <View className='flex-row overflow-hidden w-12.5'>
@@ -88,9 +71,10 @@ const Post = ({props}:PostCardProps) => {
       </View>
       {comments&&comments?.length>0&&
         <OverlappingImages
-        images={commentedUserImages}
-        numberofcomments={comments?.length}
-      />}
+          images={commentedUserImages}
+          numberofcomments={comments?.length}
+        />
+      }
       <ActionStats
         author={author}
         postId={postId}

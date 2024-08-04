@@ -4,14 +4,13 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-import { formatDateString, urlForImage, useServerData } from '@/lib';
+import { formatDateString,useServerData } from '@/lib';
 import { Text, View } from '../Themed';
 import Loader from '../Loader';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { memo } from 'react';
 import MembersComponent from './members';
-import { ChannelType } from '@/validations';
 
 interface ServerComponentProps {
   serverId: string;
@@ -21,13 +20,20 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
   serverId,
 }) => {
 
-  const {server,channels,isLoading:loadingServer,error} =useServerData(serverId)
+  const {
+    server,
+    channels:channelsData,
+    isLoading:loadingServer,
+    error
+  } =useServerData(serverId)
+
+  const channels = channelsData?.items
   if(loadingServer) return <Loader loadingText='Loading Server'/>
   if(error) return <Loader loadingText='Something went wrong'/>
 
-  const textChannels = channels?.filter((channel)=>channel.type[ChannelType.TEXT])
-  const audioChannels = channels?.filter((channel)=>channel.type[ChannelType.AUDIO])
-  const videoChannels = channels?.filter((channel)=>channel.type[ChannelType.VIDEO])
+  const textChannels = channels?.filter((channel)=> channel.type ==="TEXT")
+  const audioChannels = channels?.filter((channel)=> channel.type ==="AUDIO")
+  const videoChannels = channels?.filter((channel)=> channel.type ==="VIDEO")
   const bannerImageUrl = 'https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&w=400'
   if(loadingServer) return <Loader loadingText='Loading Server'/>
   if(error) return <Loader loadingText='Something went wrong'/>
@@ -42,7 +48,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
         <View className='flex-row  justify-between items-center mb-4'>
         <View className='flex-col' >
         <Image 
-          source={{ uri: server?.image}}  
+          source={{ uri: server?.image!}}  
           className='h-[70px] w-[70px] rounded-[35px] border  ' 
         />
           <Text className='font-rbold  mt-5 mr-auto text-lg'>{server?.name}</Text>
@@ -125,7 +131,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
         )}
 
         <MembersComponent
-          userImages={server?.members?.map((usr)=>usr?.image)!}
+          userImages={server?.members?.map((usr)=>usr?.image!)!}
         />
       </View>
     </ScrollView>

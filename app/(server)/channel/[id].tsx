@@ -2,10 +2,11 @@ import { PusherEvent } from '@pusher/pusher-websocket-react-native';
 import { useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 
-import { channelHooks, parseIncomingMessage, pusher, selectImage, sortMessages, useSendChannelMessage} from '@/lib';
+import { parseIncomingMessage, pusher, selectImage, sortMessages, useChannelData, useSendChannelMessage} from '@/lib';
 import { ChannelTop, ErrorMessage, Loader, MessageInput, Messages, View } from '@/components'
 import AudioVideoComponent from '@/components/audio-video-call';
-import { ChannelType, Message } from '@/validations';
+import { Message } from '@/types';
+import { ChannelType } from '@/validations';
 
 interface newMessage {
     caption:string;
@@ -22,8 +23,11 @@ const Channel = () => {
   const {id} = useLocalSearchParams()
 
   const {
-    channel,loading,error
-  } =channelHooks({channelid:id as string})
+    channel,
+    isLoading,
+    error
+
+  } =useChannelData(id as string,"")
   
   
   const {
@@ -72,7 +76,9 @@ const Channel = () => {
       await sendMessage({
         channelId: channel.id,
         serverId: channel.serverId,
-        text:caption,
+        message:{
+          text:caption
+        }
       }).then(() => {
         setNewMessage({ caption: '', file: [] });
       });
@@ -90,12 +96,12 @@ const closeFile = () => {
   setNewMessage({ ...newMessage, file: [] });
 };
   
-  if (loading) return <Loader loadingText='Loading Channel'/>
+  if (isLoading) return <Loader loadingText='Loading Channel'/>
   if (error) return <ErrorMessage message='Failed'/>
     
   const sortedMessages=messages ?sortMessages({messages:messages!}):[]
 
-  if (channel.type === ChannelType.AUDIO){
+  if (channel?.type === "AUDIO"){
     return ( 
       <AudioVideoComponent
         channelName={channel?.name!}

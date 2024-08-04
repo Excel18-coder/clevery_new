@@ -33,5 +33,6 @@ export {default as InviteFriends} from './invites/Invite'
 export {default as CustomButton} from './CustomButton'
 export {default as FormField} from './auth/FormField'
 export {default as Butttons} from './auth/butttons'
+export {default as LogoutComponent} from "./Profile/Logout";
 
 

@@ -1,13 +1,15 @@
+import { request,PERMISSIONS, requestMultiple } from "react-native-permissions";
 import { Alert, Platform,Permission,PermissionsAndroid } from "react-native";
-import * as ImagePicker from 'expo-image-picker';
-import * as Updates from 'expo-updates';
 import * as DocumentPicker from 'expo-document-picker';
-import React from "react";
+import * as ImagePicker from 'expo-image-picker';
 import * as WebBrowser from "expo-web-browser";
+import { format, parseISO } from "date-fns";
+import * as Updates from 'expo-updates';
+import React from "react";
  
 import { Message } from "../types";
-import { format, parseISO } from "date-fns";
-import { request,PERMISSIONS, requestMultiple } from "react-native-permissions";
+
+
 import { Toast } from "native-base";
 
 
@@ -91,7 +93,7 @@ export const chooseImage = async () => {
       });
       if (!result.canceled) {
         const selectedImages = result.assets;
-        return selectedImages;
+        return selectedImages as [];
       }
     } catch (error) {
       console.log(error);
@@ -163,9 +165,9 @@ export async function fetchUpdate() {
 
 export const sortMessages=({messages}:{messages:Message[]})=>{
   if(!messages) return []
-  const sortedMessages = messages?.sort((a, b) => new Date(a._createdAt).getTime() - new Date(b._createdAt).getTime())!;
-  const messagesByMonth: { [month: string]: any } = sortedMessages?.reduce((acc: any, message: any) => {
-    const month = format(parseISO(message?._createdAt), 'ddd MMMM yyyy');
+  const sortedMessages = messages?.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())!;
+  const messagesByMonth: { [month: string]: any } = sortedMessages?.reduce((acc: any, message) => {
+    const month = format(parseISO(message?.createdAt), 'ddd MMMM yyyy');
     if (!acc[month]) {
       acc[month] = [];
     }

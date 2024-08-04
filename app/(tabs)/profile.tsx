@@ -1,22 +1,21 @@
 import { useState } from 'react';
 import { TouchableOpacity, FlatList } from 'react-native';
-import { router } from 'expo-router';
-import { Loader, MenuItems, Text, UserCard, UserInfo, View } from '@/components';
-import { urlForImage, useAuthorPosts, useProfileStore } from '@/lib';
-import { format, parseISO } from 'date-fns';
-import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { Image } from 'expo-image';
+import { Loader, MenuItems, Text, UserCard, UserInfo, View } from '@/components';
+import { formatDateString, urlForImage, useAuthorPosts, useProfileStore } from '@/lib';
 
 const ProfilePage = () => {
   const [activeButton, setActiveButton] = useState('profile');
   const { profile } = useProfileStore();
-  const { data: posts } = useAuthorPosts(profile?._id);
+  const { data: posts } = useAuthorPosts(profile?.id);
 
   if (!profile) return <Loader loadingText='Loading Profile'/>;
 
   const stats = {
     Posts: posts?.data.length || 0,
-    Friends: profile.friends?.length || 0,
+    Friends: profile?.friends?.length || 0,
   };
 
   const renderItem = ({ item }:any) => {
@@ -59,7 +58,7 @@ const ProfilePage = () => {
 
       <View className='mx-2.5'>
         <Text className='font-rmedium mt-3.5'>About Me: <Text className='font-pregular mt-2.5 text-sm'>{profile.bio}</Text></Text>
-        <Text className='font-rmedium mt-3.5'>Member Since: <Text className='font-pregular mt-2.5 text-sm'>{profile._createdAt && format(parseISO(profile._createdAt), 'dd MMM yyyy')}</Text></Text>
+        <Text className='font-rmedium mt-3.5'>Member Since: <Text className='font-pregular mt-2.5 text-sm'>{profile.createdAt && formatDateString(profile.createdAt)}</Text></Text>
       </View>
 
       <View className='flex-row justify-between items-center p-5 me-12 ms-12'>
