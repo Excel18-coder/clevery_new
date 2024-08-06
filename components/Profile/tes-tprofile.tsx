@@ -2,12 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { TouchableOpacity, FlatList, StatusBar } from 'react-native';
 import { router } from 'expo-router';
 import { TabView, SceneMap } from 'react-native-tab-view';
-import Animated, { 
-  useAnimatedScrollHandler, 
-  useSharedValue, 
-  useAnimatedStyle, 
-  interpolate 
-} from 'react-native-reanimated';
+import Animated, { interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { Loader, MenuItems, Text, UserCard, UserInfo, View } from '@/components';
 import { multiFormatDateString, urlForImage, useAuthorPosts, useProfileStore } from '@/lib';
 import { Image } from 'expo-image';
@@ -122,7 +117,7 @@ const ProfilePage = () => {
     <View className="flex-1 bg-gray-100">
       <Animated.View className="absolute top-0 left-0 right-0 overflow-hidden z-10" style={headerAnimatedStyle}>
         <Image
-          source={{ uri: profile.bannerImage ? urlForImage(profile.bannerImage).width(350).url() : '' }}
+          source={{ uri: profile.bannerImage ? profile.bannerImage : '' }}
           className="w-full h-full"
           placeholder={require('@/assets/images/placeholder.png')}
           transition={1000}

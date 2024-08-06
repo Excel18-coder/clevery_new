@@ -1,20 +1,18 @@
 import { MasonryFlashList } from '@shopify/flash-list'
 import { Loader, Text, View } from '@/components';
-import { urlForImage,  } from '@/lib';
 import { Image } from 'expo-image';
 
 interface GalleryProps {
   images: string[];
 }
 
-const Gallery: React.FC<GalleryProps> = () => {
-  const images = []
+const Gallery: React.FC<GalleryProps> = ({ images }) => {
 
   const renderItem = ({ item }: { item: any }) => {
     return (
       <View className='flex-1 m-1.5 items-center'>
         <Image
-          source={{ uri: urlForImage(item.image).width(200).url() }}
+          source={{ uri:item.image }}
           className='h-40 w-[240px] object-cover mb-1.5'
         />
         <Text className='font-sm text-[#333] items-center'>{item.name}</Text>

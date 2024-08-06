@@ -1,10 +1,11 @@
-import React, { memo, useCallback } from 'react';
-import { Feather, Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity, View, ScrollView, StyleSheet } from 'react-native';
-import { Text } from '@/components/Themed';
-import { useThemeStore } from '@/lib/zustand/store';
-import { BlurView } from 'expo-blur';
+import { memo, useCallback } from 'react';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { TouchableOpacity, View, ScrollView } from 'react-native';
+import { Feather, Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+
+import { useThemeStore } from '@/lib/zustand/store';
+import { Text } from '@/components/Themed';
 
 const ThemeDescription = {
   light: 'Light backgrounds, dark text. Easy to read and reduces eye strain.',
@@ -24,36 +25,38 @@ const Appearance = () => {
       opacity: withTiming(mode === label.toLowerCase() ? 1 : 0.6, { duration: 300 }),
     }));
 
-    const accentColor = mode === 'light' ? 'black' : mode === 'dark' ? 'white' : 'black';
-
     return (
-      <Animated.View style={[styles.menuItem, animatedStyle]}>
-        <BlurView intensity={80} tint={mode} style={styles.blurView}>
-          <View style={styles.iconLabelContainer}>
+      <Animated.View className="mb-4 rounded-lg overflow-hidden" style={animatedStyle}>
+        <BlurView intensity={80} tint={mode} className="p-4">
+          <View className="flex-row items-center mb-1">
             <Feather name={iconName} size={24} color="white" />
-            <Text style={styles.label}>{label}</Text>
+            <Text className="text-lg font-semibold ml-2">{label}</Text>
           </View>
-          <Text style={styles.description}>{description}</Text>
+          <Text className="text-sm opacity-70">{description}</Text>
         </BlurView>
       </Animated.View>
     );
   });
 
-  const ColorOption = memo(({ color }:{color: string}) => (
-    <TouchableOpacity
-      style={[styles.colorOption, { backgroundColor: color }]}
-    >
-      {accentColor === color && (
-        <Ionicons name="checkmark-circle" size={20} color="white" />
-      )}
-    </TouchableOpacity>
-  ));
+  const ColorOption = memo(({ color }:{color: string}) => {
+    const accentColor = mode === 'light' ? 'black' : mode === 'dark' ? 'white' : 'black';
+    return (
+      <TouchableOpacity
+        className="w-10 h-10 rounded-full justify-center items-center"
+        style={{ backgroundColor: color }}
+      >
+        {accentColor === color && (
+          <Ionicons name="checkmark-circle" size={20} color="white" />
+        )}
+      </TouchableOpacity>
+    );
+  });
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Appearance</Text>
+    <ScrollView className="flex-1 p-5">
+      <Text className="text-2xl font-bold mb-5">Appearance</Text>
       
-      <View style={styles.themeContainer}>
+      <View className="mb-5">
         {Object.entries(ThemeDescription).map(([theme, description]) => (
           <MenuItem
             key={theme}
@@ -64,24 +67,24 @@ const Appearance = () => {
         ))}
       </View>
 
-      <Text style={styles.subtitle}>Theme Selection</Text>
-      <View style={styles.themeSelectionContainer}>
+      <Text className="text-lg font-bold mt-5 mb-2">Theme Selection</Text>
+      <View className="flex-row justify-between">
         {['default', 'light', 'dark'].map((theme) => (
           <TouchableOpacity
             key={theme}
-            style={styles.themeOption}
+            className="flex-row items-center"
             onPress={() => toggleTheme(theme as 'light' | 'dark' | 'default')}
           >
-            <View style={[styles.radioButton, mode === theme && styles.radioButtonSelected]}>
-              {mode === theme && <View style={styles.radioButtonInner} />}
+            <View className={`h-5 w-5 rounded-full border-2 border-blue-500 items-center justify-center ${mode === theme ? 'bg-blue-500' : ''}`}>
+              {mode === theme && <View className="h-2.5 w-2.5 rounded-full bg-white" />}
             </View>
-            <Text style={styles.themeOptionText}>{theme}</Text>
+            <Text className="text-base ml-2">{theme}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      <Text style={styles.subtitle}>Accent Color</Text>
-      <View style={styles.colorOptionsContainer}>
+      <Text className="text-lg font-bold mt-5 mb-2">Accent Color</Text>
+      <View className="flex-row justify-between mt-2">
         {['#007AFF', '#FF3B30', '#4CD964', '#FF9500', '#5856D6'].map((color) => (
           <ColorOption key={color} color={color} />
         ))}
@@ -89,90 +92,5 @@ const Appearance = () => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  themeContainer: {
-    marginBottom: 20,
-  },
-  menuItem: {
-    marginBottom: 15,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  blurView: {
-    padding: 15,
-  },
-  iconLabelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  label: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginLeft: 10,
-  },
-  description: {
-    fontSize: 14,
-    opacity: 0.7,
-  },
-  themeSelectionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  themeOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  radioButton: {
-    height: 20,
-    width: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#007AFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  radioButtonSelected: {
-    backgroundColor: '#007AFF',
-  },
-  radioButtonInner: {
-    height: 10,
-    width: 10,
-    borderRadius: 5,
-    backgroundColor: 'white',
-  },
-  themeOptionText: {
-    fontSize: 16,
-  },
-  colorOptionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  colorOption: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default memo(Appearance);

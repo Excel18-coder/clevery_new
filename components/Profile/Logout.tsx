@@ -33,7 +33,7 @@ const LogoutComponent: React.FC<LogoutComponentProps> = ({ onLogout, onCancel, u
     >
       <View style={styles.content}>
         <LottieView
-          source={require('../assets/loading.json')}
+          source={require('../../assets/animations/loading.json')}
           autoPlay
           loop
           style={styles.animation}

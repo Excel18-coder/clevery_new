@@ -25,7 +25,7 @@ const Header = ({user,messages,created,channel}:any) => {
       >
         {user?.image && 
           <Image
-            source={{ uri:urlForImage(user?.image).width(100).url()}} 
+            source={{ uri:urlForImage(user?.image)}} 
             className='w-[60px] h-[60px] rounded-[20px]'
           />
         }

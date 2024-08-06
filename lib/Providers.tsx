@@ -1,21 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactNode } from 'react'
-
 import { StreamVideoRN } from '@stream-io/video-react-native-sdk';
-import { AndroidImportance } from '@notifee/react-native';
 import { NativeBaseProvider } from 'native-base'
+
+import { MessagingProvider } from './contexts/messaging';
 import { AuthProvider } from './contexts/auth';
 
 StreamVideoRN.updateConfig({
   foregroundService: {
     android: {
-      // channel: {
-      //   id: 'stream_call_foreground_service',
-      //   name: 'Service to keep call alive',
-      //   lights: false,
-      //   vibration: false,
-      //   importance: AndroidImportance.DEFAULT,
-      // }, 
       notificationTexts: {
         title: 'Call is in progress',
         body: 'Tap to return to the call',
@@ -23,7 +15,7 @@ StreamVideoRN.updateConfig({
     },
   },
 });
-export const Providers = ({ children }:{children:ReactNode}) => {
+export const Providers = ({ children }:{children:React.ReactNode}) => {
 
   const queryClient = new QueryClient();
 
@@ -36,7 +28,9 @@ export const Providers = ({ children }:{children:ReactNode}) => {
     <QueryClientProvider client={queryClient}>
       <NativeBaseProvider config={config} >
         <AuthProvider>
-          {children}
+          <MessagingProvider>
+            {children}
+          </MessagingProvider>
         </AuthProvider>
       </NativeBaseProvider>
       </QueryClientProvider>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, SafeAreaView, StatusBar } from 'react-native';
+import { SafeAreaView, StatusBar, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { 
+  Call,
   CallContent, 
   MemberRequest, 
   StreamCall, 
@@ -10,14 +11,12 @@ import {
   VideoRendererProps, 
   useAutoEnterPiPEffect 
 } from '@stream-io/video-react-native-sdk';
-import { RTCView } from '@stream-io/react-native-webrtc';
 import { Text, View } from './Themed';
 import { useProfileStore } from '@/lib';
 import { requestAndUpdatePermissions } from '@/lib/utils';
 import uuid from 'react-native-uuid';
-import { LocalVideoRenderer } from './calls/local-video';
-import { Avatar, Icon } from 'native-base';
-import { MaterialIcons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
+import CustomVideoRenderer from './calls/video-render';
 
 interface AudioVideoProps {
   channelName: string;
@@ -33,14 +32,14 @@ export default function AudioVideoComponent({
   video
 }: AudioVideoProps) {
   const [client, setClient] = useState<StreamVideoClient | null>(null);
-  const [call, setCall] = useState<StreamCall | null>(null);
+  const [call, setCall] = useState<Call | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useAutoEnterPiPEffect();
 
   const { profile } = useProfileStore();
-  const user: User = { id: profile._id };
+  const user: User = { id: profile.id };
   const apiKey = process.env.EXPO_PUBLIC_STREAM_API_KEY!;
   
   const initializeClient = useCallback(async () => {
@@ -49,7 +48,7 @@ export default function AudioVideoComponent({
       await requestAndUpdatePermissions();
       const myClient = new StreamVideoClient({ apiKey, user, token: profile.streamToken! });
       setClient(myClient);
-      const newCall = myClient.call(callType, "default_421f166e1dee-4357-9762-14de54260b09");
+      const newCall = myClient.call(callType, uuid.v4() as string);
       await newCall.getOrCreate();
       setCall(newCall);
     } catch (err) {
@@ -74,115 +73,65 @@ export default function AudioVideoComponent({
   }, [initializeClient]);
 
   const CustomCallTopView = () => (
-    <SafeAreaView style={styles.topView}>
-      <View style={styles.topBar}>
-        <Icon as={MaterialIcons} name="arrow-back" size="md" color="white" />
-        <Text style={styles.channelName}>{channelName}</Text>
-        <Avatar.Group max={3} size="sm">
-          {members?.map((member, index) => (
-            <Avatar 
-              key={index} 
-              source={{ uri: member.avatar }}
-              borderColor="white"
-              borderWidth={2}
-            >
-              {member.custom.name[0]}
-            </Avatar>
-          ))}
-        </Avatar.Group>
-      </View>
-    </SafeAreaView>
+    <View className="absolute top-0 left-0 right-0 flex-row justify-between items-center p-4 bg-black bg-opacity-50">
+      <Text className="text-white font-bold text-lg">{channelName}</Text>
+      <TouchableOpacity
+        onPress={() => call?.endCall()}
+        className="bg-red-500 rounded-full p-2"
+      >
+        <AntDesign name="phone" size={24} color="white" />
+      </TouchableOpacity>
+    </View>
   );
 
-  const CustomVideoRenderer = ({ participant }: VideoRendererProps) => {
-    const { videoStream } = participant;
-    return (
-      <View style={styles.videoContainer}>
-        {videoStream ? (
-          <RTCView style={styles.rtcView} streamURL={videoStream.id} />
-        ) : (
-          <View style={styles.noVideoFallback}>
-            <Avatar size="xl" source={{ uri: participant.image }}>
-              {participant.name?.[0]}
-            </Avatar>
-            <Text style={styles.participantName}>{participant.name}</Text>
-          </View>
-        )}
-      </View>
-    );
-  };
+  // const CustomVideoRenderer = ({ participant }: VideoRendererProps) => (
+  //   <View className="flex-1 rounded-lg overflow-hidden">
+  //     {/* Implement your custom video renderer here */}
+  //     <Text className="text-white text-center absolute bottom-2 left-0 right-0">
+  //       {participant.name || participant.userId}
+  //     </Text>
+  //   </View>
+  // );
 
   if (isLoading) {
     return (
-      <View style={styles.centerContainer}>
-        <Text>Initializing call...</Text>
-      </View>
+      <SafeAreaView className="flex-1 bg-gray-900 justify-center items-center">
+        <StatusBar barStyle="light-content" />
+        <ActivityIndicator size="large" color="#4CAF50" />
+        <Text className="text-white mt-4">Initializing call...</Text>
+      </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-      </View>
+      <SafeAreaView className="flex-1 bg-gray-900 justify-center items-center">
+        <StatusBar barStyle="light-content" />
+        <AntDesign name="warning" size={48} color="#FFC107" />
+        <Text className="text-white mt-4 text-center px-6">{error}</Text>
+        <TouchableOpacity
+          onPress={initializeClient}
+          className="mt-6 bg-blue-500 py-3 px-6 rounded-full"
+        >
+          <Text className="text-white font-bold">Retry</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
     );
   }
 
   if (!client || !call) return null;
 
   return (
-    <StreamVideo client={client}>
-      <StreamCall call={call}>
+    <SafeAreaView className="flex-1 bg-gray-900">
+      <StatusBar barStyle="light-content" />
+      <StreamVideo client={client}>
+        <StreamCall call={call}>
         <CallContent 
-          VideoRenderer={(v) => <CustomVideoRenderer participant={v.participant} />}
+          VideoRenderer={(props) => <CustomVideoRenderer participant={props.participant} />}
           CallTopView={CustomCallTopView}
         />
-      </StreamCall>
-    </StreamVideo>
+        </StreamCall>
+      </StreamVideo>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  topView: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    width: '100%',
-  },
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 10,
-  },
-  channelName: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  videoContainer: {
-    flex: 1,
-    backgroundColor: '#1a1a1a',
-  },
-  rtcView: {
-    flex: 1,
-  },
-  noVideoFallback: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#2c2c2c',
-  },
-  participantName: {
-    color: 'white',
-    marginTop: 10,
-    fontSize: 16,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorText: {
-    color: 'red',
-    textAlign: 'center',
-  },
-});

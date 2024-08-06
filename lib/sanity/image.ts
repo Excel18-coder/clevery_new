@@ -13,8 +13,36 @@ const imageBuilder = createImageUrlBuilder({
   dataset: dataset||'', 
 })
 
-export const urlForImage = (source:any) => {
-  return imageBuilder?.image(source).auto('format').fit('max')
+export const urlForImage = (source: string | any): any => {
+  // Check if the source is a string (URL)
+  if (typeof source === 'string') {
+    // Check if it's a Sanity image URL
+    const sanityImageRegex = /^image-([a-f\d]+)-\d+x\d+-\w+$/;
+    const match = source.match(sanityImageRegex);
+
+    if (match) {
+      // Extract the ID from the URL
+      const imageId = match[1];
+      
+      // Create a Sanity image object
+      const sanityImage = {
+        _type: 'image',
+        asset: {
+          _ref: `image-${imageId}`,
+          _type: 'reference'
+        }
+      };
+
+      // Return the optimized URL
+      return imageBuilder.image(sanityImage).auto('format').fit('max').url();
+    }
+    
+    // If it's not a Sanity image URL, return the original URL
+    return source;
+  }
+
+  // If it's already a Sanity image object, process it
+  return imageBuilder.image(source).auto('format').fit('max').url();
 }
 
 export async function uploadImage(file:string) {

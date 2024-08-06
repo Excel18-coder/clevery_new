@@ -8,7 +8,6 @@ import { userApi } from '../actions/users';
 const AuthContext = createContext<any>({});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [client, setClient] = useState<StreamVideoClient>();
   const { profile,setProfile } = useProfileStore();
 
   const fetchAndSetProfile = async () => {
@@ -25,11 +24,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   useEffect(() => {
     fetchAndSetProfile();
-
-    return () => {
-      client?.disconnectUser();
-      setClient(undefined);
-    };
   }, []);
 
   const value = {

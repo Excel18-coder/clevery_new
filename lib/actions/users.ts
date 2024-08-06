@@ -3,6 +3,7 @@ import { handleApiError } from "./error";
 import { endpoint } from "@/lib/env";
 import { User } from "@/types";
 import { userPaths as apiPaths } from "@/routes";
+import { Profile } from "../zustand/store";
 
 // Users API Types
 type UserResponse = Omit<User, 'password'>;
@@ -22,9 +23,9 @@ export const userApi = {
    * @returns A promise that resolves to the API response containing the current user's details.
    * @throws Error with a descriptive message if the request fails
    */
-  getCurrentUser: async (): Promise<UserResponse> => {
+  getCurrentUser: async (): Promise<Profile> => {
     try {
-      const response = await axios.get<UserResponse>(`${endpoint}${apiPaths.currentUser}`);
+      const response = await axios.get<Profile>(`${endpoint}${apiPaths.currentUser}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to fetch current user");

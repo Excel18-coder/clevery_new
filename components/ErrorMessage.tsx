@@ -12,7 +12,7 @@ const ErrorMessage = ({ message = 'An error occurred', onRetry}:Props) => (
     <View className="bg-white w-5/6 rounded-3xl p-8 shadow-lg">
       <View className="items-center">
         <LottieView
-          source={require('../assets/loading.json')}
+          source={require('../assets/animations/loading.json')}
           autoPlay
           loop
           style={{ width: 150, height: 150 }}

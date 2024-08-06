@@ -1,84 +1,105 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { PusherEvent } from '@pusher/pusher-websocket-react-native';
 import * as BackgroundFetch from 'expo-background-fetch';
-import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
 import { AppState } from 'react-native';
+import { create } from "zustand";
 import axios from 'axios';
+import notifee, { AndroidImportance } from '@notifee/react-native';
 
- import { Conversation, Message, User } from '@/types';
-import { pusher } from '../pusher/config';
-import { endpoint } from '../env';
+import { Conversation, Message, User } from '@/types';
+import { pusher } from '@/lib/pusher/config';
+import { endpoint } from '@/lib/env';
 
 const BACKGROUND_FETCH_TASK = 'background-fetch';
 const NOTIFICATION_CHANNEL_ID = 'new-messages';
 
+/**
+ * @typedef {Object} OnlineFriendsStore
+ * @property {User[]} onlineFriends - The list of online friends
+ * @property {(friends: User[]) => void} setOnlineFriends - Function to set online friends
+ * @property {(friend: User) => void} addOnlineFriend - Function to add an online friend
+ * @property {(friendId: string) => void} removeOnlineFriend - Function to remove an online friend
+ */
+type OnlineFriendsStore = {
+  onlineFriends: User[];
+  setOnlineFriends: (friends: User[]) => void;
+  addOnlineFriend: (friend: User) => void;
+  removeOnlineFriend: (friendId: string) => void;
+};
+
+/**
+ * Zustand store for managing online friends
+ */
+const useOnlineFriendsStore = create<OnlineFriendsStore>((set) => ({
+  onlineFriends: [],
+  setOnlineFriends: (friends) => set({ onlineFriends: friends }),
+  addOnlineFriend: (friend) => set((state) => ({ onlineFriends: [...state.onlineFriends, friend] })),
+  removeOnlineFriend: (friendId) => set((state) => ({ 
+    onlineFriends: state.onlineFriends.filter((friend) => friend.id !== friendId) 
+  })),
+}));
 
 /**
  * @typedef {Object} MessagingContextValue
  * @property {Conversation[]} conversations - The list of user conversations
- * @property {User[]} onlineFriends - The list of online friends
- * @property {function} refreshConversations - Function to refresh conversations
- * @property {function} markConversationAsRead - Function to mark a conversation as read
- * @property {function} sendMessage - Function to send a new message
+ * @property {() => Promise<void>} refreshConversations - Function to refresh conversations
  */
-
 type MessagingContextValue = {
   conversations: Conversation[];
-  onlineFriends: User[];
   refreshConversations: () => Promise<void>;
 };
+
 const MessagingContext = createContext<MessagingContextValue | null>(null);
 
 /**
  * Provider component for messaging-related functionality
- * @param {Object} props
- * @param {React.ReactNode} props.children
+ * @param {Object} props - The component props
+ * @param {React.ReactNode} props.children - The child components
  */
 export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [onlineFriends, setOnlineFriends] = useState<User[]>([]); 
- 
+  const { setOnlineFriends, addOnlineFriend, removeOnlineFriend } = useOnlineFriendsStore();
+
   /**
    * Subscribes to Pusher channels for each conversation and friend status
    */
   const subscribeToPusherChannels = async () => {
     if (!pusher) return;
+    
     // Subscribe to friends' online status
-    await pusher.subscribe({channelName:'presence-friends',
+    await pusher.subscribe({
+      channelName: 'presence-friends',
       onEvent: (event: PusherEvent) => {
         if (event.eventName === 'pusher:member_added') {
-          (member: { id: string; info: User }) => {
-            setOnlineFriends(prev => [...prev, member.info]);
-            showOnlineNotification(member.info);
-          }
+          const member = event.data as { id: string; info: User };
+          addOnlineFriend(member.info);
+          showOnlineNotification(member.info);
         }
         if (event.eventName === 'pusher:member_removed') {
-          (member: { id: string }) => {
-            setOnlineFriends(prev => prev.filter(friend => friend.id !== member.id));
-          }
+          const member = event.data as { id: string };
+          removeOnlineFriend(member.id);
         }
       }
     });
     
     conversations.forEach(async conversation => {
       await pusher.subscribe({
-        channelName:conversation.id,
+        channelName: conversation.id,
         onEvent: (event: PusherEvent) => {
           if (event.eventName === 'new-message') {
-            async (data: { conversationId: string; message: Message; senderName: string; senderImage: string }) => {
-              // Update the specific conversation with the new message
-              const updatedConversations = conversations.map(conv => 
-                conv.id === data.conversationId
-                  ? { ...conv, lastMessage: data.message, unreadCount: conv.unreadMessages + 1 }
-                  : conv
-              );
-              setConversations(updatedConversations);
-      
-              // Show a notification if the app is in the background
-              if (AppState.currentState !== 'active') {
-                await showNotification(data.senderName, data.message.text, data.senderImage);
-              }
+            const data = event.data as { conversationId: string; message: Message; senderName: string; senderImage: string };
+            // Update the specific conversation with the new message
+            const updatedConversations = conversations.map(conv => 
+              conv.id === data.conversationId
+                ? { ...conv, lastMessage: data.message, unreadCount: conv.unreadMessages + 1 }
+                : conv
+            );
+            setConversations(updatedConversations);
+    
+            // Show a notification if the app is in the background
+            if (AppState.currentState !== 'active') {
+              showNotification(data.senderName, data.message.text, data.senderImage);
             }
           }
         }
@@ -87,34 +108,36 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }
 
   /**
-   * Shows a notification for a new message
+   * Shows a notification for a new message using @notifee
    * @param {string} senderName - Name of the message sender
    * @param {string} messageContent - Content of the message
    * @param {string} senderImage - URL of the sender's profile image
    */
   const showNotification = async (senderName: string, messageContent: string, senderImage: string): Promise<void> => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: `New message from ${senderName}`,
-        body: messageContent,
-        data: { senderImage },
+    await notifee.displayNotification({
+      title: `New message from ${senderName}`,
+      body: messageContent,
+      android: {
+        channelId: NOTIFICATION_CHANNEL_ID,
+        largeIcon: senderImage,
+        importance: AndroidImportance.HIGH,
       },
-      trigger: null,
     });
   };
 
   /**
-   * Shows a notification when a friend comes online
+   * Shows a notification when a friend comes online using @notifee
    * @param {User} friend - The friend who came online
    */
   const showOnlineNotification = async (friend: User): Promise<void> => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: 'Friend Online',
-        body: `${friend.name} is now online`,
-        data: { friendImage: friend.image },
+    await notifee.displayNotification({
+      title: 'Friend Online',
+      body: `${friend.name} is now online`,
+      android: {
+        channelId: NOTIFICATION_CHANNEL_ID,
+        largeIcon: friend.image,
+        importance: AndroidImportance.DEFAULT,
       },
-      trigger: null,
     });
   };
 
@@ -133,6 +156,7 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       console.error('Error fetching conversations:', error);
     }
   };
+
   /**
    * Configures background fetch task
    */
@@ -150,22 +174,14 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   /**
-   * Configures notifications
+   * Configures notifications using @notifee
    */
   const configureNotifications = async (): Promise<void> => {
-    await Notifications.setNotificationChannelAsync(NOTIFICATION_CHANNEL_ID, {
+    await notifee.createChannel({
+      id: NOTIFICATION_CHANNEL_ID,
       name: 'New Messages',
-      importance: Notifications.AndroidImportance.HIGH,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-    });
-
-    Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true,
-      }),
+      importance: AndroidImportance.HIGH,
+      vibration: true,
     });
   };
 
@@ -185,9 +201,9 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       TaskManager.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
       if (pusher) {
         conversations.forEach(conversation => {
-          pusher.unsubscribe({channelName:conversation.id});
+          pusher.unsubscribe({channelName: conversation.id});
         });
-        pusher.unsubscribe({channelName:'presence-friends'});
+        pusher.unsubscribe({channelName: 'presence-friends'});
         pusher.disconnect();
       }
     };
@@ -201,7 +217,6 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const contextValue: MessagingContextValue = {
     conversations,
-    onlineFriends,
     refreshConversations: fetchConversations
   };
 
@@ -211,9 +226,11 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     </MessagingContext.Provider>
   );
 }
+
 /**
  * Custom hook to use the messaging context
- * @returns {MessagingContextValue}
+ * @returns {MessagingContextValue} The messaging context value
+ * @throws {Error} If used outside of MessagingProvider
  */
 export const useMessaging = (): MessagingContextValue => {
   const context = useContext(MessagingContext);
@@ -222,3 +239,9 @@ export const useMessaging = (): MessagingContextValue => {
   }
   return context;
 };
+
+/**
+ * Custom hook to use the online friends store
+ * @returns {OnlineFriendsStore} The online friends store
+ */
+export const useOnlineFriends = (): OnlineFriendsStore => useOnlineFriendsStore();

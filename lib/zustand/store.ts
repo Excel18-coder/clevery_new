@@ -8,12 +8,20 @@ interface ProfileState {
   setProfile: (profile: User) => void;
 }
 
-interface Profile extends User {
+export interface Profile extends User {
   bannerImage: string | null;
   friends?: User[];
   streamToken?: string | undefined;
   country?: string | undefined;
-  connections:[]
+  connections:{
+    github: string
+    linkedin: string
+    twitter: string
+    website: string
+    facebook: string
+    instagram: string
+    discord: string
+  }
   phoneNumber:string
 }
 interface Search {
@@ -51,7 +59,15 @@ const initialProfileState: Profile = {
   streamToken: '',
   notificationToken: '',
   phoneNumber:'',
-  connections:[]
+  connections:{
+    github: '',
+    linkedin: '',
+    twitter: '',
+    website: '',
+    facebook: '',
+    instagram: '',
+    discord: '',
+  }
 };
 
 

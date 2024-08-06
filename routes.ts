@@ -24,7 +24,7 @@ const conversationPaths = {
 
 const postsPaths = {
   getPosts: '/posts',
-  getTopPosts: '/posts/top',
+  getTopPosts: '/posts',
   createPost: '/posts',
   getPostById: (id: string) => `/posts/${id}`,
   getPostsByAuthorId: (id: string) => `/posts/author/${id}`,
@@ -45,8 +45,8 @@ const serverPaths = {
   messages: '/messages',
   message: (id: string) => `/messages/${id}`,
   sendMessage: (serverId: string, channelId: string) => `/servers/${serverId}/channels/${channelId}/msg`,
-  editMessage: (serverId: string, channelId: string, messageId: string) => `/server/${serverId}/channels/${channelId}/messages/${messageId}`,
-  deleteMessage: (serverId: string, channelId: string, messageId: string) => `/server/${serverId}/channels/${channelId}/messages/${messageId}`,
+  editMessage: (serverId: string, channelId: string, messageId: string) => `/server/${serverId}/channels/${channelId}/msg/${messageId}`,
+  deleteMessage: (serverId: string, channelId: string, messageId: string) => `/server/${serverId}/channels/${channelId}/msg/${messageId}`,
 };
 
 export { postsPaths, serverPaths, userPaths, conversationPaths }

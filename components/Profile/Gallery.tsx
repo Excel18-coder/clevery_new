@@ -33,7 +33,7 @@ const Gallery: React.FC<GalleryProps> = ({ images, loading }) => {
           style={{ width: '100%', height: '100%' }}
           contentFit="cover"
           transition={1000}
-          placeholder={require('@/assets/images/placeholder.png')}
+          // placeholder={require('@/assets/images/placeholder.png')}
         />
       </TouchableOpacity>
     );

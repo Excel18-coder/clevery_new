@@ -1,80 +1,71 @@
-import { memo,useState } from 'react';
+import React, { memo, useState, useCallback } from 'react';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
-
-import { useLikePost, useSavePost , useDeletePost, urlForImage, useProfileStore} from '@/lib';
+import { Text, View } from '../Themed';
+import { useLikePost, useSavePost, useDeletePost, useProfileStore } from '@/lib';
 import { checkIsLiked } from '@/lib/utils';
 import ActionStats from './ActionStats';
-import { Text, View } from '../Themed';
 import AuthorInfo from './AuthorInfo';
 import ImageCont from './ImagesCont';
-import { User } from '@/validations';
-import { Post } from '@/types';
+import { Post as PostType } from '@/types';
 
-const Post = (post:Post) => {
-  const {author, content:caption, createdAt:timestamp,id:postId,comments, images, tags, likes:likesList, saves:savesList}= post
-  const { profile:{ _id:userId } } = useProfileStore();
+const OverlappingImages = memo(({ images, numberofcomments }: { images: string[], numberofcomments: number }) => (
+  <View className="flex-row items-center gap-4xs py-[2.5px]">
+    <View className="flex-row overflow-hidden w-12.5">
+      {images?.map((imageSource, index) => (
+        <Image
+          key={index}
+          source={imageSource}
+          className="w-4 h-4 rounded-[10px] mr-[-10px]"
+        />
+      ))}
+    </View>
+    <Text className="text-sm font-rmedium">{numberofcomments} people commented</Text>
+  </View>
+));
 
+const Post = memo(({ author, content: caption, createdAt: timestamp, id: postId, comments, images, tags, likes: initialLikes, saves: savesList }: PostType) => {
+  const { profile: { id: userId } } = useProfileStore();
   const [isSaved, setIsSaved] = useState(false);
-  const [likes, setLikes] = useState<string[]>(likesList);
+  const [likes, setLikes] = useState<string[]>(initialLikes);
 
-  
-  const { mutate: likePost ,isPending:likingPost} = useLikePost(); 
-  const { mutate: savePost ,isPending:savingPost} = useSavePost();
+  const { mutate: likePost } = useLikePost();
+  const { mutate: savePost } = useSavePost();
   const { mutate: deletePost } = useDeletePost();
-  
-  const maxImages = 3;
-  const commentedUserImages = comments && comments.length>0 && comments?.map((comment: any) => comment?.user?.image).slice(0, maxImages)|| [];
 
-  const handleLikePost = () => {
-    const updatedLikes = likes.includes(userId)
-      ? likes.filter((id) => id !== userId)
-      : [...likes, userId];
+  const commentedUserImages = comments?.slice(0, 3).map(comment => comment?.user?.image) || [];
 
-    setLikes(updatedLikes);
+  const handleLikePost = useCallback(() => {
+    setLikes(prev => 
+      prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
+    );
     likePost(postId);
-  };
+  }, [userId, postId, likePost]);
 
-  const handleSavePost = async() => {
+  const handleSavePost = useCallback(() => {
     savePost(postId);
     setIsSaved(true);
-  };
-  
-  const handleDeletePost=(postId:string,token:string,images?:string[])=>{
-    //  deletePost({postId,token,images})
-    router.push(`/edit-post/${postId}`)
-  }
+  }, [postId, savePost]);
 
-  const OverlappingImages = ({ images, numberofcomments }:{ images:string[], numberofcomments:number }) => {
-    return (
-      <View className='flex-row items-center gap-4xs py-[2.5px]' >
-        <View className='flex-row overflow-hidden w-12.5'>
-          {images?.map((imageSource, index) => (
-            <Image
-              key={index}
-              source={imageSource}
-              className='w-4 h-4 rounded-[10px] mr-[-10px]'
-            />
-          ))}
-        </View>
-        <Text className='tex-sm font-rmedium' >{numberofcomments} people commented</Text>
-      </View>
-    );
-  };
-  
+  const handleDeletePost = useCallback(() => {
+    router.push(`/edit-post/${postId}`);
+  }, [postId]);
+
   return (
-    <View className='p-2.5 mb-3.5' >
+    <View className="p-2.5 mb-3.5">
       <AuthorInfo author={author} timestamp={timestamp} />
       <ImageCont images={images} caption={caption} />
-      <View className='flex-row gap-1 w-auto'>
-        {tags?.map((tag,index)=> <Text key={index} className='text-light p-2 text-xs font-rregular'>#{tag}</Text>)}
+      <View className="flex-row flex-wrap gap-1">
+        {tags?.map((tag, index) => (
+          <Text key={index} className="text-light p-2 text-xs font-rregular">#{tag}</Text>
+        ))}
       </View>
-      {comments&&comments?.length>0&&
+      {comments?.length > 0 && (
         <OverlappingImages
           images={commentedUserImages}
-          numberofcomments={comments?.length}
+          numberofcomments={comments.length}
         />
-      }
+      )}
       <ActionStats
         author={author}
         postId={postId}
@@ -87,9 +78,8 @@ const Post = (post:Post) => {
         handleSavePost={handleSavePost}
         handleDeletePost={handleDeletePost}
       />
-      
     </View>
   );
-};
+});
 
-export default memo(Post);
+export default Post;

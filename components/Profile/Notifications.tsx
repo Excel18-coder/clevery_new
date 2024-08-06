@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FlatList, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { FlatList, TouchableOpacity, Animated } from 'react-native';
 import { Text, View } from '../Themed';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -19,6 +19,7 @@ interface NotificationChannel {
   enabled: boolean;
   icon: string;
 }
+
 const notificationData: Notification[] = [
   { id: '1', type: 'like', content: 'John Doe liked your post', time: '2m ago', read: false },
   { id: '2', type: 'comment', content: 'Alice left a comment on your photo', time: '15m ago', read: false },
@@ -33,6 +34,7 @@ const initialChannels: NotificationChannel[] = [
   { id: 'follow', name: 'Follows', enabled: true, icon: 'person-add' },
   { id: 'message', name: 'Messages', enabled: true, icon: 'mail' },
 ];
+
 const NotificationItem: React.FC<{ item: Notification; onPress: () => void }> = ({ item, onPress }) => {
   const [scaleAnim] = useState(new Animated.Value(1));
 
@@ -55,19 +57,19 @@ const NotificationItem: React.FC<{ item: Notification; onPress: () => void }> = 
   };
 
   return (
-    <Animated.View style={[styles.notificationItem, { transform: [{ scale: scaleAnim }] }]}>
-      <TouchableOpacity onPress={handlePress} style={styles.notificationContent}>
+    <Animated.View className="mb-3 rounded-xl bg-white shadow-md" style={{ transform: [{ scale: scaleAnim }] }}>
+      <TouchableOpacity onPress={handlePress} className="flex-row items-center p-3">
         <LinearGradient
           colors={item.read ? ['#e0e0e0', '#f5f5f5'] : ['#4c669f', '#3b5998']}
-          style={styles.iconContainer}
+          className="w-12 h-12 rounded-full justify-center items-center mr-3"
         >
           <Ionicons name={getIcon(item.type)} size={24} color={item.read ? '#666' : '#fff'} />
         </LinearGradient>
-        <View style={styles.textContainer}>
-          <Text style={[styles.notificationText, !item.read && styles.unreadText]}>{item.content}</Text>
-          <Text style={styles.timeText}>{item.time}</Text>
+        <View className="flex-1">
+          <Text className={`text-base mb-1 ${!item.read ? 'font-bold' : ''}`}>{item.content}</Text>
+          <Text className="text-xs text-gray-500">{item.time}</Text>
         </View>
-        {!item.read && <View style={styles.unreadDot} />}
+        {!item.read && <View className="w-2.5 h-2.5 rounded-full bg-green-500 ml-2" />}
       </TouchableOpacity>
     </Animated.View>
   );
@@ -78,10 +80,10 @@ const ChannelToggle: React.FC<{
   onToggle: (id: string, enabled: boolean) => void 
 }> = ({ channel, onToggle }) => {
   return (
-    <View style={styles.channelItem}>
-      <View style={styles.channelInfo}>
-        <Ionicons name={channel.icon as any} size={24} color="#4c669f" style={styles.channelIcon} />
-        <Text style={styles.channelName}>{channel.name}</Text>
+    <View className="flex-row justify-between items-center py-3 border-b border-gray-200">
+      <View className="flex-row items-center">
+        <Ionicons name={channel.icon as any} size={24} color="#4c669f" className="mr-3" />
+        <Text className="text-base">{channel.name}</Text>
       </View>
       <Switch
         value={channel.enabled}
@@ -92,6 +94,7 @@ const ChannelToggle: React.FC<{
     </View>
   );
 };
+
 const Notifications = () => {
   const [notifications, setNotifications] = useState(notificationData);
   const [channels, setChannels] = useState(initialChannels);
@@ -114,17 +117,17 @@ const Notifications = () => {
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Notifications</Text>
+    <View className="flex-1 p-4">
+      <View className="flex-row justify-between items-center mb-4">
+        <Text className="text-2xl font-bold">Notifications</Text>
         <TouchableOpacity onPress={() => setShowSettings(!showSettings)}>
           <Ionicons name={showSettings ? "close" : "settings-outline"} size={24} color="#4c669f" />
         </TouchableOpacity>
       </View>
 
       {showSettings ? (
-        <ScrollView style={styles.settingsContainer}>
-          <Text style={styles.settingsHeader}>Notification Settings</Text>
+        <ScrollView>
+          <Text className="text-xl font-bold mb-4">Notification Settings</Text>
           {channels.map(channel => (
             <ChannelToggle 
               key={channel.id} 
@@ -142,12 +145,12 @@ const Notifications = () => {
                 <NotificationItem item={item} onPress={() => handleNotificationPress(item.id)} />
               )}
               keyExtractor={item => item.id}
-              contentContainerStyle={styles.listContainer}
+              contentContainerStyle={{paddingBottom:16}}
             />
           ) : (
-            <View style={styles.emptyContainer}>
+            <View className="flex-1 justify-center items-center">
               <Ionicons name="notifications-off-outline" size={64} color="#888" />
-              <Text style={styles.emptyText}>No notifications yet</Text>
+              <Text className="text-lg text-gray-500 mt-4">No notifications yet</Text>
             </View>
           )}
         </>
@@ -155,106 +158,5 @@ const Notifications = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  listContainer: {
-    paddingBottom: 16,
-  },
-  notificationItem: {
-    marginBottom: 12,
-    borderRadius: 12,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  notificationContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-  },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  textContainer: {
-    flex: 1,
-  },
-  notificationText: {
-    fontSize: 16,
-    marginBottom: 4,
-  },
-  unreadText: {
-    fontWeight: 'bold',
-  },
-  timeText: {
-    fontSize: 12,
-    color: '#888',
-  },
-  unreadDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#4CAF50',
-    marginLeft: 8,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 18,
-    color: '#888',
-    marginTop: 16,
-  },
-  settingsContainer: {
-    flex: 1,
-  },
-  settingsHeader: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  channelItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  channelInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  channelIcon: {
-    marginRight: 12,
-  },
-  channelName: {
-    fontSize: 16,
-  },
-});
-
 
 export default Notifications;

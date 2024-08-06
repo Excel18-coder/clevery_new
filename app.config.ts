@@ -49,6 +49,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       '@stream-io/video-react-native-sdk',
       {
+        "enableScreenshare": true,
         androidPictureInPicture: {
           enableAutomaticEnter: true
         },
@@ -66,8 +67,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         android: {
           minSdkVersion: 24,
-          compileSdkVersion: 34,
-          targetSdkVersion: 33,
         },
       },
     ],

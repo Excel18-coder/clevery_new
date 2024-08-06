@@ -3,16 +3,17 @@ import { TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 
 import { Text, View } from '../Themed';
+import { User } from '@/types';
 
 
 type ActionStatsProps = {
-  author: any;
+  author: User;
   postId: string;
   isLiked: boolean;
   isSaved: boolean;
   userId: string;
-  likesList: any[];
-  savesList:any[];
+  likesList: string[];
+  savesList:string[];
   handleLikePost: () => void;
   handleSavePost: () => void;
   handleDeletePost: (postId:string,userId:string,images?:string[]) => void;
@@ -51,7 +52,7 @@ const ActionStats = ({
         <Ionicons name={!isSaved ? "bookmark-outline" : "bookmark-sharp"} size={20} color={'gray'} />
       </TouchableOpacity>
 
-      {author?._id == userId && (
+      {author?.id == userId && (
         <TouchableOpacity onPress={()=>handleDeletePost(postId,userId)} className='ml-auto rounded-[5px]'>
           <Ionicons name="trash-outline" size={20} color="red" />
         </TouchableOpacity>

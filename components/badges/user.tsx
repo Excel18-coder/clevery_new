@@ -153,7 +153,7 @@ export const MasterBadge = () => (
     colors={['#c0392b', '#e74c3c']} 
     icon="flame-outline" 
     elite={true}
-    animation={require('../assets/animations/fire.json')}
+    animation={require('../../assets/animations/fire.json')}
   />
 );
 
@@ -163,6 +163,6 @@ export const LegendBadge = () => (
     colors={['#1abc9c', '#16a085']} 
     icon="star-outline" 
     elite={true}
-    animation={require('../assets/animations/star.json')}
+    animation={require('../../assets/animations/star.json')}
   />
 );

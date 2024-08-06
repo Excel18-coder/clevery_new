@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 
-import { ErrorMessage, InviteFriends, Loader } from '@/components';
+import { ErrorMessage, InviteFriends } from '@/components';
 import { useAddFriend, useUsers, useProfileStore } from '@/lib';
 import LoadingUsers from '@/components/skeletons/loading-users';
-import { User } from '@/validations';
+import { User } from '@/types';
 
 const AddFriends: React.FC = () => {
   const  [filteredUsers, setFilteredUsers] = useState([])

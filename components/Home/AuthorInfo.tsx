@@ -3,7 +3,6 @@ import { router } from 'expo-router';
 import { Image } from 'expo-image';
 
 import { multiFormatDateString, urlForImage } from '@/lib';
-import  CertificateIcon from '../CheckIcon';
 import { Text, View } from '../Themed';
 
 type AuthorInfoProps = {
@@ -22,7 +21,7 @@ const AuthorInfo = ({ author, timestamp,iscomment }:AuthorInfoProps) => {
       <View className='flex-row items-center mb-2.5'>
         <TouchableOpacity onPress={() => router.push(`/user/${author?.id}`)}>
           {author?.image &&
-           <Image source={{ uri: urlForImage(author?.image).width(100).url() }} 
+           <Image source={{ uri: author?.image }} 
             className='mr-2.5 w-[50px] h-[50px] rounded-3xl'
           />
           }

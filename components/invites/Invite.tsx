@@ -8,7 +8,7 @@ import { Image } from 'expo-image';
 
 import { Text, View } from '../Themed';
 import { showToastMessage, urlForImage } from '@/lib';
-import { User } from '@/validations';
+import { User } from '@/types';
 
 
 const link = `https://clevery.vercel.app/`;
@@ -67,7 +67,7 @@ const InviteFriends: React.FC<Props> = ({
       style={styles.userItem}
     >
       <Image
-        source={{ uri: urlForImage(item.image).width(100).url() }}
+        source={{ uri: item.image}}
         style={styles.avatar}
       />
       <Text style={styles.userName}>{item.name}</Text>
@@ -101,7 +101,7 @@ const InviteFriends: React.FC<Props> = ({
               style={styles.selectedUser}
               onPress={() => removeUser(item.id)}
             >
-              <Image source={{ uri: urlForImage(item.image).width(100).url() }} style={styles.selectedUserImage} />
+              <Image source={{ uri: item.image }} style={styles.selectedUserImage} />
               <Feather name="x" size={16} color="white" style={styles.removeIcon} />
             </TouchableOpacity>
           )}

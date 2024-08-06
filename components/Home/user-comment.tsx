@@ -1,6 +1,6 @@
 import AuthorInfo from './AuthorInfo';
 import { Text, View } from '../Themed';
-import { Comment } from '@/validations';
+import { Comment } from '@/types';
 
 const UserComment = ({comment}:{comment:Comment}) => {
   return (

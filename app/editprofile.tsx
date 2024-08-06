@@ -33,7 +33,7 @@ const UserProfileEdit = () => {
     isPending,
     error
   } = useUpdateCurrentUser()
-  const [avatarUri, setAvatarUri] = useState(userinfo.image?urlForImage(userinfo.image).url():'https://via.placeholder.com/150');
+  const [avatarUri, setAvatarUri] = useState(userinfo.image?userinfo.image:'https://via.placeholder.com/150');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async() => {
@@ -44,7 +44,7 @@ const UserProfileEdit = () => {
       
       const res = await uploadImage(avatarUri)
       setAvatarUri(res?.url)
-      const updated = {id:userinfo._id, ...profile, ...connections,image:res?._id }
+      const updated = {id:userinfo.id, ...profile, ...connections,image:res?._id }
 
       const response = await updateProfile(updated)
       updateProfileLocaly(response)

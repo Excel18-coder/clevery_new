@@ -2,7 +2,7 @@ import { useRef, useState, useCallback, memo } from 'react';
 import { Animated, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 
-import { Channel, conversation, Message } from '@/types';
+import { Channel, Conversation, Message } from '@/types';
 import MessagesContainer from './MessageContainer';
 import { Text, View } from '@/components/Themed';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,7 +15,7 @@ type NewMessage = {
 };
 
 type Props = {
-  conversation?:conversation,
+  conversation?:Conversation,
   messages:Message[]
   setNewMessage: (text: string) => void;
   closeFile: () => void;
@@ -98,7 +98,7 @@ const Messages: React.FC<Props> = ({
             onPress={() => togglePopup(false)}
           />
         )}
-        keyExtractor={(item) => item._id}
+        keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={() => <Header user={conversation} messages={messages} created={createdAt} channel={channel} />}
         ListFooterComponent={() => (

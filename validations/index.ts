@@ -31,6 +31,7 @@ export const CommentSchema = baseSchema.extend({
   text: z.string().min(3, "Minimum 3 characters."),
   authorId: z.string(),
   postId: z.string(),
+  user: UserSchema
 });
 
 // Post schema
@@ -146,7 +147,7 @@ export const Validations = {
 
   CreatePost: PostSchema.omit({ id: true, createdAt: true, updatedAt: true, authorId: true ,author: true, comments: true,likes:true, saves:true}),
 
-  CreateComment: CommentSchema.omit({ id: true, createdAt: true, updatedAt: true, authorId: true }),
+  CreateComment: CommentSchema.omit({ id: true, createdAt: true, updatedAt: true, authorId: true,user: true }),
 
   CreateServer: ServerSchema.omit({ id: true, createdAt: true, updatedAt: true, creatorId: true, inviteCode: true, slug: true, members: true, channels: true}),
 
