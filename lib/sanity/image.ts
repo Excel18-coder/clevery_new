@@ -1,6 +1,6 @@
 import createImageUrlBuilder from '@sanity/image-url'
 
-import { env } from "../env";
+import { endpoint, env } from "../env";
 
 export const apiVersion =
   process.env.NEXT_PUBLIC_SANITY_API_VERSION ||'2023-09-25' || '2023-05-30'
@@ -90,4 +90,13 @@ console.log(response.json())
   const { _id } = await response.json();
 
   return _id;
+}
+
+/**
+ * Given an image URL, returns an optimized image URL
+ */
+export async function getOptimizedImageUrl(imageUrl: string) {
+  const response = await fetch(`${endpoint}/optimize?url=${encodeURIComponent(imageUrl)}`);
+  const { optimizedImage } = await response.json();
+  return optimizedImage;
 }
