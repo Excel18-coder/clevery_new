@@ -3,9 +3,11 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { create } from 'zustand';
 import { User } from '@/types';
 
+const AUTH_STORAGE_KEY = 'auth-storage';
+
 interface ProfileState {
   profile: Profile;
-  setProfile: (profile: User) => void;
+  setProfile: (profile: Profile) => void;
 }
 
 export interface Profile extends User {
@@ -124,4 +126,35 @@ const useSearchStore = create<SearchState>()(
   )
 );
 
-export { useProfileStore, useThemeStore, useSearchStore };
+/**
+ * Represents the structure of the authentication state.
+ */
+interface AuthState {
+  user: User | null;
+  token: string | null;
+  loading: boolean;
+  setUser: (user: User | null) => void;
+  setToken: (token: string | null) => void;
+  setLoading: (loading: boolean) => void;
+}
+/**
+ * Zustand store for authentication state
+ */
+const useAuthStore = create(
+  persist<AuthState>(
+    (set) => ({
+      user: null,
+      token: null,
+      loading: false,
+      setUser: (user) => set({ user }),
+      setToken: (token) => set({ token }),
+      setLoading: (loading) => set({ loading }),
+    }),
+    {
+      name: AUTH_STORAGE_KEY,
+      storage: createJSONStorage(() => AsyncStorage),
+    }
+  )
+);
+
+export { useProfileStore, useThemeStore, useSearchStore, useAuthStore };

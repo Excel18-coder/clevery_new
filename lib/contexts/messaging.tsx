@@ -114,13 +114,28 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
    * @param {string} senderImage - URL of the sender's profile image
    */
   const showNotification = async (senderName: string, messageContent: string, senderImage: string): Promise<void> => {
+    const channel = await notifee.createChannel({
+      id:senderName,
+      name: NOTIFICATION_CHANNEL_ID,
+      sound:"notification",
+    })
     await notifee.displayNotification({
       title: `New message from ${senderName}`,
       body: messageContent,
       android: {
-        channelId: NOTIFICATION_CHANNEL_ID,
+        channelId: channel,
         largeIcon: senderImage,
         importance: AndroidImportance.HIGH,
+        circularLargeIcon:true,
+        actions:[
+          {
+            title:"mark as read",
+            pressAction:{
+              id:"mark as read",
+            },
+
+          }
+        ]
       },
     });
   };
@@ -153,7 +168,7 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         subscribeToPusherChannels();
       }
     } catch (error) {
-      console.error('Error fetching conversations:', error);
+      console.log('Error fetching conversations:', error);
     }
   };
 

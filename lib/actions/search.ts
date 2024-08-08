@@ -4,29 +4,12 @@ import { Post, Server, User } from '@/types';
 import { endpoint } from '../env';
 
 /**
- * Represents a post in the search results.
- */
-type PostResult = Pick<Post, 'id' | 'content' | 'tags' | 'createdAt'> & {
-  author: Pick<User, 'id' | 'name' | 'username' | 'image'>;
-};
-
-/**
- * Represents a user in the search results.
- */
-type UserResult = Pick<User, 'id' | 'name' | 'username' | 'image' | 'bio'>;
-
-/**
- * Represents a server in the search results.
- */
-type ServerResult = Pick<Server, 'id' | 'name' | 'image' | 'description' | 'slug'>;
-
-/**
  * Maps search types to their corresponding result interfaces.
  */
 type SearchResultMap = {
-  posts: PostResult[];
-  users: UserResult[];
-  servers: ServerResult[];
+  posts: Post[];
+  users: User[];
+  servers: Server[];
 };
 
 /**

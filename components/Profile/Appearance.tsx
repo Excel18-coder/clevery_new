@@ -20,7 +20,7 @@ const Appearance = () => {
     setMode(newMode);
   }, [setMode]);
 
-  const MenuItem = memo(({ iconName, label, description }: { iconName: string; label: string; description: string }) => {
+  const MenuItem = memo(({ iconName, label, description }: { iconName: any; label: string; description: string }) => {
     const animatedStyle = useAnimatedStyle(() => ({
       opacity: withTiming(mode === label.toLowerCase() ? 1 : 0.6, { duration: 300 }),
     }));

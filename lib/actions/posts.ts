@@ -23,7 +23,8 @@ export const postsApi = {
   getPosts: async (params?: PostQuery): Promise<FullModel<Post>[]> => {
     try {
       const queryString = new URLSearchParams(params as Record<number, string>).toString();
-      const response = await axios.get<FullModel<Post>[]>(`${endpoint}${apiPaths.getPosts}?${queryString}`);
+      // ?${queryString}
+      const response = await axios.get<FullModel<Post>[]>(`${endpoint}${apiPaths.getPosts}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to fetch posts");

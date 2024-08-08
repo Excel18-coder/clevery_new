@@ -1,7 +1,6 @@
 export { urlForImage } from "./sanity/image";
 export {env,endpoint} from "./env"
 export {Providers} from './Providers'
-export {authHooks} from './hooks/auth'
 export {pusher,pusherConnector} from './pusher/config'
 export {default as useDebounce} from './hooks/useDebounce'
 export {useCombinedSearchResults} from './hooks/combinedSearches'

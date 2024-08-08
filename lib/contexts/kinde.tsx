@@ -4,7 +4,7 @@ import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import { z } from 'zod';
 import axios from 'axios';
-import create from 'zustand';
+import {create} from 'zustand';
 import { useProfileStore } from '../zustand/store';
 import { userApi } from '../actions/users';
 
@@ -64,7 +64,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
  */
 const KINDE_DOMAIN = process.env.EXPO_PUBLIC_KINDE_ISSUER_URL;
 const KINDE_CLIENT_ID = process.env.EXPO_PUBLIC_KINDE_CLIENT_ID!;
-const KINDE_REDIRECT_URI = 'YOUR_EXPO_APP_REDIRECT_URI';
+const KINDE_REDIRECT_URI = 'clevery://kinde';
 
 /**
  * SecureStore keys for storing tokens
@@ -98,7 +98,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       phone: user.phone || '',
       emailVerified: user?.emailVerified || null,
       notificationToken: user?.notificationToken || '',
-      // connections:user?.connections,
+      connections:user?.connections,
+      phoneNumber:user?.phoneNumber || '',
 
     });
   };
@@ -179,8 +180,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
  */
 const login = async (provider: 'google' | 'github' | 'email') => {
   const redirectUri = AuthSession.makeRedirectUri({
-    scheme: 'your.app.scheme' // Replace with your app's custom scheme
+    scheme: 'clevery' ,
+    path:'/'
   });
+  console.log(redirectUri)
 const discoveryDocument = await AuthSession.fetchDiscoveryAsync(`https://${KINDE_DOMAIN}`);
 
 const authRequest = new AuthSession.AuthRequest({
@@ -252,7 +255,11 @@ const result = await authRequest.promptAsync(discoveryDocument);
     refreshTokens,
   };
 
-  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={contextValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 /**

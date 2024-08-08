@@ -2,8 +2,7 @@ import { TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 
 import { Text, View } from './Themed';
-import { urlForImage } from '@/lib';
-import { Conversation } from '@/validations';
+import { Conversation } from '@/types';
 interface UserCardProps {
   conversation: Conversation
   onSelectUser: (id: string) => void;
@@ -19,7 +18,7 @@ const UserCard: React.FC<UserCardProps> = ({ conversation, onSelectUser }) => {
  return (
     <TouchableOpacity className='flex-row items-center px-4xs py-1' activeOpacity={1} onPress={() => onSelectUser(id)}>
       <View className='mr-2.5'>
-        <Image source={{ uri: image?urlForImage(image).url():"https://via.placeholder.com/150" }} className='w-12.5 h-12.5 rounded-[25px]' />
+        <Image source={{ uri: image? image : "https://via.placeholder.com/150" }} className='w-12.5 h-12.5 rounded-[25px]' />
         {isOnline && <View style={{
           position: 'absolute', right: 0, bottom: 0, width: 14, height: 14, borderRadius: 7, backgroundColor: '#4CAF50', borderWidth: 2, borderColor: '#FFFFFF'
         }} />}

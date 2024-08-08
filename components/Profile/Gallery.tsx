@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { MasonryFlashList } from '@shopify/flash-list';
+import { TouchableOpacity, Dimensions } from 'react-native';
 import { Button, Overlay } from 'react-native-elements';
+import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
-import { TouchableOpacity, Dimensions } from 'react-native';
-import { BlurView } from 'expo-blur';
-import { Ionicons } from '@expo/vector-icons';
 
 import { Text, View } from '@/components/Themed';
 import Loader from '@/components/Loader';

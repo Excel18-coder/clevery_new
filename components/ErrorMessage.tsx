@@ -5,7 +5,7 @@ import { View } from './Themed';
 
 interface Props {
   message:string;
-  onRetry?:()=>{}
+  onRetry?:()=>void
 }
 const ErrorMessage = ({ message = 'An error occurred', onRetry}:Props) => (
   <View className="flex-1 justify-center items-center bg-gray-100">
@@ -15,6 +15,7 @@ const ErrorMessage = ({ message = 'An error occurred', onRetry}:Props) => (
           source={require('../assets/animations/loading.json')}
           autoPlay
           loop
+          duration={300}
           style={{ width: 150, height: 150 }}
         />
       </View>

@@ -1,11 +1,15 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import * as AuthSession from 'expo-auth-session';
 import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
 import * as SecureStore from 'expo-secure-store';
 import { makeRedirectUri } from 'expo-auth-session';
 import axios from 'axios';
 import { Alert } from 'react-native';
 import { endpoint } from '../env';
+
+// Ensure WebBrowser is configured for AuthSession
+WebBrowser.maybeCompleteAuthSession();
 
 // Define types
 type AuthProvider = 'google' | 'github' | 'email';
@@ -17,6 +21,9 @@ interface User {
   // Add other user properties as needed
 }
 
+const GITHUB_CLIENT_ID = "Ov23li2owdPoRMAWaRif";
+const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID;
+
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
@@ -26,7 +33,7 @@ interface AuthContextType {
   githubLogin: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = React.createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -34,30 +41,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Google Auth
   const [, , googlePromptAsync] = Google.useAuthRequest({
-    iosClientId: 'YOUR_IOS_CLIENT_ID',
-    androidClientId: 'YOUR_ANDROID_CLIENT_ID',
-    webClientId: 'YOUR_WEB_CLIENT_ID',
+    iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
+    androidClientId: GOOGLE_CLIENT_ID,
+    // webClientId: 'YOUR_WEB_CLIENT_ID',
   });
 
   // GitHub Auth
   const githubDiscovery = {
-    tokenEndpoint: 'https://github.com/login/oauth/access_token',
-    revocationEndpoint: 'https://api.github.com/applications/YOUR_GITHUB_CLIENT_ID/token',
-    userInfoEndpoint: 'https://api.github.com/user',
-    clientId: process.env.GITHUB_CLIENT_ID!,
+    tokenEndpoint: 'https://clevery-api.vercel.app/api/auth/signin/github',
+    revocationEndpoint: `https://clevery-api.vercel.app/api/auth/signin/github`,
+    userInfoEndpoint: 'https://clevery-api.vercel.app/api/auth/signin/github',
+    clientId: GITHUB_CLIENT_ID,
     redirectUri: makeRedirectUri({
-      scheme: 'your.app.scheme',
-      path: 'auth/callback/github',
+      scheme: 'com.clevery.app',
+      path: '/',
     }),
   };
 
-  const [, , githubPromptAsync] = AuthSession.useAuthRequest(
+  const [req, , githubPromptAsync] = AuthSession.useAuthRequest(
     {
-      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientId: GITHUB_CLIENT_ID,
       scopes: ['identity'],
       redirectUri: githubDiscovery.redirectUri,
     },
-    { authorizationEndpoint: 'https://github.com/login/oauth/authorize' }
+    { authorizationEndpoint: `https://clevery-api.vercel.app/api/auth/callback/google` }
   );
 
   const login = useCallback(async (provider: AuthProvider, token?: string) => {
@@ -73,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { token, user } = response.data;
         await SecureStore.setItemAsync('authToken', token);
         setIsAuthenticated(true);
-        setUser(user);
+        setUser(user); 
       } else {
         throw new Error('Authentication failed');
       }
@@ -91,12 +98,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const googleLogin = useCallback(async () => {
     const result = await googlePromptAsync();
+    console.log(result)
     if (result.type === 'success') {
       await login('google', result.params.id_token);
     }
   }, [googlePromptAsync, login]);
 
   const githubLogin = useCallback(async () => {
+    console.log(req);
     const result = await githubPromptAsync();
     if (result.type === 'success') {
       await login('github', result.params.access_token);
@@ -141,7 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
+  const context = React.useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }

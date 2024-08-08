@@ -4,7 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { Loader, MenuItems, Text, UserCard, UserInfo, View } from '@/components';
-import { formatDateString, urlForImage, useAuthorPosts, useProfileStore } from '@/lib';
+import { formatDateString, useAuthorPosts, useProfileStore } from '@/lib';
 
 const ProfilePage = () => {
   const [activeButton, setActiveButton] = useState('profile');
@@ -14,7 +14,7 @@ const ProfilePage = () => {
   if (!profile) return <Loader loadingText='Loading Profile'/>;
 
   const stats = {
-    Posts: posts?.data.length || 0,
+    Posts: posts?.length || 0,
     Friends: profile?.friends?.length || 0,
   };
 
@@ -27,7 +27,7 @@ const ProfilePage = () => {
   return (
     <View className='flex-1'>
       <Image 
-        source={{ uri: profile.bannerImage ? urlForImage(profile.bannerImage).width(350).url() : '' }} 
+        source={{ uri: profile.bannerImage ? profile.bannerImage : '' }} 
         className='w-full justify-end items-center h-52' 
       />
       <TouchableOpacity 
@@ -98,7 +98,7 @@ const FriendsComponent = ({friends}:any) => {
         renderItem={({ item }) => (
           <TouchableOpacity className='flex-row items-center px-4xs py-1' activeOpacity={1} onPress={() =>{}}>
             <View className='mr-2.5'>
-              <Image source={{ uri: item.image?urlForImage(item.image).url():"https://via.placeholder.com/150" }} className='w-12.5 h-12.5 rounded-[25px]' />
+              <Image source={{ uri: item.image?item.image:"https://via.placeholder.com/150" }} className='w-12.5 h-12.5 rounded-[25px]' />
               
             </View>
             <View className='flex-1'>

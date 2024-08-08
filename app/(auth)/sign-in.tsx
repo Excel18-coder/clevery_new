@@ -3,19 +3,21 @@ import { View, Text, ScrollView, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, router } from "expo-router";
 import { Toast } from "native-base";
-import axios from "axios";
 
 import { CustomButton, FormField,Butttons } from "@/components";
-import { authHooks, endpoint, showToastMessage } from "@/lib";
+import { showToastMessage } from "@/lib";
 import ToastAlert from "@/components/toast-alert"; 
+import { useAuth } from "@/lib/contexts/custom";
 
 
 type AuthProviders = "google" | "facebook" | "github";
 const SignIn = () => {
+  const {
+    loading,
+    signIn,
+    user
+  } = useAuth()
   
- const {
-  googleAsync,facebookAsync,gitReq, gitAsync
- }= authHooks()
  
   const [form, setForm] = useState({
     email: "",
@@ -45,11 +47,11 @@ const SignIn = () => {
     }
     try {
 
-      const result = await axios.post(`${endpoint}/sign-in`,{email,password})
-      console.log("res data ",result.data)
-      if (result.data.token) {
-        console.log(result.data.token)
-      }
+      const result = await signIn("credentials",{
+        email,
+        password
+      })
+      console.log("res data ",result)
       router.replace("/home");
     } catch (error) {
       console.log("Sign-in",error)
@@ -68,9 +70,9 @@ const SignIn = () => {
 
   
 const signInWithProvider = async (provider: AuthProviders) => {
-  if (provider === 'google') return googleAsync();
-  if (provider === 'facebook') return facebookAsync();
-  if (provider === 'github') return gitAsync()
+  if (provider === 'google') return signIn("google");
+  if (provider === 'facebook') return signIn("github");
+  if (provider === 'github') return signIn("github")
 }
 
 
@@ -92,6 +94,7 @@ const signInWithProvider = async (provider: AuthProviders) => {
             value={form.email}
             handleChangeText={(e:any) => setForm({ ...form, email: e })}
             otherStyles="mt-7"
+            autoCapitalize="none"
             keyboardType="email-address"
           />
 

@@ -19,7 +19,7 @@ const Loader = ({ loadingText = 'Loading...' }) => (
       <Text className="mt-4 text-lg font-semibold text-white">
         {loadingText}
       </Text>
-      <Text className="mt-2 text-sm text-gray-200 text-center px-4">
+      <Text className="mt-2 text-sm text-gray-200 text-center px-4 font-rmedium">
         We're preparing something amazing for you!
       </Text>
     </LinearGradient>

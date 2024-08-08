@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FlatList, TextInput, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 
 import { SearchResults, Suggestions, SearchTabBar as TabBar, Text, View } from '@/components';
 import { useCombinedSearch } from '@/lib/actions/hooks/search';
+import { Post, Server, User } from '@/types';
 
 type TabBarOptions = 'recents' | 'people' | 'media-links' | 'files';
 type SearchType = 'all' | 'posts' | 'users' | 'servers';
@@ -39,8 +40,8 @@ const ExploreComponent: React.FC = () => {
     <View>
       <SearchBar setSearch={handleSetSearch} />
       <TabBar
-        selectedTabBar={selectedTabBar}
-        setSelectedTabBar={setSelectedTabBar}
+        selected={selectedTabBar}
+        onTabPress={setSelectedTabBar}
       />
       {renderContent(selectedTabBar, results, isLoading, topCreators, topServers)}
     </View>
@@ -58,10 +59,10 @@ const mapTabBarToSearchType = (tabBar: TabBarOptions): SearchType => {
 
 const renderContent = (
   selectedTabBar: TabBarOptions,
-  results: { posts: any[]; users: any[]; servers: any[] },
+  results: { posts: Post[]; users: User[]; servers: Server[] },
   isLoading: boolean,
-  topCreators?: any[],
-  topServers?: any[]
+  topCreators?: User[],
+  topServers?: Server[]
 ) => {
   if (isLoading) {
     return <Text>Loading...</Text>;
@@ -69,8 +70,8 @@ const renderContent = (
 
   switch (selectedTabBar) {
     case 'recents':
-      return results.posts.length || results.users.length || results.servers.length ? (
-        <SearchResults results={[...results.posts, ...results.users, ...results.servers]} />
+      return results.posts?.length || results.users?.length || results.servers?.length ? (
+        <SearchResults result={[...results.posts, ...results.users, ...results.servers]} />
       ) : (
         <Suggestions
           onClearSearchHistory={() => {}}
@@ -90,13 +91,13 @@ const renderContent = (
               <Text>{item.name}</Text>
             </TouchableOpacity>
           )}
-          keyExtractor={(item) => item._id}
+          keyExtractor={(item) => item.id}
         />
       );
     case 'media-links':
-      return <SearchResults results={results.posts} />;
+      return <SearchResults result={results.posts} resultType='posts' />;
     case 'files':
-      return <SearchResults results={results.servers} />;
+      return <SearchResults result={results.servers} resultType='servers' />;
     default:
       return null;
   }

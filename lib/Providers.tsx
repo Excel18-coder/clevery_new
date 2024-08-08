@@ -3,7 +3,9 @@ import { StreamVideoRN } from '@stream-io/video-react-native-sdk';
 import { NativeBaseProvider } from 'native-base'
 
 import { MessagingProvider } from './contexts/messaging';
-import { AuthProvider } from './contexts/auth';
+import { AuthProvider } from './contexts/custom';
+// import { AuthProvider } from '@/lib/contexts/auth.config';
+
 
 StreamVideoRN.updateConfig({
   foregroundService: {
@@ -25,15 +27,15 @@ export const Providers = ({ children }:{children:React.ReactNode}) => {
     },
   };
   return(
-    <QueryClientProvider client={queryClient}>
-      <NativeBaseProvider config={config} >
-        <AuthProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <NativeBaseProvider config={config} >
           <MessagingProvider>
             {children}
           </MessagingProvider>
-        </AuthProvider>
-      </NativeBaseProvider>
+        </NativeBaseProvider>
       </QueryClientProvider>
+    </AuthProvider>
   )
 }
 
