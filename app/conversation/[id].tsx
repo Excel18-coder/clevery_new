@@ -13,7 +13,6 @@ import {
   useSendMessage
 } from '@/lib';
 import { Loader, MessageInput, Text, View, ErrorMessage, Messages } from '@/components';
-import AudioVideoComponent from '@/components/audio-video-call';
 import { Message } from '@/types';
 
 interface NewMessage {
