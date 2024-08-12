@@ -30,6 +30,7 @@ const AddFriends: React.FC = () => {
 
   async function filterNonFriends() {
     const friendIds = new Set(friends?.map((friend: any) => friend.id));
+    // @ts-ignore
     return allUsers?.users?.filter(
       (user: any) => user.id !== id && !friendIds.has(user.id)
     );

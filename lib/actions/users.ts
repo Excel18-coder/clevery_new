@@ -86,9 +86,9 @@ export const userApi = {
    * @returns A promise that resolves to the API response containing the updated user details.
    * @throws Error with a descriptive message if the request fails
    */
-  updateCurrentUser: async (userData: UpdateUserInput): Promise<User> => {
+  updateCurrentUser: async (userData: UpdateUserInput): Promise<Profile> => {
     try {
-      const response = await axios.patch<User>(`${endpoint}${apiPaths.currentUser}`, userData);
+      const response = await axios.patch<Profile>(`${endpoint}${apiPaths.currentUser}`, userData);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to update user");

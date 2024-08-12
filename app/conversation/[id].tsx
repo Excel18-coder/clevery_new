@@ -54,7 +54,7 @@ const UserMessages: React.FC = () => {
 
     if (conversation?.id) {
       pusher.subscribe({
-        channelName: conversation.id,
+        channelName: `private-${conversation.id}`,
         onEvent: (event: PusherEvent) => {
           if (event.eventName === 'new-message') {
             const cleanedObject = parseIncomingMessage(event);
@@ -68,7 +68,7 @@ const UserMessages: React.FC = () => {
       });
 
       return () => {
-        pusher.unsubscribe({ channelName: conversation.id });
+        pusher.unsubscribe({ channelName: `private-${conversation.id}` });
       };
     }
   }, [conversation?.id]);
@@ -108,19 +108,20 @@ const UserMessages: React.FC = () => {
   const handleMessageChange = useCallback((text: string) => {
     setNewMessage((prev) => ({ ...prev, caption: text }));
     // Emit typing event
-    if (conversation?.id) {
-      pusher.trigger({
-        channelName: conversation.id,
-        eventName: 'typing',
-        data: {}
-      });
-    }
+    // if (conversation?.id) {
+    //   pusher.trigger({
+    //     channelName: `private-${conversation.id}`,
+    //     eventName: 'typing',
+    //     data: {}
+    //   });
+    // }
   }, [conversation?.id]);
 
   if (loadingConversation) return <Loader loadingText='Loading your conversation' />;
   if (conversationError) return <ErrorMessage message='Network error' onRetry={() => {}} />;
 
   const sortedMessages = sortMessages({ messages });
+
 
   return (
     <View className='flex-1 p-1 pt-7'>
@@ -136,7 +137,7 @@ const UserMessages: React.FC = () => {
           @{conversation?.user?.username}
         </Text>
         <View className='flex-row items-center gap-5'>
-          <Feather name="phone-call" size={18} color={'#007aff'} onPress={() => router.navigate("/call")} />
+          <Feather name="phone-call" size={18} color={'#007aff'} onPress={() => router.navigate("/room")} />
           <Feather name="video" size={18} color={'#007aff'} onPress={() => router.navigate("/room")} />
         </View>
       </View>
@@ -149,7 +150,7 @@ const UserMessages: React.FC = () => {
         closeFile={closeFile}
         createdAt={conversation?.createdAt!}
       />
-      {isTyping && <Text className="text-gray-500 italic ml-2">User is typing...</Text>}
+      {isTyping && <Text className="text-gray-500 italic ml-2">{conversation?.user?.name} is typing...</Text>}
       <MessageInput
         caption={newMessage.caption}
         onMessageChange={handleMessageChange}

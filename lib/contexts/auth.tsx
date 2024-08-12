@@ -1,12 +1,13 @@
-import { createContext, useCallback, useContext, useEffect } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
 import { router } from 'expo-router';
 import { Toast } from 'native-base';
 import axios from 'axios';
 
 import { useAuthStore, useProfileStore } from '@/lib/zustand/store';
-import ToastAlert from '@/components/toast-alert';
+import ToastAlert, { showToastAlert } from '@/components/toast-alert';
 import { userApi } from '@/lib/actions/users';
 import { endpoint } from '@/lib/env';
 
@@ -27,48 +28,6 @@ interface User {
   image?: string;
 }
 
-
-/**
- * Configuration for authentication providers
- */
-const providerConfig = {
-  google: {
-    clientId: GOOGLE_CLIENT_ID,
-    redirectUri: AuthSession.makeRedirectUri({path:'/redirect'}),
-    scopes: ['profile', 'email'],
-  },
-  github: {
-    clientId: GITHUB_CLIENT_ID,
-    redirectUri: AuthSession.makeRedirectUri({ path: '/redirect' }),
-    scopes: ['user'],
-  },
-};
-
-// Function to authenticate with your backend
-const authenticateWithBackend = async (provider: 'google' | 'github', token: string) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/auth/authenticate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ provider, token }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Authentication failed');
-    }
-
-    const data = await response.json();
-    // Handle successful authentication (e.g., store the session, update UI)
-    console.log('Authenticated user:', data.user);
-    console.log('Session:', data.session);
-  } catch (error) {
-    console.error('Error authenticating with backend:', error);
-  }
-};
-
-
 /**
  * Props for the AuthProvider component
  */
@@ -77,13 +36,69 @@ interface AuthProviderProps {
 }
 
 /**
+ * Custom hook for OAuth sign-in
+ * @param provider - The OAuth provider ('google' or 'github')
+ * @returns Object containing handleSignIn function and authResult
+ */
+const useOAuthSignIn = (provider: 'google' | 'github') => {
+  const githubDiscovery = {
+    authorizationEndpoint: 'https://github.com/login/oauth/authorize',
+    tokenEndpoint: 'https://github.com/login/oauth/access_token',
+    revocationEndpoint: `https://github.com/settings/connections/applications/${GITHUB_CLIENT_ID}`,
+  };
+
+  const [request, response, promptAsync] = provider === 'github'
+    ? AuthSession.useAuthRequest(
+        {
+          clientId: GITHUB_CLIENT_ID,
+          scopes: ['identity'],
+          redirectUri: AuthSession.makeRedirectUri({ scheme: 'clevery' }),
+        },
+        githubDiscovery
+      )
+    : Google.useAuthRequest({
+        clientId: GOOGLE_CLIENT_ID,
+        scopes: ['identity'],
+        redirectUri: AuthSession.makeRedirectUri({ scheme: 'clevery' }),
+      });
+
+  const [authResult, setAuthResult] = useState<AuthSession.AuthSessionResult | null>(null);
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      setAuthResult(response);
+    }
+  }, [response]);
+
+  const handleSignIn = useCallback(async () => {
+    try {
+      const result = await promptAsync();
+      if (result.type === 'success' && result.params.code) {
+        const tokenResponse = await axios.post(`${API_BASE_URL}/auth/${provider}/callback`, { code: result.params.code });
+        return tokenResponse.data;
+      } else {
+        throw new Error('OAuth sign-in was cancelled or failed');
+      }
+    } catch (error) {
+      console.error('OAuth sign-in error:', error);
+      throw error;
+    }
+  }, [promptAsync, provider]);
+
+  return { handleSignIn, authResult };
+};
+
+/**
  * AuthProvider component that wraps the application and provides authentication context
  * @param props - The component props
  * @returns The AuthProvider component
  */
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { user, token, loading, setUser, setToken, setLoading } = useAuthStore();
-  const { setProfile} = useProfileStore();
+  const { setProfile } = useProfileStore();
+
+  const { handleSignIn: handleGoogleSignIn } = useOAuthSignIn('google');
+  const { handleSignIn: handleGithubSignIn } = useOAuthSignIn('github');
 
   useEffect(() => {
     const checkCurrentUser = async () => {
@@ -121,40 +136,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
         await handleCredentialsSignIn(credentials);
       } else {
-        await handleOAuthSignIn(provider);
+        const handleSignIn = provider === 'google' ? handleGoogleSignIn : handleGithubSignIn;
+        const data = await handleSignIn();
+        await handleAuthSuccess(data);
       }
     } catch (error) {
       handleAuthError(error);
     } finally {
       setLoading(false);
     }
-  }, [setLoading]);
-
-  /**
-   * Handles the OAuth sign-in process
-   * @param provider - The OAuth provider
-   * @throws Error if OAuth sign-in fails or is cancelled
-   */
-  const handleOAuthSignIn = async (provider: 'google' | 'github') => {
-    const config = providerConfig[provider];
-    
-    const discovery = await AuthSession.fetchDiscoveryAsync(`https://${provider}.com`);
-  
-    const authRequest = new AuthSession.AuthRequest({
-      clientId: config.clientId,
-      scopes: config.scopes,
-      redirectUri: config.redirectUri,
-    });
-  
-    const result = await authRequest.promptAsync(discovery);
-  
-    if (result.type === 'success' && result.params.code) {
-      const tokenResponse = await axios.post(`${API_BASE_URL}/auth/${provider}/callback`, { code: result.params.code });
-      await handleAuthSuccess(tokenResponse.data);
-    } else {
-      throw new Error('OAuth sign-in was cancelled or failed');
-    }
-  };
+  }, [setLoading, handleGoogleSignIn, handleGithubSignIn]);
 
   /**
    * Handles the credentials (email/password) sign-in process
@@ -166,7 +157,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await handleAuthSuccess(data);
     return data
   };
-  const signUp = async (credentials: {username:string, email: string; password: string }) => {
+
+  /**
+   * Handles the sign-up process
+   * @param credentials - The user's username, email, and password
+   */
+  const signUp = async (credentials: {username: string, email: string; password: string }) => {
     const response = await axios.post(`${API_BASE_URL}sign-up`, credentials);
     const data = response.data
     await handleAuthSuccess(data);
@@ -177,24 +173,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * Handles successful authentication
    * @param data - The user data returned from the server
    */
-  const handleAuthSuccess = async ({ user,token }: { user: User; token: string }) => {
+  const handleAuthSuccess = async ({ user, token }: { user: User; token: string }) => {
     //@ts-ignore
     setUser(user);
     //@ts-ignore
     setProfile(user)
     setToken(token);
-    return (
-      Toast.show({
-        render: () => (
-          <ToastAlert
-            id="sign-up"
-            title="Success!"
-            description={`Welcome ${user.name}!`}
-            status="success"
-          />
-        ),
-      })
-    )
+    showToastAlert({
+      id: 'sign-up',
+      title: 'Authentication successful',
+      description: 'You are now logged in.',
+    })
   };
 
   /**

@@ -238,6 +238,7 @@ export async function uploadImage(localUri: string): Promise<string | null> {
       const base64 = await FileSystem.readAsStringAsync(localUri, {
         encoding: FileSystem.EncodingType.Base64,
       });
+      
 
       // Create a Blob from the base64 string
       const blob = await fetch(`data:image/jpeg;base64,${base64}`).then(res => res.blob());
@@ -266,7 +267,7 @@ export async function uploadImage(localUri: string): Promise<string | null> {
   }
 }
 
-async function uploadFile(fileUri: string) {
+export async function uploadFile(fileUri: string) {
   try {
     const response = await FileSystem.uploadAsync(`${endpoint}/upload`, fileUri, {
       fieldName: 'file',

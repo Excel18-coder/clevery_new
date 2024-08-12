@@ -18,7 +18,7 @@ const RedirectPage = () => {
       if (token) {
         try {
           const decodedToken = AuthSession.TokenResponse.fromQueryParams({ access_token: token as string });
-          
+          console.log('Decoded token:', decodedToken);
           // Validate the token and get user info
           const userInfo = await fetchUserInfo(decodedToken.accessToken);
           

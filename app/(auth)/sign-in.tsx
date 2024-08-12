@@ -2,13 +2,11 @@ import { useState } from "react";
 import { View, Text, ScrollView, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, router } from "expo-router";
-import { Toast } from "native-base";
 
 import { CustomButton, FormField,Butttons } from "@/components";
 import { showToastMessage } from "@/lib";
-import ToastAlert from "@/components/toast-alert"; 
-import { useAuth } from "@/lib/contexts/custom";
-
+import ToastAlert, { showToastAlert } from "@/components/toast-alert";
+import { useAuth } from "@/lib/contexts/auth";
 
 type AuthProviders = "google" | "facebook" | "github";
 const SignIn = () => {
@@ -28,18 +26,8 @@ const SignIn = () => {
     const password=form.password
     const email=form.email
     if (form.email === "" || form.password === "") {
-      const id = 'sign-up';
   
-      Toast.show({
-        render: () => (
-          <ToastAlert
-            id={id}
-            title="Error!"
-            description="Please fill in all fields"
-            status="success"
-          />
-        ),
-      });
+      showToastMessage("Please fill in all fields")
     }
     
     if (!password.length ){
@@ -52,31 +40,21 @@ const SignIn = () => {
         password
       })
 
-      return (
-        Toast.show({
-          render: () => (
-            <ToastAlert
-              id="sign-up"
-              title="Success!"
-              description={`Welcome ${result?.user.name}!`}
-              status="success"
-            />
-          ),
-        })
-      )
+      showToastAlert({
+        id: "sign-up",
+        title: "Success",
+        description: "You have successfully logged in",
+        status: "success",
+      })
       
     } catch (error) {
       console.log("Sign-in",error)
-      Toast.show({
-        render: () => (
-          <ToastAlert
-            id="sign-up"
-            title="Something went wrong"
-            description="Please try again"
-            status="success"
-          />
-        ),
-      });
+      showToastAlert({
+        id: "sign-up",
+        title: "Error",
+        description: "Something went wrong",
+        status: "error",
+      })
     } 
   };
 

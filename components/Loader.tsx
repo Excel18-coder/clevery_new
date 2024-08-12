@@ -1,34 +1,34 @@
-import { View, Text } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import LottieView from 'lottie-react-native';
-import { useRef } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-const Loader = ({ loadingText = 'Loading...' }) => {
-  const animation = useRef<LottieView>(null);
-
+const Loader = ({ 
+  loadingText = 'Loading...',
+  subText = "We're preparing something amazing for you"
+}) => {
   return (
-    <View className='flex-1 justify-center items-center bg-[rgba(0,0,0,0.1)]'>
-      <LinearGradient
-        colors={['#4A00E0', '#8E2DE2']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className='w-[300px] h-[300px] rounded-5 justify-center items-center shadow-[0_0_10px_0_rgba(0,0,0,0.5)] '
-      >
-        <LottieView
-          source={require('@/assets/animations/elegant-loading.json')}
-          ref={animation}
-          autoPlay
-          loop
-          style={{ width: 180, height: 180 }}
-        />
-        <Text className='text-[#FFFFFF] font-pmedium text-[24px]'>{loadingText}</Text>
-        <Text className='text-[rgba(255, 255, 255, 0.8)] font-pmedium text-[16px] px-5 text-center mt-2.5'>
-          We're crafting an exceptional experience for you
+    <View className="flex-1 justify-center items-center bg-white">
+      <View className="bg-gray-50 rounded-2xl shadow-md p-8 items-center max-w-sm w-full">
+        <View className="w-20 h-20 mb-6">
+          <ActivityIndicator size="large" color="#3B82F6" />
+        </View>
+        
+        <Text className="text-2xl font-bold text-gray-800 text-center mb-2">
+          {loadingText}
         </Text>
-      </LinearGradient>
+        
+        <Text className="text-gray-600 text-center mb-4">
+          {subText}
+        </Text>
+        
+        <View className="flex-row items-center justify-center">
+          <Ionicons name="time-outline" size={18} color="#6B7280" />
+          <Text className="text-gray-500 ml-2">
+            Just a moment...
+          </Text>
+        </View>
+      </View>
     </View>
   );
 };
-
 
 export default Loader;

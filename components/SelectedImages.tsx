@@ -1,4 +1,3 @@
-import  { FC } from 'react';
 import { TouchableOpacity, FlatList, FlatListProps } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, View } from './Themed';
@@ -12,7 +11,7 @@ interface SelectedImagesProps {
   handleSelectImages: () => void;
 }
 
-const SelectedImages: FC<SelectedImagesProps> = ({ images, onDeleteImage,handleSelectImages }) => {
+const SelectedImages: React.FC<SelectedImagesProps> = ({ images, onDeleteImage,handleSelectImages }) => {
   const renderItem: FlatListProps<string>['renderItem'] = ({ item ,index}) => {
     return (
       <View style={{ marginRight: 10 }}>

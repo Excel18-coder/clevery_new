@@ -6,20 +6,22 @@ export async function uploadImage(file:string) {
     const res = await fetch(file);
     const blob = await res.blob();
 
-    // const fs = fs
+    const newFile = new File([blob],'')
     var formData = new FormData();
-    formData.append('file', blob );
-
-    const response = await fetch(`${endpoint}/upload`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      }, 
-      body: formData
-    }).then((res)=>res).catch((err)=>console.log(err))
-    const data = await response?.json();
-    console.log(data)
-    return data
+    formData.append('file', newFile );
+    
+    const resp = await getOptimizedImageUrl(file)
+    console.log(resp)
+    // const response = await fetch(`${endpoint}/uploadthing?slug=imageuploader&type=image`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'multipart/form-data',
+    //   }, 
+    //   body: formData
+    // }).then((res)=>res).catch((err)=>console.log(err))
+    // const data = await response?.json();
+    // console.log(data)
+    return 'data'
   } catch (error:any) {
     console.log(error)
 }

@@ -13,7 +13,7 @@ import {
   useUpdateServer,
   useDeleteServer,
   useCreateChannel
-} from '@/lib';
+} from '@/lib/actions/hooks/servers';
 
 export const useChannelData = (channelId: string, serverId: string) => {
   const { data: channel, isLoading: channelLoading, error: channelError } = useChannel(channelId);
