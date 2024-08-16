@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Animated } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useState } from 'react';
+import { TouchableOpacity, Animated } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Box } from 'native-base';
+import { Text, View } from '../Themed';
 
 interface LogoutComponentProps {
   onLogout: () => void;
@@ -27,21 +28,20 @@ const LogoutComponent: React.FC<LogoutComponentProps> = ({ onLogout, onCancel, u
   };
 
   return (
-    <LinearGradient
-      colors={['#4b6cb7', '#182848']}
+    <Box
       className="flex-1 justify-center items-center p-6"
     >
-      <View className="bg-white bg-opacity-95 rounded-3xl p-8 w-full max-w-md shadow-lg">
+      <View className="rounded-3xl p-8 w-full max-w-md shadow-lg">
         <LottieView
-          source={require('@/assets/animations/loading.json')}
+          source={require('@/assets/animations/fire.json')}
           autoPlay
           loop
           style={{ width: 128, height: 128, alignSelf: 'center' }}
         />
-        <Text className="text-2xl font-bold text-gray-800 mt-6 text-center">
+        <Text className="text-2xl font-bold text-gray-500 mt-6 text-center">
           Farewell, {username}?
         </Text>
-        <Text className="text-lg text-gray-600 mt-2 text-center">
+        <Text className="text-lg mt-2 text-gray-500 font-rregular text-center">
           We'd hate to see you go. Are you sure?
         </Text>
         
@@ -70,7 +70,7 @@ const LogoutComponent: React.FC<LogoutComponentProps> = ({ onLogout, onCancel, u
           </Text>
         </TouchableOpacity>
       </View>
-    </LinearGradient>
+    </Box>
   );
 };
 
@@ -79,7 +79,7 @@ const BenefitItem: React.FC<{ icon: string; text: string }> = ({ icon, text }) =
     <View className="bg-blue-100 p-2 rounded-full">
       <Ionicons name={icon as any} size={20} color="#3b82f6" />
     </View>
-    <Text className="text-gray-700 text-base flex-1">{text}</Text>
+    <Text className="text-gray-700 text-base flex-1 font-rregular">{text}</Text>
   </View>
 );
 

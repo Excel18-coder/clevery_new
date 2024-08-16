@@ -1,13 +1,13 @@
 import { useState, useCallback, memo } from 'react';
 import { FlatList, TextInput, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 
 import { Channel, Conversation, Message } from '@/types';
 import MessagesContainer from './MessageContainer';
 import { Text, View } from '@/components/Themed';
-import { Feather, Ionicons } from '@expo/vector-icons';
-import Header from './Header';
 import PopupComponent from './Popup';
+import Header from './Header';
 
 type NewMessage = {
   caption: string;
@@ -30,7 +30,6 @@ type ImageWithCaptionProps = {
   closeFile: () => void;
   showInputs: boolean;
 };
-
 
 const Messages: React.FC<Props> = ({
   conversation,
@@ -84,7 +83,7 @@ const Messages: React.FC<Props> = ({
     <View className="flex-1">
       <FlatList
         data={messages}
-        renderItem={({ item }) => (
+        renderItem={({ item }:{ item:any }) => (
           <MessagesContainer
             item={item}
             onDelete={() => {}}

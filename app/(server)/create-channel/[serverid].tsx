@@ -1,10 +1,10 @@
 import { memo, useState } from 'react';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 import { showToastMessage, useCreateChannel, useProfileStore } from '@/lib';
 import { Loader,View,Create } from '@/components';
 import ToastAlert from '@/components/toast-alert';
-import { ChannelType } from '@/validations';
+import { ChannelTypeEnum } from '@/validations';
 
 interface newChannel {
   name: string;
@@ -34,13 +34,15 @@ const CreateChannel: React.FC = () => {
       if(!description) return showToastMessage('Please provide the channel description' )
       if(serverid === '' ) return showToastMessage('No server id provided' );
 
+      console.log(newChannel)
       const res = await createChannel({
         name,
         description,
-        type:ChannelType.Enum.TEXT,
+        type:ChannelTypeEnum.Enum.TEXT,
         isPrivate:false
       });
-      console.log(res)
+      
+      router.push(`channel/${res.id}`)
     } catch (error:any) {
       console.log(error.message)
       showToastMessage('Error creating server:' );
@@ -51,7 +53,7 @@ const CreateChannel: React.FC = () => {
 if(creatingServer)return <Loader loadingText='Creating your channel'/>
 
   return (
-    <View className='p-5 flex-1 '>
+    <View className='flex-1 '>
       <Create
         fields={newChannel}
         setFields={setNewChannel}

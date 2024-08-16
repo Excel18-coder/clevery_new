@@ -1,60 +1,77 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useQueries } from '@tanstack/react-query';
-import searchApi from '@/lib/actions/search';
-import useDebounce from '@/lib/hooks/useDebounce';
-import { useTopCreators } from './users';
-import { useTopServers } from './servers';
 
-const DEBOUNCE_DELAY = 300; // milliseconds
+import useDebounce from '@/lib/hooks/useDebounce';
+import searchApi from '@/lib/actions/search';
+import { useTopServers } from './servers';
+import { useTopCreators } from './users';
+
+const DEBOUNCE_DELAY = 300; // milliseconds 
+const MIN_QUERY_LENGTH = 3;
 
 type SearchType = 'all' | 'posts' | 'users' | 'servers';
 
 export const useCombinedSearch = (initialQuery: string = '', initialType: SearchType = 'all') => {
   const [query, setQuery] = useState(initialQuery);
   const [searchType, setSearchType] = useState<SearchType>(initialType);
-  const {data: topCreators, isPending: loadingCreators} = useTopCreators();
-  const {data: topServers, isPending: loadingServers} = useTopServers();
+  const { data: topCreators, isPending: loadingCreators } = useTopCreators();
+  const { data: topServers, isPending: loadingServers } = useTopServers();
 
-  // const debouncedSetQuery = useMemo(
-  //   () => useDebounce(setQuery, DEBOUNCE_DELAY),
-  //   []
-  // );
+  const debouncedSetQuery = () => useDebounce((value: string) => {
+      if (value?.length >= MIN_QUERY_LENGTH) {
+        setQuery(value);
+      } else {
+        setQuery('');
+      }
+    }, DEBOUNCE_DELAY)
 
-  // TODO: Figure out how to handle errors
+  const isQueryValid = query?.length >= MIN_QUERY_LENGTH;
+
   const searchQueries = useQueries({
     queries: [
       {
         queryKey: ['searchPosts', query],
         queryFn: () => searchApi.searchPosts(query),
-        enabled: query?.length > 0 && (searchType === 'all' || searchType === 'posts'),
+        enabled: isQueryValid && (searchType === 'all' || searchType === 'posts'),
+        retry: false,
       },
       {
         queryKey: ['searchUsers', query],
         queryFn: () => searchApi.searchUsers(query),
-        enabled: query?.length > 0 && (searchType === 'all' || searchType === 'users'),
+        enabled: isQueryValid && (searchType === 'all' || searchType === 'users'),
+        retry: false,
       },
       {
         queryKey: ['searchServers', query],
         queryFn: () => searchApi.searchServers(query),
-        enabled: query?.length > 0 && (searchType === 'all' || searchType === 'servers'),
+        enabled: isQueryValid && (searchType === 'all' || searchType === 'servers'),
+        retry: false,
       },
     ],
   });
-
   const [postsQuery, usersQuery, serversQuery] = searchQueries;
+
 
   const isLoading = searchQueries.some(query => query.isLoading);
   const error = searchQueries.find(query => query.error)?.error;
 
+  const handleSetQuery =(value: string) => {
+    if (value?.length >= MIN_QUERY_LENGTH) {
+      setQuery(value);
+    } else {
+      setQuery('');
+    }
+  }
+
   return {
     query,
-    setQuery: useDebounce(setQuery, DEBOUNCE_DELAY),
+    setQuery: handleSetQuery,
     searchType,
     setSearchType,
     results: {
-      posts: postsQuery.data || [],
-      users: usersQuery.data || [],
-      servers: serversQuery.data || [],
+      posts: postsQuery.data?.results || [],
+      users: usersQuery.data?.results || [],
+      servers: serversQuery.data?.results || [],
     },
     isLoading,
     error,
@@ -67,6 +84,7 @@ export const useCombinedSearch = (initialQuery: string = '', initialType: Search
     topCreators,
     topServers,
     loadingCreators,
-    loadingServers
+    loadingServers,
+    isQueryValid,
   };
 };

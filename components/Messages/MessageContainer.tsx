@@ -42,7 +42,8 @@ const MessageSeparator = ({ timestamp }: { timestamp: string }) => (
 const FileAttachment = ({ file }: { file: Message['file'] }) => {
   if (!file) return null;
 
-  const isPDF = false
+  const isImage = /\.(jpg|jpeg|png|gif)$/i.test(file);
+  const isPDF = !isImage
 
   return (
     <TouchableOpacity 

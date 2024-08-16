@@ -101,8 +101,8 @@ const Create: React.FC<CreateProps> = ({
             defaultValue='TEXT'
             onValueChange={(v) => setFields({ ...fields, type: v } as CreateChannelData)}
             w="100%"
-            borderColor="gray.500"
-            color="white"
+            borderColor="gray.700"
+            color="gray.400"
             selectedValue={(fields as CreateChannelData).type}
           >
             <Select.Item label='Text' value='TEXT' leftIcon={<Feather name='hash' size={16} color="white" />} />

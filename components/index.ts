@@ -22,7 +22,6 @@ export {default as Loader} from "./Loader";
 export {default as ErrorMessage} from "./ErrorMessage";
 export {default as Header} from "./Messages/Header";
 export {default as UploadImage} from "./Servers/upload-image";
-export {default as ChannelHeader} from "./Servers/ChannelHeader"
 export {default as ChannelTop} from "./Servers/ChannelTop"
 export {default as Create} from "./Servers/Create"
 export {default as MessagesContainer} from './Messages/MessageContainer'

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { FlatList, TouchableOpacity, Animated } from 'react-native';
 import { Box, Text, VStack, HStack, Heading, Icon, Spinner } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
@@ -108,8 +108,8 @@ const FriendRequests: React.FC<FriendRequestsProps> = ({ friendRequests, isLoadi
   }
 
   return (
-    <Box flex={1} bg="gray.100" p={4}>
-      <Heading size="xl" mb={6} color="blue.800">Friend Requests</Heading>
+    <Box flex={1}p={4}>
+      
       {friendRequests.length === 0 ? (
         <VStack flex={1} justifyContent="center" alignItems="center" space={4}>
           <LottieView

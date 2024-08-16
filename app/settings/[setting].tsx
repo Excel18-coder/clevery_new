@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 
 import { Account, Appearance, FriendRequests, LogoutComponent, MenuItems, Notifications, Text, View } from '@/components';
+import { useProfileStore } from '@/lib';
 
 const Settings = () => {
   const { setting } = useLocalSearchParams();
@@ -22,6 +23,7 @@ const Settings = () => {
 };
 
 const renderContent = (setting: string | any) => {
+  const { profile } = useProfileStore();
   switch (setting) {
     case 'account':
       return <Account />;
@@ -32,7 +34,7 @@ const renderContent = (setting: string | any) => {
     case 'friend-requests':
       return <FriendRequests friendRequests={[]} />;
     case 'logout':
-      return <LogoutComponent onCancel={()=>{}} onLogout={()=>{}} username='' />;
+      return <LogoutComponent onCancel={()=>{}} onLogout={()=>{}} username={profile.username || profile.name} />;
     default:
       return <MenuItems />;
   }

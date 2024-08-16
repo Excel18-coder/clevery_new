@@ -3,6 +3,7 @@ import { Modal, ScrollView } from 'react-native';
 import { showToastMessage,useCreateServer, useUsers, useProfileStore } from '@/lib';
 import { Create, InviteFriends, Loader, } from '@/components';
 import { CreateServerData as CreateServerType, User } from '@/types';
+import { router } from 'expo-router';
 
 
 const CreateServer = () => {
@@ -33,14 +34,16 @@ const CreateServer = () => {
 
     try {
       console.log(serverDetails)
-      // await createServer(serverDetails );
+      const server = await createServer(serverDetails );
 
-      // setServerDetails({
-      //   name: '',
-      //   description: '',
-      //   image: '',
-      //   members:[],
-      // });
+      setServerDetails({
+        name: '',
+        description: '',
+        image: '',
+        members:[],
+      });
+      console.log(server)
+      router.push(`/servers/${server.id}`)
     } catch (error:any) {
       console.error('Error creating server:', error.message);
       showToastMessage('Error creating server')

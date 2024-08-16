@@ -96,6 +96,7 @@ export const useSendChannelMessage = () => {
     mutationFn: (data: SendMessageDataPayload) => serverApi.sendChannelMessage(data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({queryKey: queryKeys.channels(variables.serverId)});
+      queryClient.invalidateQueries({queryKey: queryKeys.channel(variables.channelId)});
     }
   })
 };

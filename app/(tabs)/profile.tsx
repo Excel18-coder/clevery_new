@@ -3,7 +3,7 @@ import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 
-import { Loader, MenuItems, Text, UserCard, UserInfo, View } from '@/components';
+import { Loader, MenuItems, Text, UserInfo, View } from '@/components';
 import { formatDateString, useProfileStore } from '@/lib';
 import Image from '@/components/image';
 

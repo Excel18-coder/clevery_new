@@ -1,16 +1,15 @@
 import { PusherEvent } from '@pusher/pusher-websocket-react-native';
 import { useEffect, useState } from 'react';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, } from 'expo-router';
 
 import { parseIncomingMessage, pusher, selectImage, sortMessages, useChannelData, useSendChannelMessage} from '@/lib';
 import { ChannelTop, ErrorMessage, Loader, MessageInput, Messages, View } from '@/components'
 import AudioVideoComponent from '@/components/audio-video-call';
 import { Message } from '@/types';
-import { ChannelType } from '@/validations';
 
 interface newMessage {
     caption:string;
-    file:any[]
+    file:string
   }
   
 const Channel = () => {
@@ -18,24 +17,19 @@ const Channel = () => {
     
   const [newMessage, setNewMessage] = useState<newMessage>({
     caption:'',
-    file:[]
+    file:''
   })
-  const {id} = useLocalSearchParams()
+  const {id,serverId} = useLocalSearchParams()
 
   const {
     channel,
+    state,
+    sendChannelMessage,
     isLoading,
+    sendMessageLoading,
     error
-
-  } =useChannelData(id as string,"")
+  } =useChannelData(id as string)
   
-  
-  const {
-    mutateAsync:sendMessage,
-    isPending:sendingMessage,
-    isError:sendMessageError
-  }= useSendChannelMessage()
- 
   useEffect(()=>{
     setMessages(channel?.messages!)
 
@@ -71,36 +65,31 @@ const Channel = () => {
   const handleSend = async () => {
     if (!channel?.id) return;
     const { caption, file } = newMessage;
-    if (caption || file.length > 0) {
+    if (caption || file ) {
       
-      await sendMessage({
-        channelId: channel.id,
-        serverId: channel.serverId,
-        message:{
-          text:caption
-        }
-      }).then(() => {
-        setNewMessage({ caption: '', file: [] });
+     const message = await sendChannelMessage(caption).then(() => {
+        setNewMessage({ caption: '', file:'' });
       });
+      console.log(message)
     }
   };
 
 const chooseFile = async () => {
   const file = await selectImage();
   if (file) {
-    setNewMessage({ ...newMessage, file: [file] });
+    setNewMessage({ ...newMessage, file:file[0] });
   }
 };
 
 const closeFile = () => {
-  setNewMessage({ ...newMessage, file: [] });
+  setNewMessage({ ...newMessage, file: '' });
 };
   
-  if (isLoading) return <Loader loadingText='Loading Channel'/>
-  if (error) return <ErrorMessage message='Failed'/>
-    
+  if (isLoading || state?.status === 'loading') return <Loader loadingText='Loading Channel'/>
+  // if (error) return <ErrorMessage message='Failed'/>
   const sortedMessages=messages ?sortMessages({messages:messages!}):[]
 
+  console.log(sortedMessages)
   if (channel?.type === "AUDIO"){
     return ( 
       <AudioVideoComponent
@@ -127,7 +116,7 @@ const closeFile = () => {
         caption={newMessage.caption}
         onMessageChange={(e)=>setNewMessage({...newMessage,caption:e})}
         onSend={handleSend}
-        sending={sendingMessage}
+        sending={sendMessageLoading}
         onChooseFile={chooseFile}
       />
     </View>

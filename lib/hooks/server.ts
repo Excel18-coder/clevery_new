@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   useChannel,
   useChannelMessages,
@@ -7,39 +7,73 @@ import {
   useDeleteChannelMessage,
   useUpdateChannel,
   useDeleteChannel,
-  useServer,
-  useServerChannels,
-  useServerMembers,
-  useUpdateServer,
-  useDeleteServer,
-  useCreateChannel
 } from '@/lib/actions/hooks/servers';
 
-export const useChannelData = (channelId: string, serverId: string) => {
-  const { data: channel, isLoading: channelLoading, error: channelError } = useChannel(channelId);
-  const { data: messages, isLoading: messagesLoading, error: messagesError } = useChannelMessages(channelId);
+export const useChannelData = (channelId: string) => {
+  const { 
+    data: channel, 
+    isLoading: channelLoading, 
+    error: channelError 
+  } = useChannel(channelId);
+
+  const { 
+    data: messages, 
+    isLoading: messagesLoading, 
+    error: messagesError 
+  } = useChannelMessages(channelId);
+
   const { mutate: sendMessage, isPending: sendMessageLoading } = useSendChannelMessage();
   const { mutate: editMessage, isPending: editMessageLoading } = useEditChannelMessage();
   const { mutate: deleteMessage, isPending: deleteMessageLoading } = useDeleteChannelMessage();
-  const { mutate: updateChannel, isPending: updateChannelLoading } = useUpdateChannel(serverId, channelId);
-  const { mutate: deleteChannel, isPending: deleteChannelLoading } = useDeleteChannel(serverId);
+  
+  const serverId = channel?.serverId || "";
+
+  const { 
+    mutate: updateChannel, 
+    isPending: updateChannelLoading 
+  } = useUpdateChannel(serverId, channelId);
+
+  const { 
+    mutate: deleteChannel, 
+    isPending: deleteChannelLoading 
+  } = useDeleteChannel(serverId);
 
   const isLoading = channelLoading || messagesLoading;
   const error = channelError || messagesError;
 
   const sendChannelMessage = useCallback((content: string) => {
-    sendMessage({ channelId, serverId, message:{text:content} });
+    if (serverId) {
+      sendMessage({ channelId, serverId, message: { text: content } });
+    }
   }, [channelId, serverId, sendMessage]);
 
   const editChannelMessage = useCallback((messageId: string, content: string) => {
-    editMessage({serverId, channelId, messageId,text:content });
-  }, [channelId, editMessage]);
+    if (serverId) {
+      editMessage({ serverId, channelId, messageId, text: content });
+    }
+  }, [channelId, serverId, editMessage]);
 
   const deleteChannelMessage = useCallback((messageId: string) => {
-    deleteMessage({serverId, channelId, messageId });
-  }, [channelId, deleteMessage]);
+    if (serverId) {
+      deleteMessage({ serverId, channelId, messageId });
+    }
+  }, [channelId, serverId, deleteMessage]);
+
+  const state = useMemo(() => {
+    if (channelLoading) {
+      return { status: 'loading' as const };
+    }
+    if (channelError) {
+      return { status: 'error' as const, error: channelError };
+    }
+    if (!channel) {
+      return { status: 'not-found' as const };
+    }
+    return { status: 'success' as const, data: channel };
+  }, [channel, channelLoading, channelError]);
 
   return {
+    state,
     channel,
     messages,
     sendChannelMessage,
@@ -54,31 +88,5 @@ export const useChannelData = (channelId: string, serverId: string) => {
     deleteMessageLoading,
     updateChannelLoading,
     deleteChannelLoading
-  };
-};
-
-export const useServerData = (serverId: string) => {
-  const { data: server, isLoading: serverLoading, error: serverError } = useServer(serverId);
-  const { data: channels, isLoading: channelsLoading, error: channelsError } = useServerChannels(serverId);
-  const { data: members, isLoading: membersLoading, error: membersError } = useServerMembers(serverId);
-  const { mutate: updateServer, isPending: updateServerLoading } = useUpdateServer(serverId);
-  const { mutate: deleteServer, isPending: deleteServerLoading } = useDeleteServer();
-  const { mutate: createChannel, isPending: createChannelLoading } = useCreateChannel(serverId);
-
-  const isLoading = serverLoading || channelsLoading || membersLoading;
-  const error = serverError || channelsError || membersError;
-
-  return {
-    server,
-    channels,
-    members,
-    updateServer,
-    deleteServer,
-    createChannel,
-    isLoading,
-    error,
-    updateServerLoading,
-    deleteServerLoading,
-    createChannelLoading
   };
 };

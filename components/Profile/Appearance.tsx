@@ -6,6 +6,7 @@ import { BlurView } from 'expo-blur';
 
 import { useThemeStore } from '@/lib/zustand/store';
 import { Text } from '@/components/Themed';
+import { showToastMessage } from '@/lib';
 
 const ThemeDescription = {
   light: 'Light backgrounds, dark text. Easy to read and reduces eye strain.',
@@ -29,10 +30,10 @@ const Appearance = () => {
       <Animated.View className="mb-4 rounded-lg overflow-hidden" style={animatedStyle}>
         <BlurView intensity={80} tint={mode} className="p-4">
           <View className="flex-row items-center mb-1">
-            <Feather name={iconName} size={24} color="white" />
-            <Text className="text-lg font-semibold ml-2">{label}</Text>
+            <Feather name={iconName} size={24} color="gray" />
+            <Text className="text-lg font-rmedium ml-2">{label}</Text>
           </View>
-          <Text className="text-sm opacity-70">{description}</Text>
+          <Text className="text-xs font-rregular opacity-70">{description}</Text>
         </BlurView>
       </Animated.View>
     );
@@ -44,6 +45,7 @@ const Appearance = () => {
       <TouchableOpacity
         className="w-10 h-10 rounded-full justify-center items-center"
         style={{ backgroundColor: color }}
+        onPress={()=>showToastMessage("This feature will be available soon")}
       >
         {accentColor === color && (
           <Ionicons name="checkmark-circle" size={20} color="white" />
@@ -54,7 +56,7 @@ const Appearance = () => {
 
   return (
     <ScrollView className="flex-1 p-5">
-      <Text className="text-2xl font-bold mb-5">Appearance</Text>
+      <Text className="text-2xl font-rbold mb-5">Appearance</Text>
       
       <View className="mb-5">
         {Object.entries(ThemeDescription).map(([theme, description]) => (
@@ -67,7 +69,7 @@ const Appearance = () => {
         ))}
       </View>
 
-      <Text className="text-lg font-bold mt-5 mb-2">Theme Selection</Text>
+      <Text className="text-lg font-rbold mt-5 mb-2">Theme Selection</Text>
       <View className="flex-row justify-between">
         {['default', 'light', 'dark'].map((theme) => (
           <TouchableOpacity
@@ -78,12 +80,12 @@ const Appearance = () => {
             <View className={`h-5 w-5 rounded-full border-2 border-blue-500 items-center justify-center ${mode === theme ? 'bg-blue-500' : ''}`}>
               {mode === theme && <View className="h-2.5 w-2.5 rounded-full bg-white" />}
             </View>
-            <Text className="text-base ml-2">{theme}</Text>
+            <Text className="text-sm ml-2 font-pregular">{theme}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      <Text className="text-lg font-bold mt-5 mb-2">Accent Color</Text>
+      <Text className="text-lg font-rbold mt-5 mb-2">Accent Color</Text>
       <View className="flex-row justify-between mt-2">
         {['#007AFF', '#FF3B30', '#4CD964', '#FF9500', '#5856D6'].map((color) => (
           <ColorOption key={color} color={color} />

@@ -1,12 +1,14 @@
 import { TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { Image } from 'expo-image';
 
 import SearchSuggestions from '@/components/skeletons/search-suggestions';
-import { useSearchStore } from '@/lib';
+import { ContributorBadge, LegendBadge, NewcomerBadge } from '@/components/badges/user';
 import { Text, View } from '@/components/Themed';
+import { useSearchStore } from '@/lib';
 import { Server, User } from '@/types';
+import { HStack } from 'native-base';
 
 type RecentItem = {
   id: string;
@@ -40,24 +42,26 @@ const TopUsers =({suggestedUsers,addSearch}:Users)=>{
     router.push(`/user/${user.id}`)
   }
     return(
-    <View
-    >
+    <View >
       <Text className='text-[10px] pb-2 font-rregular' >Top Users</Text>
       <FlatList
         data={suggestedUsers?.slice(0,3)}
         ListEmptyComponent={<SearchSuggestions/>}
         renderItem={({ item }) =>  (
-          <TouchableOpacity className='flex-row items-center p-1.5' onPress={()=>handleUserClick(item)}>
-          <Image
-          source={{ uri: item.image }}
-          className='h-[50px] w-[50px] rounded-[25px] border mr-4 '
-          />
-            <View>
-              <Text className='text-sm font-rmedium'>{item.name}</Text>
-              <Text className='text-[10px] font-rregular'>{item.username}</Text>
-            </View>
-            
-          </TouchableOpacity>
+          <HStack>
+            <TouchableOpacity className='flex-row items-center p-1.5' onPress={()=>handleUserClick(item)}>
+              <Image
+              source={{ uri: item.image }}
+              className='h-[50px] w-[50px] rounded-[25px] border mr-4 '
+              />
+                <View>
+                  <Text className='text-sm font-rmedium'>{item.name}</Text>
+                  <Text className='text-[10px] font-rregular'>{item.username}</Text>
+                </View>
+                
+            </TouchableOpacity>
+            <LegendBadge/>
+          </HStack>
           )
         }
         keyExtractor={(item) => item.id.toString()}

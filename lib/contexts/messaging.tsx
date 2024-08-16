@@ -257,7 +257,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     conversations,
     isLoading,
     error,
-    refreshConversations: refetch,
+    refreshConversations: refetch(),
     sendMessage: (conversationId: string, message: string) => 
       sendMessageMutation.mutateAsync({ conversationId, message }),
   }), [conversations, isLoading, error, refetch, sendMessageMutation]);

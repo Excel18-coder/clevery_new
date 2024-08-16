@@ -19,6 +19,7 @@ import {
 import { endpoint } from '../env';
 import { handleApiError } from './error';
 import { serverPaths as apiPaths } from '@/routes';
+import { uploadFile } from '../utils';
 
 /**
  * API client for managing servers, channels, and messages.
@@ -77,6 +78,10 @@ export const serverApi = {
    * @throws Error with a descriptive message if the request fails.
    */
   createServer: async (serverData: CreateServerData): Promise<FullModel<Server>> => {
+    if(serverData.image){
+      const result = await uploadFile(serverData.image)
+      serverData.image = result
+    }
     try {
       const response = await axios.post<FullModel<Server>>(`${endpoint}${apiPaths.servers}`, serverData);
       return response.data;

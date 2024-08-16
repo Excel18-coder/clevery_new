@@ -1,42 +1,67 @@
-import { View, FlatList, Text, TouchableOpacity, Image } from 'react-native';
+import React from 'react';
+import { FlatList, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-import { Post as PostType, Server, User} from '@/types';
-import Post from '../Home/Post';
+import { Post as PostType, Server, User } from '@/types';
+import { Text, View } from '../Themed';
+import { HStack } from 'native-base';
 
 interface Link {
   id: number;
   title: string;
   url: string;
 }
+
 interface SearchResultsProps {
-  result: PostType[] | Server[] | User[] | Link[];
+  result: (PostType | Server | User | Link)[];
   resultType: 'all' | 'media-links' | 'posts' | 'users' | 'servers';
 }
 
-const UserItem: React.FC<User> = ({ id, username, image }) => (
-  <TouchableOpacity className="flex-row items-center p-4 bg-white rounded-lg mb-2 shadow-sm">
+const UserItem: React.FC<User> = ({ id, username, image, name }) => (
+  <TouchableOpacity className="flex-row items-center p-4 rounded-lg mb-2 shadow-sm">
     <Image source={{ uri: image }} className="w-12 h-12 rounded-full" />
-    <Text className="ml-4 text-lg font-semibold">{username}</Text>
+    <Text className="ml-4 text-sm font-rregular">{username || name}</Text>
   </TouchableOpacity>
 );
 
 const ServerItem: React.FC<Server> = ({ id, name, image }) => (
-  <TouchableOpacity className="flex-row items-center p-4 bg-white rounded-lg mb-2 shadow-sm">
+  <TouchableOpacity className="flex-row items-center p-4 rounded-lg mb-2 shadow-sm">
     <Image source={{ uri: image! }} className="w-12 h-12 rounded-lg" />
-    <Text className="ml-4 text-lg font-semibold">{name}</Text>
+    <Text className="ml-4 text-sm font-rregular">{name}</Text>
   </TouchableOpacity>
 );
 
 const LinkItem: React.FC<Link> = ({ id, title, url }) => (
-  <TouchableOpacity className="p-4 bg-white rounded-lg mb-2 shadow-sm">
-    <Text className="text-lg font-semibold mb-2">{title}</Text>
+  <TouchableOpacity className="p-4 rounded-lg mb-2 shadow-sm">
+    <Text className="text-sm font-rregular mb-2">{title}</Text>
     <Text className="text-blue-500">{url}</Text>
   </TouchableOpacity>
 );
 
+const Post: React.FC<PostType> = ({ id, content, createdAt, author }) => (
+  <View className="p-4 rounded-lg mb-2 shadow-sm">
+    <HStack style={{ gap:80 }} alignItems={'center'}>
+      <View>
+        <View className="flex-row items-center mb-2">
+          <Image source={{ uri: author.image }} className="w-8 h-8 rounded-full" />
+          <Text className="ml-2 font-rbold">{author.name}</Text>
+        </View>
+        <Text className="font-rregular mb-2">{content}</Text>
+      </View>
+      <Text className="text-gray-500 text-xs">{new Date(createdAt).toLocaleString()}</Text>
+    </HStack>
+  </View>
+);
+
 const SearchResults: React.FC<SearchResultsProps> = ({ result, resultType }) => {
   const renderItem = ({ item }: { item: PostType | Server | User | Link }) => {
+    if (resultType === 'all') {
+      if ('content' in item) return <Post {...(item as PostType)} />;
+      if ('username' in item) return <UserItem {...(item as User)} />;
+      if ('name' in item && !('username' in item)) return <ServerItem {...(item as Server)} />;
+      if ('url' in item) return <LinkItem {...(item as Link)} />;
+    }
+
     switch (resultType) {
       case 'posts':
         return <Post {...(item as PostType)} />;
@@ -52,7 +77,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ result, resultType }) => 
   };
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <View className="flex-1">
       {result.length > 0 ? (
         <FlatList
           data={result}

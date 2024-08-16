@@ -1,136 +1,228 @@
-import React from 'react';
-import { router, useLocalSearchParams } from 'expo-router';
-import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import Animated, { FadeInDown, FadeInRight, FadeIn } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { Feather, FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
+import { useLocalSearchParams } from 'expo-router';
+import { 
+  Box, 
+  VStack, 
+  HStack,
+  Icon, 
+  Avatar, 
+  Badge,
+  useTheme,
+  ScrollView,
+} from 'native-base';
 
-import { multiFormatDateString, useUser } from '@/lib';
-import { Loader, UserInfo } from '@/components';
+import { Loader, Text, UserInfo, View } from '@/components';
+import { formatDateString, useUser } from '@/lib';
 import MembersList from '@/components/members-list';
 import Image from '@/components/image';
-import { Server, User } from '@/types';
+import { User } from '@/types';
+import { ContributorBadge, LegendBadge, MasterBadge, ExplorerBadge, VIPBadge, NewcomerBadge } from '@/components/badges/user';
 
-const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
+const AnimatedBox = Animated.createAnimatedComponent(Box);
 
-const UserBanner = ({ bannerImage }: { bannerImage: string }) => (
-  <Animated.View entering={FadeInDown.duration(800).springify()} className="relative">
+interface UserBannerProps {
+  bannerImage: string;
+}
+
+const UserBanner: React.FC<UserBannerProps> = ({ bannerImage }) => (
+  <AnimatedBox entering={FadeInDown.duration(800).springify()} position="relative">
     <Image
       source={bannerImage}
       width={350}
       height={192}
-      style="w-full h-56 rounded-b-3xl"
+      style="w-full h-56"
     />
-    <AnimatedLinearGradient
-      colors={['rgba(0,0,0,0.6)', 'transparent']}
-      className="absolute top-0 left-0 right-0 h-28"
+    <AnimatedBox
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 112
+      }}
       entering={FadeIn.duration(1000)}
     />
-  </Animated.View>
+  </AnimatedBox>
 );
-interface Content {
-  id: string;
-  name: string;
-  image: string;
-}[];
 
-const UserSection = ({ title, content, icon }: { title: string; content: Content; icon: string }) => (
-  <Animated.View 
-    className="m-4 p-4 bg-white rounded-xl shadow-md"
+interface StatCardProps {
+  title: string;
+  value: number | string;
+  icon: string;
+}
+
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon }) => {
+  const { colors } = useTheme();
+  
+  return (
+    <Box
+      p={4} 
+      rounded="xl" 
+      shadow={2} 
+      flex={1} 
+      mr={2} 
+      alignItems="center"
+      bg={{
+        linearGradient: {
+          colors: ['gray.400', '#3b5998', '#192f6a'],
+          start: [0, 0],
+          end: [1, 1],
+        },
+      }}
+    >
+      {title === "Popularity"
+      ?
+       <Icon as={ContributorBadge} name={icon} size={6} color={colors.blue[500]} mr={4}/>
+      :<Icon as={FontAwesome5} name={icon} size={6} color={colors.blue[500]} />
+      }
+      <Text className='font-rbold text-lg'>{value}</Text>
+      <Text className='font-rregular'>{title}</Text>
+    </Box>
+  );
+};
+
+interface UserSectionProps {
+  title: string;
+  content: React.ReactNode;
+  icon: string;
+}
+
+const UserSection: React.FC<UserSectionProps> = ({ title, content, icon }) => (
+  <AnimatedBox 
+    m={4} p={4} rounded="xl" shadow={2}
     entering={FadeInRight.duration(600).delay(200).springify()}
+    bg={{
+      linearGradient: {
+        colors: ['gray.400', '#3b5998', '#192f6a'],
+        start: [0, 0],
+        end: [1, 1],
+      },
+    }}
   >
-    <View className="flex-row items-center mb-2">
-      <FontAwesome5 name={icon} size={20} color="#4A5568" />
-      <Text className="text-lg font-bold ml-2 text-gray-700">{title}</Text>
-    </View>
-    {/* {content ? (
-      <View className="flex-row flex-wrap">
-        {content?.map((item) => (
-          <View key={item.id} className="mr-2 mb-2">
-            <Image 
-              source={ item.image! } height={50} width={50} style="w-12 h-12 rounded-full" />
-          </View>
-        ))}
-      </View>
-    ) : (
-      <Text className="text-base italic text-gray-400">No data available</Text>
-    )} */}
-  </Animated.View>
+    <HStack alignItems="center" mb={2}>
+      <Icon as={FontAwesome5} name={icon} size={5} color="gray.600" />
+      <Text className='font-rbold ml-5'>{title}</Text>
+    </HStack>
+    {content}
+  </AnimatedBox>
 );
 
-const StatCard = ({ title, value, icon }: { title: string; value: string; icon: string }) => (
-  <View className="bg-white p-4 rounded-xl shadow-sm flex-1 mr-2 items-center">
-    <FontAwesome5 name={icon} size={24} color="#4299E1" />
-    <Text className="text-lg font-bold mt-2 text-gray-700">{value}</Text>
-    <Text className="text-sm text-gray-500">{title}</Text>
-  </View>
-);
-
-const UserProfile = () => {
-  const { id } = useLocalSearchParams();
+const UserProfile: React.FC = () => {
+  const { id } = useLocalSearchParams<{ id: string }>();
   const { data: user, isPending: loading, isError: netError } = useUser(id as string);
+  const { colors } = useTheme();
 
   if (loading || netError) {
     return <Loader loadingText="Loading user profile..." />;
   }
 
+  if (!user) {
+    return <Text>User not found</Text>;
+  }
+  
   return (
-    <ScrollView className="flex-1 bg-gray-100">
-      <UserBanner bannerImage={user?.bannerImage || ''} />
-      <View className="px-4 -mt-16">
+    <ScrollView flex={1} className='flex-1 w-full h-full'>
+      <UserBanner bannerImage={user.bannerImage || ''} />
+      <Box px={4} mt={5}>
         <UserInfo profile={user} />
-      </View>
+      </Box>
 
-      <Animated.View 
-        className="m-4 p-4 bg-white rounded-xl shadow-md"
+      <AnimatedBox 
+         m={4} p={4} rounded="xl" shadow={2}
         entering={FadeInDown.duration(600).delay(400).springify()}
+        bg={{
+          linearGradient: {
+            colors: ['gray.400', '#3b5998', '#192f6a'],
+            start: [0, 0],
+            end: [1, 1],
+          },
+        }}
       >
-        <Text className="text-xl font-bold mb-2 text-gray-700">About Me</Text>
-        <Text className="text-base text-gray-600">{user?.bio || 'No bio available'}</Text>
-      </Animated.View>
+        <Text className='font-rbold text-lg'>About Me</Text>
+        <Text className='font-rregular text-sm'>{user.bio || 'No bio available'}</Text>
+      </AnimatedBox>
 
-      <Animated.View 
-        className="flex-row justify-between mx-4 mb-4"
+      <AnimatedBox 
+        flexDirection="row" justifyContent="between" mx={4} mb={4}
         entering={FadeInRight.duration(600).delay(300).springify()}
       >
-        <StatCard title="Posts" value={user?.posts || 0} icon="pen-square" />
-        <StatCard title="Popularity" value={user?.userScore || 0} icon="star" />
-        {/* <StatCard title="Friends" value={user?.friends?.length || 0} icon="user-friends" /> */}
-      </Animated.View>
+        <StatCard title="Posts" value={user.postCount || 0} icon="pen-square" />
+        <StatCard title="Friends" value={user.friends?.length || 0} icon="user-friends" />
+        <StatCard title="Popularity" value={user.userScore || 0} icon="star" />
+      </AnimatedBox>
 
       <UserSection 
         title="Member Since" 
-        content={multiFormatDateString(user?.createdAt)}
+        content={<Text className='font-rregular text-sm'>{formatDateString(user.createdAt)}</Text>}
         icon="calendar-alt"
       />
       
-      <Animated.View 
-        className="m-4"
+      <AnimatedBox 
+        m={4}
         entering={FadeInRight.duration(600).delay(600).springify()}
+        bg={{
+          linearGradient: {
+            colors: ['gray.400', '#3b5998', '#192f6a'],
+            start: [0, 0],
+            end: [1, 1],
+          },
+        }}
       >
-        <Text className="text-xl font-bold mb-2 text-gray-700">Mutual Friends</Text>
-        {user?.commonFriends ? (
+        <Text className='font-rbold text-lg'>Mutual Friends</Text>
+        {user.commonFriends && user.commonFriends.length > 0 ? (
           <MembersList 
             label="Mutual Friends"
-            images={user.commonFriends.map(usr => usr?.image)} 
+            images={user.commonFriends.map(friend => friend?.image)} 
           />
         ) : (
-          <Text className="text-base italic text-gray-400">No mutual friends yet</Text>
+          <Text className='text-white'>No mutual friends yet</Text>
         )}
-      </Animated.View>
+      </AnimatedBox>
 
-      <UserSection title="Mutual Servers" icon="server" content={user?.commonServers} />
-      <UserSection title="Connections" icon="users" content={user?.connections} />
+      <UserSection 
+        title="Mutual Servers" 
+        icon="server" 
+        content={
+          <VStack space={2}>
+            {user.commonServers?.map((server: any) => (
+              <HStack key={server.id} alignItems="center">
+                <Avatar source={{ uri: server.image }} size="sm" mr={2} />
+                <Text className='font-rregular text-sm'>{server.name}</Text>
+              </HStack>
+            ))}
+          </VStack>
+        } 
+      />
 
-      <TouchableOpacity 
-        className="flex-row items-center justify-center m-4 p-4 bg-blue-500 rounded-xl shadow-md"
-        onPress={() => router.push(`/conversation/${id}`)}
-      >
-        <Text className="text-lg font-bold text-white mr-2">
-          {user?.isFriend ? 'Message' : 'Add Friend'}
-        </Text>
-        <Ionicons name={user?.isFriend ? "chatbubble-outline" : "person-add-outline"} size={24} color="white" />
-      </TouchableOpacity>
+      <UserSection 
+        title="Connections" 
+        icon="users" 
+        content={
+          <HStack flexWrap="wrap">
+            {user.connections?.map((connection: User) => (
+              <Badge key={connection.id} colorScheme="blue" m={1}>
+                {connection.username}
+              </Badge>
+            ))}
+          </HStack>
+        } 
+      />
+
+      <UserSection
+        title="Achievements"
+        icon="trophy"
+        content={
+          <VStack space={2}>
+            {user?.achievements?.map((achievement:any, index:any) => (
+              <HStack key={index} alignItems="center">
+                <Icon as={FontAwesome5} name="medal" size={4} color={colors.yellow[500]} mr={2} />
+                <Text className='font-rregular text-sm'>{achievement}</Text>
+              </HStack>
+            ))}
+          </VStack>
+        }
+      />
     </ScrollView>
   );
 };

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import LottieView from 'lottie-react-native';
 
 interface ErrorProps {
   title?: string;
@@ -15,9 +16,19 @@ const Error = ({
   return (
     <View className="flex-1 justify-center items-center bg-gray-50 px-6">
       <View className="bg-white rounded-2xl shadow-lg p-8 items-center max-w-md w-full">
-        <View className="w-20 h-20 bg-red-100 rounded-full items-center justify-center mb-6">
-          <Ionicons name="alert-circle" size={48} color="#EF4444" />
-        </View>
+      <View className="w-36 h-36 mb-6">
+        <LottieView
+          source={require('@/assets/animations/loading.json')}
+          autoPlay
+          loop
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+          hardwareAccelerationAndroid
+          speed={0.7}
+        />
+      </View>
         
         <Text className="text-2xl font-bold text-gray-800 text-center mb-4">
           {title}

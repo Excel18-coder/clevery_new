@@ -24,6 +24,10 @@ export const UserSchema = baseSchema.extend({
   phone: z.string().nullable(),
   address: z.string().nullable(),
   emailVerified: z.date().nullable(),
+  friends:z.array(z.string()).optional(),
+  posts:z.array(z.string()).nullable().optional(),
+  userScore:z.string().optional(),
+  postCount:z.number().optional()
 });
 
 // Comment schema

@@ -1,20 +1,36 @@
 import { TouchableOpacity } from 'react-native'
+import { Feather } from '@expo/vector-icons'
+import { memo } from 'react'
+
 import { Text, View } from '@/components/Themed'
 import { formatDateString } from '@/lib'
-import ChannelHeader from '@/components/Servers/ChannelHeader'
-import { memo } from 'react'
-import Image from '../image'
-
+import Image from '@/components/image'
 
 const Header = ({user,messages,created,channel}:any) => {
 
   if(channel&&!user) {
+    
     return(
-    <ChannelHeader
-      messages={channel.messages}
-      channelName= {channel?.name} 
-      description={channel?.description}
-    />
+      <>
+      <View className={`flex flex-1 h-[100%] mb-${!!messages?.length?'auto':'[100%]'}`}/>
+        <View className={`flex-1 p-2.5 mb-5 w-full`} >
+          <View
+            className='w-[60px] h-[60px] rounded-[20px] pt-2.5 border-[.5px] flex items-center border-gray-500 bg-zinc-700'
+          >
+            <Feather  
+              name='hash'
+              size={40}
+              color="gray"
+            />
+          </View>
+        <Text className='font-rbold text-[30px]'>
+          Welcome to #{channel.name}
+        </Text>
+        <Text className='font-rregular text-[12px] ' >
+          {channel.description}
+        </Text>
+      </View>
+      </>
    )
   }
   return (

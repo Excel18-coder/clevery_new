@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FlatList, TextInput, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 
-import { SearchResults, Suggestions, SearchTabBar as TabBar, Text, View } from '@/components';
+import { Loader, SearchResults, Suggestions, SearchTabBar as TabBar, Text, View } from '@/components';
 import { useCombinedSearch } from '@/lib/actions/hooks/search';
 import { Post, Server, User } from '@/types';
 
@@ -17,7 +17,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ setSearch }) => (
   <TextInput
     placeholder="Search"
     onChangeText={setSearch}
-    className="p-2 bg-gray-100 rounded-lg"
+    className="p-2 my-4 bg-gray-500 rounded-lg"
   />
 );
 
@@ -41,7 +41,7 @@ const ExploreComponent: React.FC = () => {
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 mt-7">
       <SearchBar setSearch={handleSetSearch} />
       <TabBar
         selected={selectedTabBar}
@@ -69,9 +69,9 @@ const renderContent = (
   topServers?: Server[]
 ) => {
   if (isLoading) {
-    return <Text className="p-4 text-center">Loading...</Text>;
+    return <Loader loadingText="Wer'e searching for the result"/>;
   }
-
+  
   switch (selectedTabBar) {
     case 'recents':
       const allResults: (Post | User | Server)[] = [

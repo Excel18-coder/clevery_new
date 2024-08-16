@@ -26,7 +26,7 @@ const OverlappingImages = memo(({ images, numberofcomments }: { images: string[]
 
 const Post = memo(({ author, content: caption, createdAt: timestamp, id: postId, comments, images, tags, likes: initialLikes, saves: savesList }: PostType) => {
   const { profile: { id: userId } } = useProfileStore();
-  const [isSaved, setIsSaved] = useState(false);
+  const [saves, setSaves] = useState(savesList);
   const [likes, setLikes] = useState<string[]>(initialLikes);
 
   const { mutate: likePost } = useLikePost();
@@ -45,15 +45,17 @@ const Post = memo(({ author, content: caption, createdAt: timestamp, id: postId,
   }, [userId, postId, likePost]);
 
   const handleSavePost = useCallback(async() => {
+    setSaves(prev => 
+      prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
+    );
     savePost(postId);
     showToastMessage("Post saved")
-    setIsSaved(true);
   }, [postId, savePost]);
 
   const handleDeletePost = useCallback(() => {
     router.push(`/edit-post/${postId}`);
   }, [postId]);
-
+  
   return (
     <View className="p-2.5 mb-3.5">
       <AuthorInfo author={author} timestamp={timestamp} />
@@ -72,11 +74,11 @@ const Post = memo(({ author, content: caption, createdAt: timestamp, id: postId,
       <ActionStats
         author={author}
         postId={postId}
-        isLiked={checkIsLiked(likes, userId)}
+        isLiked={checkIsLiked(likes.map(like =>like.id), userId)}
         likesList={likes}
         savesList={savesList}
         userId={userId}
-        isSaved={isSaved}
+        isSaved={checkIsLiked(saves.map(like =>like.id), userId)}
         handleLikePost={handleLikePost}
         handleSavePost={handleSavePost}
         handleDeletePost={handleDeletePost}

@@ -20,12 +20,20 @@ import {
 import { showToastMessage, useProfileStore } from '@/lib';
 import { Server,Channel, User, ServerMember } from '@/types';
 import { router } from 'expo-router';
+import { Image } from 'expo-image';
+import { Touchable } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 
 interface StateProps {
   serverName: string,
   members:ServerMember[],
   channels:Channel[],
   selectedChannel: Channel | undefined
+}
+
+interface AdminDashboardProps {
+  server:Server
+  onClose:any
 }
 
 const AdminDashboard = ({
@@ -47,6 +55,7 @@ const AdminDashboard = ({
   const updateState = (key:string, value:any) => {
     setState(prevState => ({ ...prevState, [key]: value }));
   };
+  const bannerImageUrl = 'https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&w=400'
   const currentUser = members.find(member => member.id === profile.id)
 
   const handleSubmit = () => {
@@ -95,24 +104,38 @@ const AdminDashboard = ({
       style={{ flex: 1 }}
     >
       <ScrollView>
-        <Box safeArea p={5}>
+        <Box safeArea p={2}>
+            <Image
+              className='w-full h-[180px] flex-1 z-10 shadow-sm '
+              source={{ uri: bannerImageUrl }}
+            />
           <HStack justifyContent="space-between" alignItems="center" mb={6}>
             <Text fontSize="3xl" className='font-rbold' color="white">
-              Admin Dashboard
+              Server Dashboard
             </Text>
-            {currentUser?.role !== "ADMIN" &&
-            <IconButton
-              icon={<Icon as={MaterialIcons} name="delete-forever" />}
-              colorScheme="red"
-              variant="solid"
-              rounded="full"
+            {currentUser?.role == "ADMIN" &&
+            <TouchableOpacity
+              className='rounded-lg bg-rose-700 p-2 px-4 my'
               onPress={onDeleteServerOpen}
-            />
+            >
+              <Text className='text-sm  text-white font-rregular'>Delete</Text>
+            </TouchableOpacity>
           }
           </HStack>
 
           <VStack space={6}>
-            <Box bg="white" rounded="xl" shadow={5} p={5}>
+            <Box  
+              rounded="xl" 
+              shadow={5} 
+              p={5}
+              bg={{
+                linearGradient: {
+                  colors: ['gray.400', '#3b5998', '#192f6a'],
+                  start: [0, 0],
+                  end: [1, 1],
+                },
+              }}
+            >
               <Text fontSize="xl"  className='font-rmedium text-lg' mb={4}>
                 Server Settings
               </Text>
@@ -136,7 +159,17 @@ const AdminDashboard = ({
               </HStack>
             </Box>
 
-            <Box bg="white" rounded="xl" shadow={5} p={5}>
+            <Box
+              rounded="xl" 
+              shadow={5} p={5}
+              bg={{
+                linearGradient: {
+                  colors: ['gray.400', '#3b5998', '#192f6a', '#192f6a'],
+                  start: [0, 0],
+                  end: [1, 1],
+                },
+              }}
+            >
               <Text fontSize="xl" className='font-rmedium text-lg' mb={4}>
                 Members
               </Text>
@@ -150,7 +183,9 @@ const AdminDashboard = ({
                       <VStack>
                         <Text className='font-rmedium text-xs'>
                           {item.name}
-                          <Ionicons name='shield-checkmark-outline' color={'red'} size={14} style={{marginLeft:6}}/>
+                          {item.role == "ADMIN" &&
+                            <Ionicons name='shield-checkmark-outline' color={'red'} size={14} style={{marginLeft:6}}/>
+                          }
                         </Text>
                         <Text fontSize="xs" color="gray.500" className='font-rregular '>
                           {item.role}
@@ -181,7 +216,18 @@ const AdminDashboard = ({
               />
             </Box>
 
-            <Box bg="white" rounded="xl" shadow={5} p={5}>
+            <Box
+              rounded="xl" 
+              shadow={5} 
+              p={5}
+              bg={{
+                linearGradient: {
+                  colors: ['gray.400', '#3b5998', '#3b5998', '#192f6a'],
+                  start: [0, 0],
+                  end: [1, 1],
+                },
+              }}
+            >
               <Text fontSize="xl"  mb={4} className='font-rmedium text-lg'>
                 Channels
               </Text>
