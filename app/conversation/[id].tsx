@@ -31,7 +31,7 @@ const UserMessages: React.FC = () => {
   });
   const [isTyping, setIsTyping] = useState(false);
   const {profile} = useProfileStore();
-console.log(JSON.stringify(messages))
+  
   const { id } = useLocalSearchParams();
 
   const {

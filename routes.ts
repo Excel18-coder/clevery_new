@@ -34,7 +34,7 @@ const postsPaths = {
 };
 
 const serverPaths = {
-  servers: '/servers/top',
+  servers: '/servers',
   topServers: '/servers/top',
   server: (id: string) => `/servers/${id}`,
   serverChannels: (id: string) => `/servers/${id}/channels`,

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { FlatList, TouchableOpacity } from 'react-native';
+import { useState } from 'react';
+import { FlatList } from 'react-native';
+import { AntDesign, Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import {
   Box,
   Text,
@@ -7,230 +8,245 @@ import {
   HStack,
   Icon,
   Avatar,
-  Image,
   Input,
   Button,
-  Modal,
+  IconButton,
+  useDisclose,
   AlertDialog,
-  useToast,
-  Pressable,
+  Divider,
+  ScrollView,
+  Fab,
 } from 'native-base';
-import { MaterialIcons } from '@expo/vector-icons';
-import * as Animatable from 'react-native-animatable';
-import { LinearGradient } from 'expo-linear-gradient';
+import { showToastMessage, useProfileStore } from '@/lib';
+import { Server,Channel, User, ServerMember } from '@/types';
+import { router } from 'expo-router';
 
-const AdminDashboard = () => {
-  const [members, setMembers] = useState([
-    { id: '1', name: 'John Doe', role: 'Member' },
-    { id: '2', name: 'Jane Smith', role: 'Moderator' },
-    // Add more members as needed
-  ]);
-  const [channels, setChannels] = useState([
-    { id: '1', name: 'General' },
-    { id: '2', name: 'Announcements' },
-    // Add more channels as needed
-  ]);
-  const [serverName, setServerName] = useState('My Server');
-  const [serverImage, setServerImage] = useState('https://example.com/server-image.jpg');
-  const [bannerImage, setBannerImage] = useState('https://example.com/banner-image.jpg');
-  const [isDeleteServerModalOpen, setIsDeleteServerModalOpen] = useState(false);
-  const [isDeleteChannelModalOpen, setIsDeleteChannelModalOpen] = useState(false);
-  const [selectedChannel, setSelectedChannel] = useState(null);
+interface StateProps {
+  serverName: string,
+  members:ServerMember[],
+  channels:Channel[],
+  selectedChannel: Channel | undefined
+}
 
-  const toast = useToast();
+const AdminDashboard = ({
+  id,
+  name,
+  channels,
+  members
+}:Server) => {
+  const [state, setState] = useState<StateProps>({
+    serverName: name,
+    members,
+    channels,
+    selectedChannel: undefined
+  });
 
-  const handleDeleteMember = (memberId: string) => {
-    setMembers(members.filter((member) => member.id !== memberId));
-    toast.show({
-      title: 'Member deleted',
-      placement:"top",
-      duration: 3000,
-    });
+  const { isOpen: isDeleteServerOpen, onOpen: onDeleteServerOpen, onClose: onDeleteServerClose } = useDisclose();
+  const { isOpen: isDeleteChannelOpen, onOpen: onDeleteChannelOpen, onClose: onDeleteChannelClose } = useDisclose();
+  const { profile } = useProfileStore()
+  const updateState = (key:string, value:any) => {
+    setState(prevState => ({ ...prevState, [key]: value }));
+  };
+  const currentUser = members.find(member => member.id === profile.id)
+
+  const handleSubmit = () => {
+    // Here you can use the state object to submit all changes
+    console.log('Submitting changes:', state);
+    showToastMessage("Changes saved successfully");
   };
 
-  const handleChangeRole = (memberId: string, newRole: string) => {
-    setMembers(
-      members.map((member) =>
-        member.id === memberId ? { ...member, role: newRole } : member
-      )
-    );
-    toast.show({
-      title: 'Role updated',
-      placement:"top",
-      duration: 3000,
-    });
+  const handleDeleteMember = (memberId:string) => {
+    updateState('members', state.members.filter(member => member.id !== memberId));
+    showToastMessage("Member deleted successfully");
   };
 
-  const handleDeleteChannel = (channelId: string) => {
-    setChannels(channels.filter((channel) => channel.id !== channelId));
-    setIsDeleteChannelModalOpen(false);
-    toast.show({
-      title: 'Channel deleted',
-      placement:"top",
-      duration: 3000,
-    });
+  const handleChangeRole = (memberId:string) => {
+    updateState('members', state.members.map(member =>
+      member.id === memberId
+        ? { ...member, role: member.role === 'MEMBER' ? 'MODERATOR' : 'MEMBER' }
+        : member
+    ));
+    showToastMessage("Member role updated");
+  };
+
+  const handleDeleteChannel = () => {
+    if (state.selectedChannel) {
+      updateState('channels', state.channels.filter(channel => channel.id !== state?.selectedChannel?.id));
+      onDeleteChannelClose();
+      showToastMessage(`Channel "${state.selectedChannel.name}" deleted`);
+    }
   };
 
   const handleDeleteServer = () => {
     // Implement server deletion logic here
-    setIsDeleteServerModalOpen(false);
-    toast.show({
-      title: 'Server deleted',
-      placement:"top",
-      duration: 3000,
-    });
+    onDeleteServerClose();
+    showToastMessage("Server deleted successfully");
   };
 
   return (
-    <LinearGradient
-      colors={['#4c669f', '#3b5998', '#192f6a']}
-      style={{ flex: 1, padding: 20 }}
+    <Box
+      bg={{
+        linearGradient: {
+          colors: ['#4c669f', '#3b5998', '#192f6a'],
+          start: [0, 0],
+          end: [1, 1],
+        },
+      }}
+      style={{ flex: 1 }}
     >
-      <Animatable.View animation="fadeIn" duration={1000}>
-        <VStack space={4}>
-          <HStack justifyContent="space-between" alignItems="center">
-            <Text fontSize="2xl" fontWeight="bold" color="white">
+      <ScrollView>
+        <Box safeArea p={5}>
+          <HStack justifyContent="space-between" alignItems="center" mb={6}>
+            <Text fontSize="3xl" className='font-rbold' color="white">
               Admin Dashboard
             </Text>
-            <TouchableOpacity onPress={() => setIsDeleteServerModalOpen(true)}>
-              <Icon
-                as={MaterialIcons}
-                name="delete-forever"
-                size="6"
-                color="red.500"
-              />
-            </TouchableOpacity>
+            {currentUser?.role !== "ADMIN" &&
+            <IconButton
+              icon={<Icon as={MaterialIcons} name="delete-forever" />}
+              colorScheme="red"
+              variant="solid"
+              rounded="full"
+              onPress={onDeleteServerOpen}
+            />
+          }
           </HStack>
 
-          <Box bg="white" rounded="lg" p={4}>
-            <VStack space={4}>
-              <Text fontSize="xl" fontWeight="bold">
+          <VStack space={6}>
+            <Box bg="white" rounded="xl" shadow={5} p={5}>
+              <Text fontSize="xl"  className='font-rmedium text-lg' mb={4}>
                 Server Settings
               </Text>
               <Input
-                value={serverName}
-                onChangeText={setServerName}
+                value={state.serverName}
+                // onChangeText={setState()}
                 placeholder="Server Name"
+                mb={4}
               />
-              <Button onPress={() => console.log('Change server image')}>
-                Change Server Image
-              </Button>
-              <Button onPress={() => console.log('Change banner image')}>
-                Change Banner Image
-              </Button>
-            </VStack>
-          </Box>
+              <HStack space={3}>
+                <Button 
+                  flex={1} 
+                  leftIcon={<Icon as={MaterialIcons} name="image" />}
+                  
+                >
+                  <Text className='font-rregular text-white text-sm'>Change Server Image</Text>
+                </Button>
+                <Button flex={1} leftIcon={<Icon as={MaterialIcons} name="panorama" />}>
+                  <Text className='font-rregular text-white text-sm'>Change Banner</Text>
+                </Button>
+              </HStack>
+            </Box>
 
-          <Box bg="white" rounded="lg" p={4}>
-            <VStack space={4}>
-              <Text fontSize="xl" fontWeight="bold">
+            <Box bg="white" rounded="xl" shadow={5} p={5}>
+              <Text fontSize="xl" className='font-rmedium text-lg' mb={4}>
                 Members
               </Text>
               <FlatList
                 data={members}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                  <Animatable.View animation="fadeInLeft" duration={500}>
-                    <HStack
-                      justifyContent="space-between"
-                      alignItems="center"
-                      mb={2}
-                    >
-                      <Avatar
-                        size="sm"
-                        source={{ uri: 'https://example.com/avatar.jpg' }}
-                      />
-                      <Text flex={1} mx={2}>
-                        {item.name}
-                      </Text>
-                      <Text>{item.role}</Text>
-                      <TouchableOpacity
-                        onPress={() =>
-                          handleChangeRole(
-                            item.id,
-                            item.role === 'Member' ? 'Moderator' : 'Member'
-                          )
-                        }
-                      >
-                        <Icon
-                          as={MaterialIcons}
-                          name="edit"
-                          size="5"
-                          color="blue.500"
-                          mr={2}
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => handleDeleteMember(item.id)}>
-                        <Icon
-                          as={MaterialIcons}
-                          name="delete"
-                          size="5"
-                          color="red.500"
-                        />
-                      </TouchableOpacity>
+                  <HStack justifyContent="space-between" alignItems="center" mb={3}>
+                    <HStack space={3} alignItems="center">
+                      <Avatar source={{ uri: item.image! }} />
+                      <VStack>
+                        <Text className='font-rmedium text-xs'>
+                          {item.name}
+                          <Ionicons name='shield-checkmark-outline' color={'red'} size={14} style={{marginLeft:6}}/>
+                        </Text>
+                        <Text fontSize="xs" color="gray.500" className='font-rregular '>
+                          {item.role}
+                        </Text>
+                      </VStack>
                     </HStack>
-                  </Animatable.View>
-                )}
-              />
-            </VStack>
-          </Box>
 
-          <Box bg="white" rounded="lg" p={4}>
-            <VStack space={4}>
-              <Text fontSize="xl" fontWeight="bold">
+                    {item.role !== "ADMIN" &&
+                      <HStack space={2}>
+                        <IconButton
+                          icon={<Icon as={MaterialIcons} name="edit" />}
+                          size="sm"
+                          variant="ghost"
+                          onPress={() => handleChangeRole(item.id)}
+                        />
+                        <IconButton
+                          icon={<Icon as={MaterialIcons} name="delete" />}
+                          size="sm"
+                          colorScheme="red"
+                          variant="ghost"
+                          onPress={() => handleDeleteMember(item.id)}
+                        />
+                      </HStack>
+                    }
+                  </HStack>
+                )}
+                ItemSeparatorComponent={() => <Divider my={2} />}
+              />
+            </Box>
+
+            <Box bg="white" rounded="xl" shadow={5} p={5}>
+              <Text fontSize="xl"  mb={4} className='font-rmedium text-lg'>
                 Channels
               </Text>
               <FlatList
                 data={channels}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                  <Animatable.View animation="fadeInRight" duration={500}>
-                    <HStack
-                      justifyContent="space-between"
-                      alignItems="center"
-                      mb={2}
-                    >
-                      <Text flex={1}>{item.name}</Text>
-                      <TouchableOpacity
-                        onPress={(item) => {
-                          setSelectedChannel(item);
-                          setIsDeleteChannelModalOpen(true);
-                        }}
-                      >
-                        <Icon
-                          as={MaterialIcons}
-                          name="delete"
-                          size="5"
-                          color="red.500"
+                  <HStack justifyContent="space-between" alignItems="center" mb={3}>
+                    <Text className='font-rregular'>{item.name}</Text>
+                    
+                    {item.name !== "general" &&
+                      <HStack>
+                        <IconButton
+                          icon={<Icon as={Feather} name="edit" />}
+                          size="sm"
+                          colorScheme="black"
+                          variant="ghost"
                         />
-                      </TouchableOpacity>
-                    </HStack>
-                  </Animatable.View>
+                        <IconButton
+                          icon={<Icon as={MaterialIcons} name="delete" />}
+                          size="sm"
+                          colorScheme="red"
+                          variant="ghost"
+                          onPress={() => {
+                            updateState('selectedChannel',item);
+                            onDeleteChannelOpen();
+                          }}
+                        />
+                      </HStack>
+                    }
+                  </HStack>
                 )}
+                ItemSeparatorComponent={() => <Divider my={2} />}
               />
-            </VStack>
-          </Box>
-        </VStack>
-      </Animatable.View>
+            </Box>
+          </VStack>
+        </Box>
+      </ScrollView>
 
-      <AlertDialog
-        isOpen={isDeleteServerModalOpen}
-        onClose={() => setIsDeleteServerModalOpen(false)}
-      >
+      <Fab
+        renderInPortal={false}
+        shadow={2}
+        size="sm"
+        icon={<Icon color="white" as={MaterialIcons} name="add" size="sm" />}
+        label="New Channel"
+        onPress={()=>router.navigate(`/create-channel/${id}`)}
+      />
+
+      <AlertDialog isOpen={isDeleteServerOpen} onClose={onDeleteServerClose}>
         <AlertDialog.Content>
           <AlertDialog.CloseButton />
-          <AlertDialog.Header>Delete Server</AlertDialog.Header>
+          <AlertDialog.Header>
+            <HStack >
+              <Text className='font-rmedium  text-lg flex-row items-center'>Delete Server</Text>
+              <Icon as={AntDesign} name="warning" ml={3} mt={1} colorScheme={'red'} color={'red.500'}/>
+            </HStack>
+          </AlertDialog.Header>
           <AlertDialog.Body>
-            Are you sure you want to delete this server? This action cannot be
-            undone.
+          <Text className='font-rregular  text-xs'>
+            Are you sure you want to delete this server? This action cannot be undone.
+          </Text>
           </AlertDialog.Body>
           <AlertDialog.Footer>
             <Button.Group space={2}>
-              <Button
-                variant="unstyled"
-                colorScheme="coolGray"
-                onPress={() => setIsDeleteServerModalOpen(false)}
-              >
+              <Button variant="unstyled" colorScheme="coolGray" onPress={onDeleteServerClose}>
                 Cancel
               </Button>
               <Button colorScheme="danger" onPress={handleDeleteServer}>
@@ -241,37 +257,35 @@ const AdminDashboard = () => {
         </AlertDialog.Content>
       </AlertDialog>
 
-      <AlertDialog
-        isOpen={isDeleteChannelModalOpen}
-        onClose={() => setIsDeleteChannelModalOpen(false)}
-      >
+      <AlertDialog isOpen={isDeleteChannelOpen} onClose={onDeleteChannelClose} >
         <AlertDialog.Content>
           <AlertDialog.CloseButton />
-          <AlertDialog.Header>Delete Channel</AlertDialog.Header>
-          <AlertDialog.Body>
-            Are you sure you want to delete the channel "{selectedChannel?.name}"?
+          <AlertDialog.Header className='flex-col'>
+            <HStack >
+              <Text className='font-rmedium  text-lg flex-row items-center'>Delete Channel</Text>
+              <Icon as={AntDesign} name="warning" ml={3} mt={1} colorScheme={'red'} color={'red.500'}/>
+            </HStack>
+          </AlertDialog.Header>
+          <AlertDialog.Body >
+            
+          <Text className='font-rregular  text-xs'>
+            Are you sure you want to delete the channel "{state.selectedChannel?.name}"?
             This action cannot be undone.
+          </Text>
           </AlertDialog.Body>
           <AlertDialog.Footer>
             <Button.Group space={2}>
-              <Button
-                variant="unstyled"
-                colorScheme="coolGray"
-                onPress={() => setIsDeleteChannelModalOpen(false)}
-              >
+              <Button variant="unstyled" colorScheme="coolGray" onPress={onDeleteChannelClose}>
                 Cancel
               </Button>
-              <Button
-                colorScheme="danger"
-                onPress={() => handleDeleteChannel(selectedChannel?.id)}
-              >
+              <Button colorScheme="danger" onPress={handleDeleteChannel}>
                 Delete
               </Button>
             </Button.Group>
           </AlertDialog.Footer>
         </AlertDialog.Content>
       </AlertDialog>
-    </LinearGradient>
+    </Box>
   );
 };
 

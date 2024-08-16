@@ -3,14 +3,15 @@ import {
   ScrollView
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-
-import { formatDateString,useServerData } from '@/lib';
-import { Text, View } from '../Themed';
-import Loader from '../Loader';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { memo } from 'react';
+
+import { formatDateString,useServer } from '@/lib';
+import { Text, View } from '@/components/Themed';
+import Loader from '@/components/Loader';
 import MembersComponent from './members';
+import AdminDashboard from './AdminPannel';
 
 interface ServerComponentProps {
   serverId: string;
@@ -20,14 +21,13 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
   serverId,
 }) => {
 
-  const {
-    server,
-    channels:channelsData,
-    isLoading:loadingServer,
+  const { 
+    data: server, 
+    isLoading: loadingServer, 
     error
-  } =useServerData(serverId)
-
-  const channels = channelsData?.items
+  } = useServer(serverId);
+  
+  const channels = server?.channels
   if(loadingServer) return <Loader loadingText='Loading Server'/>
   if(error) return <Loader loadingText='Something went wrong'/>
 
@@ -135,6 +135,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
         />
       </View>
     </ScrollView>
+    // <AdminDashboard {...server}/>
   );
 };
 export default memo(ServerComponent)

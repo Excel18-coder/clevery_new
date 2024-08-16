@@ -13,7 +13,7 @@ const Loader = ({
           <ActivityIndicator size="large" color="#3B82F6" />
         </View>
         
-        <Text className="text-2xl font-bold text-gray-800 text-center mb-2">
+        <Text className="text-2xl font-bold text-gray-600 text-center mb-2">
           {loadingText}
         </Text>
         

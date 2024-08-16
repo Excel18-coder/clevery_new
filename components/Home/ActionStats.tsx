@@ -36,8 +36,8 @@ const ActionStats = ({
     <View className='flex-row mb-2.5 mt-5'>
     
       <TouchableOpacity onPress={handleLikePost}>
-        <Text className='font-rmedium justify-evenly text-xs mr-2.5 pt-2'>
-          <Ionicons name={isLiked ? 'heart' : 'heart-outline'} size={22} color={'#EA1820'} />
+        <Text className='font-rmedium text-rose-400 justify-evenly text-xs mr-2.5 pt-2'>
+          <Ionicons name={isLiked ? 'heart' : 'heart-outline'} size={22} />
           {likesList?.length||0}
         </Text>
       </TouchableOpacity>
@@ -54,7 +54,7 @@ const ActionStats = ({
 
       {author?.id == userId && (
         <TouchableOpacity onPress={()=>handleDeletePost(postId,userId)} className='ml-auto rounded-[5px]'>
-          <Ionicons name="trash-outline" size={20} color="red" />
+          <Feather name="edit" size={20} color="white" />
         </TouchableOpacity>
       )}
     </View>

@@ -4,6 +4,7 @@ import { postsPaths as apiPaths } from "@/routes";
 import { UserSchema } from "@/validations"; 
 import { handleApiError } from "./error";
 import { endpoint } from "@/lib/env";
+import { uploadFile } from "../utils";
 
 type FullModel<T> = T & { id: string; createdAt: Date; updatedAt: Date };
 
@@ -53,6 +54,11 @@ export const postsApi = {
    */
   createPost: async (postData: CreatePostData): Promise<FullModel<Post>> => {
     try {
+      if(postData.images){
+      const uploadPromises = postData.images.map(file=> uploadFile(file))
+      const result = await Promise.all(uploadPromises)
+      postData.images = result
+    }
       const response = await axios.post<FullModel<Post>>(`${endpoint}${apiPaths.createPost}`, postData);
       return response.data;
     } catch (error) {
@@ -98,6 +104,11 @@ export const postsApi = {
    */
   updatePost: async (postData: UpdatePostData): Promise<FullModel<Post>> => {
     try {
+      if(postData.images){
+        const uploadPromises = postData.images.map(file=> uploadFile(file))
+        const result = await Promise.all(uploadPromises)
+        postData.images = result
+      }
       const response = await axios.patch<FullModel<Post>>(`${endpoint}${apiPaths.updatePost(postData.id as string)}`, postData);
       return response.data;
     } catch (error) {
@@ -114,7 +125,6 @@ export const postsApi = {
   likePost: async (postId: string): Promise<FullModel<Post>> => {
     try {
       const response = await axios.post<FullModel<Post>>(`${endpoint}${apiPaths.interactPost(postId)}`, { action: 'like' });
-      console.log(response.data)
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to like post with ID ${postId}`);
@@ -130,6 +140,7 @@ export const postsApi = {
   savePost: async (postId: string): Promise<FullModel<Post>> => {
     try {
       const response = await axios.post<FullModel<Post>>(`${endpoint}${apiPaths.interactPost(postId)}`, { action: 'save' });
+      console.log(response.data)
       return response.data;
     } catch (error) {
       throw handleApiError(error, `Failed to save post with ID ${postId}`);

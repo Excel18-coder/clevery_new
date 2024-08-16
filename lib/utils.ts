@@ -6,15 +6,12 @@ import * as WebBrowser from "expo-web-browser";
 import { format, parseISO } from "date-fns";
 import * as Updates from 'expo-updates';
 import React from "react";
-import * as FileSystem from 'expo-file-system';
 
- 
 import { Message } from "../types";
 
 
 import { Toast } from "native-base";
 import { endpoint } from "./env";
-import axios from "axios";
 
 
 interface User{
@@ -96,7 +93,7 @@ export const chooseImage = async () => {
         multiple: true,
       });
       if (!result.canceled) {
-        const selectedImages = result.assets;
+        const selectedImages = result.assets.map((asset) => asset.uri);
         return selectedImages as [];
       }
     } catch (error) {
@@ -113,7 +110,7 @@ export const selectImage = async () => {
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing:true,
-      quality: 0.8,  
+      quality: 0.8,
     });
 
     if (pickerResult.canceled) { 
@@ -242,4 +239,13 @@ export async function uploadFile(file: string) {
     console.error('Error uploading file:', error);
     throw error;
   }
+}
+
+/**
+ * Given an image URL, returns an optimized image URL
+ */
+export async function getOptimizedImageUrl(imageUrl: string) {
+  const response = await fetch(`${endpoint}/optimize?url=${encodeURIComponent(imageUrl)}`);
+  const { optimizedImage } = await response.json();
+  return optimizedImage;
 }

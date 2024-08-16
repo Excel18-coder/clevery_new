@@ -15,7 +15,7 @@ interface newChannel {
 const CreateChannel: React.FC = () => {
   const { profile } = useProfileStore();
   const [newChannel, setNewChannel] = useState<newChannel>({
-    name: `${profile.name}'s channel`,
+    name: ``,
     description: '',
     channelType: 'TEXT',
   });

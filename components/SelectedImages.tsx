@@ -15,7 +15,7 @@ const SelectedImages: React.FC<SelectedImagesProps> = ({ images, onDeleteImage,h
   const renderItem: FlatListProps<string>['renderItem'] = ({ item ,index}) => {
     return (
       <View style={{ marginRight: 10 }}>
-        <Image source={{ uri: item.uri }} style={{ width: 100, height: 100, borderRadius: 8 }} />
+        <Image source={{ uri: item }} style={{ width: 100, height: 100, borderRadius: 8 }} />
         <TouchableOpacity
           style={{position: 'absolute',top: 5,right: 5,backgroundColor: 'rgba(255, 255, 255, 0.7)',borderRadius: 15,padding: 5,}}
           onPress={() => onDeleteImage(index)}
@@ -48,7 +48,7 @@ const SelectedImages: React.FC<SelectedImagesProps> = ({ images, onDeleteImage,h
   if (images.length === 1) {
     return (
       <View>
-        <Image source={{ uri: images[0].uri }} style={{ width: '100%', height: 200 }} />
+        <Image source={{ uri: images[0] }} style={{ width: '100%', height: 200 }} />
         <TouchableOpacity
           style={{
             position: 'absolute',

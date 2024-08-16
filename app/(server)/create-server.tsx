@@ -2,7 +2,7 @@ import { memo, useState } from 'react';
 import { Modal, ScrollView } from 'react-native';
 import { showToastMessage,useCreateServer, useUsers, useProfileStore } from '@/lib';
 import { Create, InviteFriends, Loader, } from '@/components';
-import { CreateServer as CreateServerType, User } from '@/validations';
+import { CreateServerData as CreateServerType, User } from '@/types';
 
 
 const CreateServer = () => {
@@ -19,10 +19,7 @@ const CreateServer = () => {
     isPending:creatingServer ,
     error 
   } = useCreateServer();
-  const { 
-    data:users,
-    isPending:loading
-  } = useUsers()
+
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [isPopupVisible, setPopupVisible] = useState(false);
 
@@ -35,14 +32,15 @@ const CreateServer = () => {
       if(members.length<2) return showToastMessage('Please select atleast two users')
 
     try {
-      await createServer(serverDetails );
+      console.log(serverDetails)
+      // await createServer(serverDetails );
 
-      setServerDetails({
-        name: '',
-        description: '',
-        image: '',
-        members:[],
-      });
+      // setServerDetails({
+      //   name: '',
+      //   description: '',
+      //   image: '',
+      //   members:[],
+      // });
     } catch (error:any) {
       console.error('Error creating server:', error.message);
       showToastMessage('Error creating server')
@@ -59,7 +57,7 @@ const CreateServer = () => {
   };
 if(creatingServer)return <Loader loadingText='Creating your server'/>
    return (
-    <ScrollView className='mt-7 p-3 flex-1 pb-2' >
+    <ScrollView className='mt-7 flex-1 pb-2' >
       
       <Create
         fields={serverDetails}
@@ -78,7 +76,7 @@ if(creatingServer)return <Loader loadingText='Creating your server'/>
          onClose={()=>setPopupVisible(false)} 
          selectedUsers={selectedUsers} 
          removeUser={removeMember} 
-         users={users}
+         users={profile?.friends}
         />
       </Modal>
     </ScrollView>

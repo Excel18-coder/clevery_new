@@ -1,13 +1,13 @@
-import { useRef, useState, useCallback, memo } from 'react';
-import { Animated, FlatList, TextInput, TouchableOpacity } from 'react-native';
+import { useState, useCallback, memo } from 'react';
+import { FlatList, TextInput, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 
 import { Channel, Conversation, Message } from '@/types';
 import MessagesContainer from './MessageContainer';
 import { Text, View } from '@/components/Themed';
-import { Ionicons } from '@expo/vector-icons';
-import PopupComponent from './Popup';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import Header from './Header';
+import PopupComponent from './Popup';
 
 type NewMessage = {
   caption: string;
@@ -31,6 +31,7 @@ type ImageWithCaptionProps = {
   showInputs: boolean;
 };
 
+
 const Messages: React.FC<Props> = ({
   conversation,
   messages,
@@ -40,17 +41,10 @@ const Messages: React.FC<Props> = ({
   createdAt,
   channel,
 }) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
   const [popupVisible, setPopupVisible] = useState(false);
 
-  const togglePopup = useCallback((show: boolean) => {
-    setPopupVisible(show);
-    Animated.timing(fadeAnim, {
-      toValue: show ? 1 : 0,
-      duration: 250,
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim]);
+  const togglePopup = () => setPopupVisible(!popupVisible);
+  const closePopup = () => setPopupVisible(false);
 
   const ImageWithCaption: React.FC<ImageWithCaptionProps> = useCallback(({
     source,
@@ -94,8 +88,8 @@ const Messages: React.FC<Props> = ({
           <MessagesContainer
             item={item}
             onDelete={() => {}}
-            onLongPress={() => togglePopup(true)}
-            onPress={() => togglePopup(false)}
+            onLongPress={() => togglePopup()}
+            onPress={() => togglePopup()}
           />
         )}
         keyExtractor={(item) => item.id}
@@ -116,10 +110,7 @@ const Messages: React.FC<Props> = ({
           </View>
         )}
       />
-      
-      {/* <Animated.View style={{ opacity: fadeAnim }}> */}
-        {popupVisible && <PopupComponent />}
-      {/* </Animated.View> */}
+      <PopupComponent isVisible={popupVisible} onClose={closePopup} />
     </View>
   );
 };

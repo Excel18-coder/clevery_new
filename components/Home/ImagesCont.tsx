@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { FlatList } from 'react-native';
 import { Image } from 'expo-image';
 import { Text, View } from '../Themed';
@@ -35,7 +35,7 @@ const ImageCont = ({ images, caption }: { images: string[]; caption: string }) =
 
   return (
     <View className="flex-1 flex-col justify-center p-1 items-center">
-      <Text className="font-pregular text-sm mb-auto w-full">{caption}</Text>
+      <Text className="font-rregular text-sm mb-auto w-full">{caption}</Text>
       {images.length === 1 ? (
         <ImageComponent image={images[0]} width="w-[350px]" height="h-[230px]" />
       ) : (

@@ -1,8 +1,9 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { PusherEvent } from '@pusher/pusher-websocket-react-native';
 import { AppState } from 'react-native';
 import axios from 'axios';
 import notifee, { AndroidImportance, AndroidStyle, AndroidCategory, EventType } from '@notifee/react-native';
+import { useQuery, useMutation, useQueryClient, QueryClient } from '@tanstack/react-query';
 
 import { Conversation, Message, User } from '@/types';
 import { pusher } from '@/lib/pusher/config';
@@ -12,31 +13,90 @@ import { useProfileStore } from '../zustand/store';
 const NOTIFICATION_CHANNEL_ID = 'new-messages';
 
 /**
- * @typedef {Object} MessagingContextValue
- * @property {Conversation[]} conversations - The list of user conversations
- * @property {() => Promise<void>} refreshConversations - Function to refresh conversations
- * @property {(conversationId: string, message: string) => Promise<void>} sendMessage - Function to send a message
+ * Represents the value provided by the MessagingContext
  */
-type MessagingContextValue = {
+interface MessagingContextValue {
+  /** List of user conversations */
   conversations: Conversation[];
+  /** Boolean indicating if conversations are loading */
+  isLoading: boolean;
+  /** Any error that occurred while fetching conversations */
+  error: Error | null;
+  /** Function to refresh conversations */
   refreshConversations: () => Promise<void>;
+  /** Function to send a message */
   sendMessage: (conversationId: string, message: string) => Promise<void>;
-};
+}
 
 const MessagingContext = createContext<MessagingContextValue | null>(null);
 
+// const queryClient = new QueryClient();
+
+/**
+ * Props for the MessagingProvider component
+ */
+interface MessagingProviderProps {
+  /** Child components */
+  children: React.ReactNode;
+}
+
 /**
  * Provider component for messaging-related functionality
- * @param {Object} props - The component props
- * @param {React.ReactNode} props.children - The child components
  */
-export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }) => {
   const { profile } = useProfileStore();
+
+  /**
+   * Fetches conversations from the API
+   */
+  const fetchConversations = useCallback(async (): Promise<Conversation[]> => {
+    console.log('Fetching conversations');
+    if (!profile?.id) {
+      console.log('User not logged in, skipping conversation fetch');
+      return [];
+    }
+
+    const response = await axios.get<Conversation[]>(`${endpoint}/conversations`);
+    console.log('Conversations fetched successfully');
+    return response.data;
+  }, [profile?.id]);
+
+  const { data: conversations = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['conversations', profile?.id],
+    queryFn: fetchConversations,
+    enabled: !!profile?.id,
+  });
+
+  const queryClient = useQueryClient();
+
+  const sendMessageMutation = useMutation({
+    mutationFn: async ({ conversationId, message }: { conversationId: string; message: string }) => {
+      console.log(`Sending message to conversation ${conversationId}`);
+      if (!profile?.id) {
+        throw new Error('User not logged in, cannot send message');
+      }
+      const response = await axios.post(`${endpoint}/conversations/${conversationId}/messages`, { content: message });
+      console.log('Message sent successfully');
+      return response.data;
+    },
+    onSuccess: (newMessage, { conversationId }) => {
+      queryClient.setQueryData(['conversations', profile?.id], (oldData: Conversation[] | undefined) => 
+        oldData?.map(conv => 
+          conv.id === conversationId
+            ? { ...conv, lastMessage: newMessage }
+            : conv
+        )
+      );
+    },
+    onError: (error) => {
+      console.error('Error sending message:', error);
+    },
+  });
+
   /**
    * Subscribes to Pusher channels for each conversation
    */
-  const subscribeToPusherChannels = async () => {
+  const subscribeToPusherChannels = useCallback(async () => {
     console.log('Subscribing to Pusher channels for conversations');
     if (!pusher || !profile?.id) {
       console.log('Pusher not initialized or user not logged in');
@@ -60,37 +120,35 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         console.error(`Error subscribing to channel for conversation ${conversation.id}:`, error);
       }
     });
-  }
+  }, [conversations, profile?.id]);
 
   /**
    * Handles a new message event
-   * @param {Object} data - The new message data
+   * @param data - The new message data
    */
-  const handleNewMessage = (data: { conversationId: string; message: Message; senderName: string; senderImage: string }) => {
+  const handleNewMessage = useCallback((data: { conversationId: string; message: Message; senderName: string; senderImage: string }) => {
     console.log('New message received:', data);
-    // Update the specific conversation with the new message
-    setConversations(prevConversations => 
-      prevConversations.map(conv => 
+    queryClient.setQueryData(['conversations', profile?.id], (oldData: Conversation[] | undefined) => 
+      oldData?.map(conv => 
         conv.id === data.conversationId
           ? { ...conv, lastMessage: data.message, unreadCount: conv.unreadMessages + 1 }
           : conv
       )
     );
 
-    // Show a notification if the app is in the background
     if (AppState.currentState !== 'active') {
       showNotification(data.conversationId, data.senderName, data.message.text, data.senderImage);
     }
-  }
+  }, [profile?.id]);
 
   /**
    * Shows a notification for a new message using @notifee
-   * @param {string} conversationId - ID of the conversation
-   * @param {string} senderName - Name of the message sender
-   * @param {string} messageContent - Content of the message
-   * @param {string} senderImage - URL of the sender's profile image
+   * @param conversationId - ID of the conversation
+   * @param senderName - Name of the message sender
+   * @param messageContent - Content of the message
+   * @param senderImage - URL of the sender's profile image
    */
-  const showNotification = async (conversationId: string, senderName: string, messageContent: string, senderImage: string): Promise<void> => {
+  const showNotification = useCallback(async (conversationId: string, senderName: string, messageContent: string, senderImage: string): Promise<void> => {
     try {
       const channelId = await notifee.createChannel({
         id: NOTIFICATION_CHANNEL_ID,
@@ -139,79 +197,26 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } catch (error) {
       console.error('Error showing notification:', error);
     }
-  };
-
-  /**
-   * Fetches conversations from the API
-   * @returns {Promise<void>}
-   */
-  const fetchConversations = async (): Promise<void> => {
-    console.log('Fetching conversations');
-    if (!profile?.id) {
-      console.log('User not logged in, skipping conversation fetch');
-      return;
-    }
-
-    try {
-      const response = await axios.get<Conversation[]>(`${endpoint}/conversations`);
-      setConversations(response.data);
-      console.log('Conversations fetched successfully');
-    } catch (error) {
-      console.error('Error fetching conversations:', error);
-    }
-  };
-
-  /**
-   * Sends a message to a conversation
-   * @param {string} conversationId - ID of the conversation
-   * @param {string} message - Message content
-   * @returns {Promise<void>}
-   */
-  const sendMessage = async (conversationId: string, message: string): Promise<void> => {
-    console.log(`Sending message to conversation ${conversationId}`);
-    if (!profile?.id) {
-      console.log('User not logged in, cannot send message');
-      return;
-    }
-
-    try {
-      const response = await axios.post(`${endpoint}/conversations/${conversationId}/messages`, { content: message });
-      console.log('Message sent successfully');
-      // Optionally update the local state with the new message
-      const newMessage = response.data;
-      setConversations(prevConversations => 
-        prevConversations.map(conv => 
-          conv.id === conversationId
-            ? { ...conv, lastMessage: newMessage }
-            : conv
-        )
-      );
-    } catch (error) {
-      console.error('Error sending message:', error);
-    }
-  };
+  }, []);
 
   useEffect(() => {
     if (profile.id) {
-      console.log('User logged in, fetching conversations and setting up Pusher subscriptions');
-      fetchConversations();
+      console.log('User logged in, setting up Pusher subscriptions');
 
-      // Set up notifee foreground event handler
       const unsubscribe = notifee.onForegroundEvent(({ type, detail }) => {
         if (type === EventType.ACTION_PRESS && detail.pressAction?.id === 'reply') {
           const { input, notification } = detail;
           if (input && notification?.data?.conversationId) {
-            sendMessage(notification.data.conversationId as string, input);
+            sendMessageMutation.mutate({ conversationId: notification.data.conversationId as string, message: input });
           }
         }
       });
 
-      // Set up notifee background event handler
       notifee.onBackgroundEvent(async ({ type, detail }) => {
         if (type === EventType.ACTION_PRESS && detail.pressAction?.id === 'reply') {
           const { input, notification } = detail;
           if (input && notification?.data?.conversationId) {
-            await sendMessage(notification.data.conversationId as string, input);
+            await sendMessageMutation.mutateAsync({ conversationId: notification.data.conversationId as string, message: input });
           }
         }
       });
@@ -222,7 +227,7 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } else {
       console.log('User not logged in, skipping setup');
     }
-  }, [profile?.id]);
+  }, [profile?.id, sendMessageMutation]);
 
   useEffect(() => {
     if (pusher && profile?.id) {
@@ -232,7 +237,7 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (nextAppState === 'active') {
         console.log('App became active, refreshing conversations');
-        fetchConversations();
+        refetch();
       }
     });
 
@@ -246,13 +251,16 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         console.log('Unsubscribed from all conversation channels');
       }
     };
-  }, [pusher, conversations, profile?.id]);
+  }, [pusher, conversations, profile?.id, subscribeToPusherChannels, refetch]);
 
-  const contextValue: MessagingContextValue = {
+  const contextValue = useMemo<MessagingContextValue>(() => ({
     conversations,
-    refreshConversations: fetchConversations,
-    sendMessage,
-  };
+    isLoading,
+    error,
+    refreshConversations: refetch,
+    sendMessage: (conversationId: string, message: string) => 
+      sendMessageMutation.mutateAsync({ conversationId, message }),
+  }), [conversations, isLoading, error, refetch, sendMessageMutation]);
 
   return (
     <MessagingContext.Provider value={contextValue}>
@@ -262,9 +270,16 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 }
 
 /**
+ * Wrapper component to provide React Query context
+ */
+export const MessagingProviderWithReactQuery: React.FC<MessagingProviderProps> = ({ children }) => (
+    <MessagingProvider>{children}</MessagingProvider>
+);
+
+/**
  * Custom hook to use the messaging context
- * @returns {MessagingContextValue} The messaging context value
- * @throws {Error} If used outside of MessagingProvider
+ * @returns The messaging context value
+ * @throws Error if used outside of MessagingProvider
  */
 export const useMessaging = (): MessagingContextValue => {
   const context = useContext(MessagingContext);

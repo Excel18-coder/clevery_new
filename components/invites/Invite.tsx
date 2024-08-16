@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { FlatList, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { FlatList, TouchableOpacity, TextInput } from 'react-native';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather, FontAwesome6 } from '@expo/vector-icons';
@@ -9,7 +9,6 @@ import { Image } from 'expo-image';
 import { Text, View } from '../Themed';
 import { showToastMessage } from '@/lib';
 import { User } from '@/types';
-
 
 const link = `https://clevery.vercel.app/`;
 
@@ -22,29 +21,29 @@ interface Props {
   users?: User[];
 }
 
-
-
 const copyToClipboard = async () => {
   try {
     const alreadyCopied = async () => {
       const clipboardContent = await Clipboard.getStringAsync();
-      return clipboardContent===link
-  };
-    const copied = await alreadyCopied()
-    if(copied) showToastMessage('link copied')
-    await Clipboard.setStringAsync(link);
-    showToastMessage('link copied')
+      return clipboardContent === link;
+    };
+    const copied = await alreadyCopied();
+    if (copied) showToastMessage('Link already copied');
+    else {
+      await Clipboard.setStringAsync(link);
+      showToastMessage('Link copied');
+    }
   } catch (error) {
     console.log(error);
   }
 };
 
 const icons = [
-  { name: 'upload', component: <Feather name="upload" size={24} color="gray" />, label: 'Share' },
-  { name: 'link', component: <Feather name="link" size={24} color="gray"/>, label: 'Copy Link', onPress: copyToClipboard },
-  { name: 'message-circle', component: <Feather name="message-circle" size={24} color="gray" />, label: 'Messages' },
-  { name: 'user-plus', component: <Feather name="user-plus" size={24} color="gray" />, label: 'Email' },
-  { name: 'whatsapp', component: <FontAwesome6 name="whatsapp" size={24} color="gray" />, label: 'Whatsapp' },
+  { name: 'upload', component: <Feather name="upload" size={24} color="white" />, label: 'Share' },
+  { name: 'link', component: <Feather name="link" size={24} color="white" />, label: 'Copy Link', onPress: copyToClipboard },
+  { name: 'message-circle', component: <Feather name="message-circle" size={24} color="white" />, label: 'Messages' },
+  { name: 'user-plus', component: <Feather name="user-plus" size={24} color="white" />, label: 'Email' },
+  { name: 'whatsapp', component: <FontAwesome6 name="whatsapp" size={24} color="white" />, label: 'Whatsapp' },
 ];
 
 const handlePress = (name: string) => {
@@ -62,20 +61,20 @@ const InviteFriends: React.FC<Props> = ({
 
   const renderUser = useCallback(({ item }: { item: User }) => (
     <Animated.View 
-      entering={FadeInRight} 
-      exiting={FadeOutLeft}
-      style={styles.userItem}
+      entering={FadeInRight.duration(500)} 
+      exiting={FadeOutLeft.duration(500)}
+      className="flex-row items-center  bg-opacity-10 rounded-xl mb-3 p-3"
     >
       <Image
         source={{ uri: item.image}}
-        style={styles.avatar}
+        className="w-12 h-12 rounded-xl mr-4"
       />
-      <Text style={styles.userName}>{item.name}</Text>
+      <Text className="flex-1 font-rregular text-base text-gray-50">{item.name}</Text>
       <TouchableOpacity 
-        style={styles.inviteButton} 
+        className="bg-green-500 px-4 py-2 rounded-xl" 
         onPress={() => onInvitePress(item)}
       >
-        <Text style={styles.inviteButtonText}>{buttonText}</Text>
+        <Text className="font-rregular">{buttonText}</Text>
       </TouchableOpacity>
     </Animated.View>
   ), [onInvitePress, buttonText]);
@@ -83,13 +82,13 @@ const InviteFriends: React.FC<Props> = ({
   return (
     <LinearGradient
       colors={['#6a11cb', '#2575fc']}
-      style={styles.container}
+      className="flex-1 p-5"
     >
-      <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+      <TouchableOpacity className="self-end mb-3" onPress={onClose}>
         <Feather name="x" size={24} color="white" />
       </TouchableOpacity>
 
-      <Text style={styles.title}>Invite Friends</Text>
+      <Text className="text-2xl font-rbold text-white mb-5">Invite Friends</Text>
 
       {selectedUsers.length > 0 && (
         <FlatList
@@ -98,129 +97,58 @@ const InviteFriends: React.FC<Props> = ({
           keyExtractor={item => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={styles.selectedUser}
+              className="mr-3"
               onPress={() => removeUser(item.id)}
             >
-              <Image source={{ uri: item.image }} style={styles.selectedUserImage} />
-              <Feather name="x" size={16} color="white" style={styles.removeIcon} />
+              <Image source={{ uri: item.image }} className="w-12 h-12 rounded-xl border-2 " />
+              <View className="absolute -top-1 -right-1 bg-black bg-opacity-50 rounded-xl p-1">
+                <Feather name="x" size={12} color="gray" />
+              </View>
             </TouchableOpacity>
           )}
-          contentContainerStyle={styles.selectedUsersContainer}
+          contentContainerStyle={{paddingBottom:12,paddingTop:6}}
         />
       )}
 
-      <View style={styles.searchContainer}>
-        <Feather name="search" size={20} color="gray" />
+      <View className="flex-row items-center ml-[-10]  bg-transparent shadow-cyan-700 shadow-md p-3 rounded-xl px-4 w-[110%] mr-5 mb-5">
+        <Feather name="search" size={20} color="white" />
         <TextInput
-          style={styles.searchInput}
+          className="flex-1 py-2 pl-3"
           placeholder="Search friends"
-          placeholderTextColor="gray"
+          placeholderTextColor="rgba(255,255,255,0.6)"
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
       </View>
-      {/* <View className=' bg-[rgba(255,255,255,0.2)] flex-row items-center justify-between p-1 border-gray-300'>
-      {icons.map((icon, index) => (
-        <TouchableOpacity key={index} onPress={() => handlePress(icon.name)}>
-          <View className='ml-4 border border-gray-400 rounded-xl p-1'>
-            {icon.component}
-          </View>
-          <Text className='mt-1 text-xs font-pregular text-gray-400 ml-4'>{icon.label}</Text>
-        </TouchableOpacity>
-      ))}
-    </View> */}
+
+      <View className=" bg-transparent border rounded-xl p-2 mb-5">
+        <FlatList
+          data={icons}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item) => item.name}
+          renderItem={({ item }) => (
+            <TouchableOpacity 
+              className="items-center mx-3" 
+              onPress={() => item.onPress ? item.onPress() : handlePress(item.name)}
+            >
+              <View className=" pr-2 mb-1 bg-transparent ">
+                {item.component}
+              </View>
+              <Text className="text-xs font-rregular text-white ">{item.label}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+
       <FlatList
         data={filteredUsers}
         renderItem={renderUser}
         keyExtractor={item => item.id}
-        contentContainerStyle={styles.userList}
+        contentContainerStyle={{paddingTop:12}}
       />
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  closeButton: {
-    alignSelf: 'flex-end',
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 20,
-  },
-  selectedUsersContainer: {
-    paddingBottom: 10,
-  },
-  selectedUser: {
-    marginRight: 10,
-  },
-  selectedUserImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 2,
-    borderColor: 'white',
-  },
-  removeIcon: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 10,
-    padding: 2,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    marginBottom: 20,
-  },
-  searchInput: {
-    flex: 1,
-    color: 'white',
-    paddingVertical: 10,
-    marginLeft: 10,
-  },
-  userList: {
-    paddingTop: 10,
-  },
-  userItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 15,
-    marginBottom: 10,
-    padding: 10,
-  },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 15,
-  },
-  userName: {
-    flex: 1,
-    color: 'white',
-    fontSize: 16,
-  },
-  inviteButton: {
-    backgroundColor: '#4caf50',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  inviteButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});
 
 export default InviteFriends;

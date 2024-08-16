@@ -1,9 +1,9 @@
-import React, { memo, useState, useCallback } from 'react';
+import { memo, useState, useCallback } from 'react';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { Text, View } from '../Themed';
 import { useLikePost, useSavePost, useDeletePost, useProfileStore } from '@/lib';
-import { checkIsLiked } from '@/lib/utils';
+import { checkIsLiked, showToastMessage } from '@/lib/utils';
 import ActionStats from './ActionStats';
 import AuthorInfo from './AuthorInfo';
 import ImageCont from './ImagesCont';
@@ -35,15 +35,18 @@ const Post = memo(({ author, content: caption, createdAt: timestamp, id: postId,
 
   const commentedUserImages = comments?.slice(0, 3).map(comment => comment?.user?.image) || [];
 
-  const handleLikePost = useCallback(() => {
+  const handleLikePost = useCallback(async() => {
     setLikes(prev => 
       prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
     );
     likePost(postId);
+    showToastMessage("Post liked")
+     
   }, [userId, postId, likePost]);
 
-  const handleSavePost = useCallback(() => {
+  const handleSavePost = useCallback(async() => {
     savePost(postId);
+    showToastMessage("Post saved")
     setIsSaved(true);
   }, [postId, savePost]);
 

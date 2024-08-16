@@ -1,16 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { router, useRouter } from "expo-router";
 
-import { chooseImage, showToastMessage,useCreatePost, useUpdatePost } from "@/lib";
+import { chooseImage, showToastMessage, useCreatePost, useUpdatePost } from "@/lib";
 import SelectedImages from "./SelectedImages";
 import FormField from "./auth/FormField";
 import { Text, View } from "./Themed";
 import Loader from "./Loader";
-import { Badge } from "./badges/user";
 import { CreatePostData, Post } from "@/types";
-import { uploadFile } from "@/lib/utils";
 
 type PostFormProps = {
   post?: Post;
@@ -18,34 +16,31 @@ type PostFormProps = {
 };
 
 const PostForm = ({ post, action }: PostFormProps) => {
-  const router = useRouter(); 
-
   const [fields, setFields] = useState<CreatePostData>({
-    content:post?.content?post.content:'',
-    tags:post?.tags?post.tags:[],
-    images:post?.images?post.images.map((img)=>img):[]
-  })  
+    content: post?.content || '',
+    tags: post?.tags || [],
+    images: post?.images || []
+  });
   
-  const { mutateAsync: createPost, isPending: creatingPost,isError:createError } =
-    useCreatePost();
-  const { mutateAsync: updatePost, isPending: updatingPost,isError:updateError } =
-    useUpdatePost();
+  const [newImages, setNewImages] = useState<string[]>([]);
 
-    /** @TODO add a useEffect which adds the post values to the fields if the post values are defined*/
+  const { mutateAsync: createPost, isPending: creatingPost, isError: createError } = useCreatePost();
+  const { mutateAsync: updatePost, isPending: updatingPost, isError: updateError } = useUpdatePost();
 
   const submitPost = async () => {
     if (!fields.content) {
       return showToastMessage('Please fill in all the necessary fields.');
     }
     
-    if(action==='Create'){
-      // const file = await uploadFile(fields.images[0])
-      await createPost(fields)
+    if (action === 'Create') {
+      await createPost(fields);
     }
-    if(action==='Update'){
+    if (action === 'Update') {
       await updatePost({
-        ...fields, id:post?.id!,
-      })
+        ...fields,
+        id: post?.id!,
+        images: newImages
+      });
     }
     router.push("/");
   };
@@ -53,55 +48,61 @@ const PostForm = ({ post, action }: PostFormProps) => {
   const chooseFile = async () => {
     const file = await chooseImage();
     
-    if(file){
-      console.log(file)
-      setFields({...fields,images:file})
+    if (file) {
+      console.log(file);
+      if (action === 'Create') {
+        setFields({ ...fields, images: [...fields.images, ...file] });
+      } else {
+        setNewImages([...newImages, ...file]);
+        setFields({ ...fields, images: [...fields.images, ...file] });
+      }
     }
   };
 
-  const handleImageDelete = (index:any) => {
+  const handleImageDelete = (index: number) => {
     const newImages = [...fields.images];
-    newImages.splice(index, 1);
-    setFields({ ...fields,images:newImages})
+    const deletedImage = newImages.splice(index, 1)[0];
+    setFields({ ...fields, images: newImages });
+    
+    if (action === 'Update') {
+      setNewImages(prevNewImages => prevNewImages.filter(img => img !== deletedImage));
+    }
   }; 
 
-  
-if(creatingPost || updatingPost) return <Loader loadingText="Uploading your post"/>
+  if (creatingPost || updatingPost) return <Loader loadingText="Uploading your post" />;
+
   return (
-    <View 
-      className="flex-1 h-full mb-[-30px]"
-    >
+    <View className="flex-1 h-full mb-[-30px]">
       <SelectedImages images={fields.images} onDeleteImage={handleImageDelete} handleSelectImages={chooseFile} />
       <View style={{ marginBottom: 20 }}>
-        
         <FormField 
           title='Content'
           placeholder="Describe your post"
           enterKeyHint="next"
           value={fields.content}
-          handleChangeText={(v) => setFields({ ...fields, content:v})}
+          handleChangeText={(v) => setFields({ ...fields, content: v })}
         />
       </View>
       <View className="mb-5">
         <Text className="text-[10px] font-pregular mb-1.5">separated by commas</Text>
         <FormField 
           title='Tags'
-          placeholder="people, places ,pets"
+          placeholder="people, places, pets"
           keyboardType="default"
           autoCapitalize="none"
           enterKeyHint="done"
-          value={fields.tags}
-          handleChangeText={(v) => setFields({ ...fields, content:v})}
+          value={fields.tags.join(', ')}
+          handleChangeText={(v) => setFields({ ...fields, tags: v.split(',').map(tag => tag.trim()) })}
         />
       </View>
       
       <TouchableOpacity
         onPress={submitPost}
-        className="flex-row bg-[#007faa] w-[25%] rounded-[10px] p-2.5 gap-1.5"
+        disabled={creatingPost || updatingPost}
+        className="flex-row bg-[#007faa] w-[45%] rounded-[10px] p-2.5 gap-1.5"
       >
-        <Text className="text-white font-psemibold" >Send</Text>
-        
-        <Ionicons name="send" color={'white'} style={{marginTop:3}} />
+        <Text className="text-white font-psemibold">{action === 'Create' ? "Create Post" : "Update post"}</Text>
+        <Ionicons name={action === 'Create' ? "send" : "sync"} color={'white'} size={16} style={{marginTop: 3}} />
       </TouchableOpacity>
     </View>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Box, VStack, Input, Text, Button, Icon, useToast } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
 

@@ -149,7 +149,7 @@ export const Validations = {
 
   CreateComment: CommentSchema.omit({ id: true, createdAt: true, updatedAt: true, authorId: true,user: true }),
 
-  CreateServer: ServerSchema.omit({ id: true, createdAt: true, updatedAt: true, creatorId: true, inviteCode: true, slug: true, members: true, channels: true}),
+  CreateServer: ServerSchema.omit({ id: true, createdAt: true, updatedAt: true, creatorId: true, inviteCode: true, slug: true,channels: true}),
 
   CreateChannel: ChannelSchema.omit({ id: true, createdAt: true, updatedAt: true, serverId: true, messages: true }),
 

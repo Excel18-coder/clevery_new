@@ -4,6 +4,7 @@ import { Feather, FontAwesome5 } from '@expo/vector-icons';
 
 import { formatDateString, multiFormatDateString } from '@/lib/utils';
 import { Text, View } from '@/components/Themed';
+import * as WebBrowser from 'expo-web-browser';
 import Image from '../image';
 
 interface Message {
@@ -42,24 +43,24 @@ const FileAttachment = ({ file }: { file: Message['file'] }) => {
   if (!file) return null;
 
   const isPDF = false
-  console.log(file)
 
   return (
     <TouchableOpacity 
-      onPress={() => Linking.openURL(file)}
+      onPress={() => WebBrowser.openBrowserAsync(file)}
       className="mb-2"
+      activeOpacity={1}
     >
       {isPDF ? (
-        <View className="flex-row items-center bg-gray-100 p-2 rounded-lg">
-          <FontAwesome5 name="file-pdf" size={24} color="red" />
+        <View className="flex-row items-center bg-gray-100 p-2 rounded-lg  ">
+          <FontAwesome5 name="file-pdf" size={50} color="red" />
           <Text className="ml-2 font-rmedium">View PDF</Text>
         </View>
       ) : (
         <Image 
           source={file} 
-          width={250}
-          height={150}
-          style="w-contain border border-gray-300 rounded-[10px]"
+          width={270}
+          height={288}
+          style="w-full h-60 border border-gray-300 rounded-[10px] shadow-lg"
         />
       )}
     </TouchableOpacity>

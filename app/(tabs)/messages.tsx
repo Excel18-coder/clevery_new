@@ -5,7 +5,6 @@ import { router } from 'expo-router';
 
 import { Chat, Groups, ServerList, Text, View } from '@/components';
 import { voiceCallHandler } from '@/lib';
-import { ScrollView } from 'native-base';
 
 interface FilterItem {
   name: any;
@@ -22,7 +21,6 @@ const { width } = Dimensions.get('window');
 
 const Messages: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<string>('chats');
-  const scrollViewRef = useRef<typeof ScrollView>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
   const linePosition = useRef(new Animated.Value(0)).current;
 
@@ -59,8 +57,8 @@ const Messages: React.FC = () => {
         className='flex-row border border-gray-500 rounded-full p-2 ml-auto gap-1.5'
         onPress={handlePress}
       >
-        <Feather name="plus" size={20} color={'#fff'}/>
-        <Text className='text-right font-rmedium font-sm text-white'>
+        <Feather name="plus" size={20} color={'gray'}/>
+        <Text className='text-right font-rmedium font-sm '>
           {activeFilter === 'chats' ? 'Add Friend' : activeFilter === 'servers' ? 'Create Server' : 'Create Group'}
         </Text>
       </TouchableOpacity>
@@ -70,11 +68,10 @@ const Messages: React.FC = () => {
   const Filter: React.FC = memo(() => {
     const handleFilterChange = useCallback((filter: string, index: number): void => {
       setActiveFilter(filter);
-      // scrollViewRef.current?.scrollTo({ x: index * width, animated: true });
     }, []);
   
     return (
-      <View className=' px-4 pt-4 pb-2 rounded-b-3xl shadow-lg'>
+      <View className=' px-4 pt-4 pb-2'>
         <View className='flex-row justify-between mb-4 items-center'>
           <Text className='font-rmedium text-2xl text-light'>
             {getFilterName(activeFilter)}
@@ -86,10 +83,10 @@ const Messages: React.FC = () => {
           {FILTER_ITEMS.map(({icon, name}, index) => (
             <TouchableOpacity
               key={name}
-              className={`flex-1 items-center justify-center py-2`}
+              className={`flex-1 items-center justify-center py-2 `}
               onPress={() => handleFilterChange(name, index)}
             >
-              <Feather name={icon} size={24} color={activeFilter === name ? "#fff" : "gray"} />
+              <Feather name={icon} size={24} color={activeFilter === name ? "#007aff" : "gray"} className='' />
             </TouchableOpacity>
           ))}
         </View>
@@ -100,7 +97,7 @@ const Messages: React.FC = () => {
             left: 0,
             width: width / FILTER_ITEMS.length,
             height: 3,
-            backgroundColor: '#fff',
+            backgroundColor: '#007aff',
             transform: [{ translateX: linePosition }],
           }}
         />
@@ -118,7 +115,6 @@ const Messages: React.FC = () => {
     <View className='flex-1 mt-7.5'>
       <Filter />
       <Animated.ScrollView
-        // ref={scrollViewRef}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}

@@ -34,7 +34,7 @@ const Image: React.FC<ImageProps> = React.memo(({ source, width, height, style }
       // w={'12'} 
       startColor='gray.500' 
       endColor={'gray.800'} 
-      borderRadius="full" 
+      // borderRadius="full" 
       className={style} 
     />
   ), [style]);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Image, Dimensions, StyleSheet, LayoutChangeEvent } from 'react-native';
+import { View, Image, Dimensions, LayoutChangeEvent } from 'react-native';
 
 interface ImageItem {
   uri: string;
@@ -47,7 +47,7 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = ({ images, columns = 2, spac
   };
 
   return (
-    <View style={styles.container} onLayout={handleLayout}>
+    <View style={{ flex: 1, position: 'relative' }} onLayout={handleLayout}>
       {imageLayouts.map((layout, index) => (
         <Image
           key={index}
@@ -65,11 +65,5 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = ({ images, columns = 2, spac
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    position: 'relative',
-  },
-});
 
 export default MasonryLayout;
