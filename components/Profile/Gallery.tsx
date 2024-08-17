@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { MasonryFlashList } from '@shopify/flash-list';
 import { TouchableOpacity, Dimensions } from 'react-native';
-import { Button, Overlay } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
@@ -9,6 +7,7 @@ import { Image } from 'expo-image';
 
 import { Text, View } from '@/components/Themed';
 import Loader from '@/components/Loader';
+import { Button, Overlay } from 'native-base';
 
 interface GalleryProps {
   images: string[];
@@ -52,7 +51,6 @@ const Gallery: React.FC<GalleryProps> = ({ images, loading }) => {
           Add some images to start creating your beautiful grid.
         </Text>
         <Button
-          title="Add Image"
           icon={<Ionicons name="add-circle-outline" size={24} color="white" />}
           buttonStyle={{
             backgroundColor: '#4CAF50',
@@ -61,20 +59,20 @@ const Gallery: React.FC<GalleryProps> = ({ images, loading }) => {
           }}
           titleStyle={{ marginLeft: 10 }}
           onPress={() => router.push('/add-image')}
-        />
+        >Add Image</Button>
       </View>
     );
   }
 
   return (
     <View className="flex-1">
-      <MasonryFlashList
+      {/* <MasonryFlashList
         data={images}
         numColumns={3}
         renderItem={renderItem}
         estimatedItemSize={columnWidth * 1.5}
         contentContainerStyle={{ paddingHorizontal: 4 }}
-      />
+      /> */}
       <Overlay
         isVisible={!!selectedImage}
         onBackdropPress={() => setSelectedImage(null)}

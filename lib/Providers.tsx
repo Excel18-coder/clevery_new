@@ -5,6 +5,7 @@ import { NativeBaseProvider } from 'native-base'
 import { MessagingProvider } from './contexts/messaging';
 import { AuthProvider } from './contexts/auth';
 import { OnlineFriendsProvider } from './contexts/online_friends';
+// import { MessagingProvider } from './contexts/socket/messaging';
 
 
 StreamVideoRN.updateConfig({
@@ -31,9 +32,9 @@ export const Providers = ({ children }:{children:React.ReactNode}) => {
       <QueryClientProvider client={queryClient}>
         <NativeBaseProvider config={config} >
           <MessagingProvider>
-            <OnlineFriendsProvider>
+            {/* <OnlineFriendsProvider> */}
               {children}
-            </OnlineFriendsProvider>
+            {/* </OnlineFriendsProvider> */}
           </MessagingProvider>
         </NativeBaseProvider>
       </QueryClientProvider>

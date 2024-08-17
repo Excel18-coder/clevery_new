@@ -1,4 +1,3 @@
-import { MasonryFlashList } from '@shopify/flash-list'
 import { Loader, Text, View } from '@/components';
 import { Image } from 'expo-image';
 
@@ -24,13 +23,13 @@ const Gallery: React.FC<GalleryProps> = ({ images }) => {
 
   return (
     <View className='flex-1 bg-[#fff] '>
-      <MasonryFlashList
+      {/* <MasonryFlashList
         data={images}
         numColumns={2}
         renderItem={renderItem}
         estimatedItemSize={122}
         className='px-[2.5px] py-[2.5px]'
-      />
+      /> */}
     </View>
   );
 };

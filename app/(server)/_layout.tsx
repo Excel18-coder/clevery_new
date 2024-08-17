@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar } from "react-native";
 
 const ServerLayout = () => {
   return (
@@ -11,7 +11,7 @@ const ServerLayout = () => {
         <Stack.Screen name="create-server" options={{ headerShown: false }} />
       </Stack>
 
-      <StatusBar backgroundColor="#161622" style="light" />
+      <StatusBar backgroundColor="#161622"/>
     </>
   );
 };

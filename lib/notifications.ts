@@ -1,5 +1,4 @@
 import { Platform } from 'react-native';
-import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 
 Notifications.setNotificationHandler({
@@ -23,7 +22,6 @@ export async function registerForPushNotificationsAsync() {
     });
   }
 
-  if (Device.isDevice) {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
     if (existingStatus !== 'granted') {
@@ -36,9 +34,5 @@ export async function registerForPushNotificationsAsync() {
     }
     token = await Notifications.getExpoPushTokenAsync();
     
-  } else {
-    alert('Must use physical device for Push Notifications');
-  }
-
   return token?.data;
 }

@@ -21,7 +21,7 @@ const MessagingContext = createContext<MessagingContextValue | null>(null);
 export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const { profile } = useProfileStore();
-  const [socketSDK, setSocketSDK] = useState(createSocketIOSDK('YOUR_SOCKET_IO_SERVER_URL'));
+  const [socketSDK, setSocketSDK] = useState(createSocketIOSDK(endpoint+'/socket'));
 
   const subscribeToSocketChannels = async () => {
     console.log('Subscribing to Socket.IO channels for conversations');

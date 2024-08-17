@@ -5,7 +5,6 @@ import { router } from 'expo-router';
 import { multiFormatDateString } from '@/lib';
 import { Text, View } from '../Themed';
 import Image from '../image';
-import { MasterBadge } from '../badges/user';
 
 type AuthorInfoProps = {
   author: {
@@ -24,7 +23,7 @@ const AuthorInfo = ({ author, timestamp,iscomment }:AuthorInfoProps) => {
         <TouchableOpacity onPress={() => router.push(`/user/${author?.id}`)}>
           {author?.image &&
            <Image 
-            source={ author?.image } 
+            source={author?.image} 
             width={100}
             height={100}
             style='mr-2.5 w-[50px] h-[50px] rounded-3xl'

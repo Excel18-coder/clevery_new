@@ -7,7 +7,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   version: '2.0.0',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
-  scheme: 'clevery',
+  scheme: ['clevery','com.clevery.app'],
   userInterfaceStyle: 'automatic',
   splash: {
     image: './assets/images/splash.png',
@@ -17,14 +17,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   assetBundlePatterns: ['**/*'],
   ios: {
     supportsTablet: true,
+    bundleIdentifier: 'com.clevery.app',
   },
   android: {
     googleServicesFile: './google-services.json',
     package: 'com.clevery.app',
+    allowBackup: true,
     adaptiveIcon: {
       foregroundImage: './assets/images/icon.png',
       backgroundColor: '#ffffff',
     },
+    versionCode: 1, // Add this line
   },
   web: {
     bundler: 'metro',
@@ -34,12 +37,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: [
     'expo-router',
     'expo-font',
-    [
-      'expo-secure-store',
-      {
-        faceIDPermission: "Allow Clevery to access your face ID  biometric data",
-      },
-    ],
     [
       'expo-notifications',
       {
@@ -81,9 +78,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   owner: 'larrydean',
   runtimeVersion: {
-    policy: 'appVersion',
+    policy: 'sdkVersion', // Change this line
   },
   updates: {
+    fallbackToCacheTimeout: 0, // Add this line
     url: 'https://u.expo.dev/3df3e8bc-4bda-4ac6-bfbe-a38f7122ff3a',
   },
 });

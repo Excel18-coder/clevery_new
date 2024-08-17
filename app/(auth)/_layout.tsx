@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar } from "react-native";
 
 const AuthLayout = () => {
   return (
@@ -19,7 +19,7 @@ const AuthLayout = () => {
         />
       </Stack>
 
-      <StatusBar backgroundColor="#161622" style="light" />
+      <StatusBar backgroundColor="#161622" />
     </>
   );
 };

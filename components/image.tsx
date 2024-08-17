@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
-import { endpoint } from '@/lib';
+import { memo, useMemo } from 'react';
 import { Image as ExpoImage } from 'expo-image';
-import { Skeleton } from 'native-base';
 import { useQuery } from '@tanstack/react-query';
+import { Skeleton } from 'native-base';
+
+import { endpoint } from '@/lib';
 
 interface ImageProps {
   source: string;
@@ -19,22 +20,22 @@ const fetchOptimizedImage = async (source: string, width: number, height: number
   return data.optimizedImage;
 };
 
-const Image: React.FC<ImageProps> = React.memo(({ source, width, height, style }) => {
+const Image: React.FC<ImageProps> = memo(({ source, width, height, style }) => {
   const { data: optimizedImageUrl, isLoading } = useQuery({
     queryKey: ['optimizedImage', source, width, height],
     queryFn: () => fetchOptimizedImage(source, width, height),
-    staleTime: Infinity, // Cache the result indefinitely
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   const memoizedSkeleton = useMemo(() => (
     <Skeleton 
-      size="16" 
-      // rounded="full" 
-      // h={''} 
-      // w={'12'} 
+      size="16"
       startColor='gray.500' 
-      endColor={'gray.800'} 
-      // borderRadius="full" 
+      endColor={'gray.800'}
       className={style} 
     />
   ), [style]);

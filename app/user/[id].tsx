@@ -7,7 +7,6 @@ import {
   HStack,
   Icon, 
   Avatar, 
-  Badge,
   useTheme,
   ScrollView,
 } from 'native-base';
@@ -17,7 +16,7 @@ import { formatDateString, useUser } from '@/lib';
 import MembersList from '@/components/members-list';
 import Image from '@/components/image';
 import { User } from '@/types';
-import { ContributorBadge, LegendBadge, MasterBadge, ExplorerBadge, VIPBadge, NewcomerBadge } from '@/components/badges/user';
+import Badge from '@/components/badges/user';
 
 const AnimatedBox = Animated.createAnimatedComponent(Box);
 
@@ -50,9 +49,10 @@ interface StatCardProps {
   title: string;
   value: number | string;
   icon: string;
+  popularity?: number | string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon }) => {
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon,popularity }) => {
   const { colors } = useTheme();
   
   return (
@@ -73,7 +73,8 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon }) => {
     >
       {title === "Popularity"
       ?
-       <Icon as={ContributorBadge} name={icon} size={6} color={colors.blue[500]} mr={4}/>
+      //  <Icon as={Badge} name={icon} size={6} color={colors.blue[500]} mr={4}/>
+       <Badge popularity={popularity} />
       :<Icon as={FontAwesome5} name={icon} size={6} color={colors.blue[500]} />
       }
       <Text className='font-rbold text-lg'>{value}</Text>
@@ -149,7 +150,7 @@ const UserProfile: React.FC = () => {
       >
         <StatCard title="Posts" value={user.postCount || 0} icon="pen-square" />
         <StatCard title="Friends" value={user.friends?.length || 0} icon="user-friends" />
-        <StatCard title="Popularity" value={user.userScore || 0} icon="star" />
+        <StatCard title="Popularity" value={user.userScore || 0} icon="star" popularity={user.userScore || 0}/>
       </AnimatedBox>
 
       <UserSection 
@@ -201,9 +202,10 @@ const UserProfile: React.FC = () => {
         content={
           <HStack flexWrap="wrap">
             {user.connections?.map((connection: User) => (
-              <Badge key={connection.id} colorScheme="blue" m={1}>
-                {connection.username}
-              </Badge>
+              // <Badge key={connection.id} colorScheme="blue" m={1}>
+              //   {connection.username}
+              // </Badge>
+              <></>
             ))}
           </HStack>
         } 

@@ -1,29 +1,26 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { FlatList } from 'react-native';
-import { Image } from 'expo-image';
 import { Text, View } from '../Themed';
+import Image from '../image';
 
 interface ImageComponentProps {
   image: string;
-  width: string;
-  height: string;
+  width: any;
+  height: any;
   onLoad?: () => void;
 }
 const ImageComponent = ({ image, width, height, onLoad }:ImageComponentProps) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
   const imageUrl = useMemo(() => 
     image, 
-    [image, imageLoaded, width]
+    [image, width]
   );
 
   return (
     <Image
-      source={{ uri: imageUrl }}
-      className={`m-[3px] rounded-[5px] ${height} ${width}`}
-      onLoad={() => {
-        setImageLoaded(true);
-        onLoad?.();
-      }}
+      source={imageUrl}
+      width={width}
+      height={height}
+      style={`m-[3px] rounded-[5px] h-[${height}px] w-[${width}px]`}
     />
   );
 };
@@ -37,7 +34,7 @@ const ImageCont = ({ images, caption }: { images: string[]; caption: string }) =
     <View className="flex-1 flex-col justify-center p-1 items-center">
       <Text className="font-rregular text-sm mb-auto w-full">{caption}</Text>
       {images.length === 1 ? (
-        <ImageComponent image={images[0]} width="w-[350px]" height="h-[230px]" />
+        <ImageComponent image={images[0]} width="350" height="230" />
       ) : (
         <FlatList
           data={images}
@@ -45,7 +42,7 @@ const ImageCont = ({ images, caption }: { images: string[]; caption: string }) =
           showsHorizontalScrollIndicator={false}
           keyExtractor={(item) => item}
           renderItem={({ item }) => (
-            <ImageComponent image={item} width="w-40" height="h-[230px]" />
+            <ImageComponent image={item} width="160" height="230" />
           )}
         />
       )}

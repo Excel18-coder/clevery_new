@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { View, Text, ScrollView, Dimensions } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, ScrollView, Dimensions, SafeAreaView } from "react-native";
 import { Link } from "expo-router";
 
 import { showToastMessage } from "@/lib";

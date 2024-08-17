@@ -3,12 +3,12 @@ import { FlatList, TouchableOpacity, TextInput } from 'react-native';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather, FontAwesome6 } from '@expo/vector-icons';
-import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
 
 import { Text, View } from '../Themed';
 import { showToastMessage } from '@/lib';
 import { User } from '@/types';
+import { useClipboard } from 'native-base';
 
 const link = `https://clevery.vercel.app/`;
 
@@ -21,26 +21,10 @@ interface Props {
   users?: User[];
 }
 
-const copyToClipboard = async () => {
-  try {
-    const alreadyCopied = async () => {
-      const clipboardContent = await Clipboard.getStringAsync();
-      return clipboardContent === link;
-    };
-    const copied = await alreadyCopied();
-    if (copied) showToastMessage('Link already copied');
-    else {
-      await Clipboard.setStringAsync(link);
-      showToastMessage('Link copied');
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
 
 const icons = [
   { name: 'upload', component: <Feather name="upload" size={24} color="white" />, label: 'Share' },
-  { name: 'link', component: <Feather name="link" size={24} color="white" />, label: 'Copy Link', onPress: copyToClipboard },
+  { name: 'link', component: <Feather name="link" size={24} color="white" />, label: 'Copy Link', onPress: true },
   { name: 'message-circle', component: <Feather name="message-circle" size={24} color="white" />, label: 'Messages' },
   { name: 'user-plus', component: <Feather name="user-plus" size={24} color="white" />, label: 'Email' },
   { name: 'whatsapp', component: <FontAwesome6 name="whatsapp" size={24} color="white" />, label: 'Whatsapp' },
@@ -59,6 +43,19 @@ const InviteFriends: React.FC<Props> = ({
     user.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const clipboard = useClipboard()
+  const copyToClipboard = async () => {
+    try {
+      
+      if (clipboard.hasCopied) showToastMessage('Link already copied');
+      else {
+        await clipboard.onCopy(link);
+        showToastMessage('Link copied');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const renderUser = useCallback(({ item }: { item: User }) => (
     <Animated.View 
       entering={FadeInRight.duration(500)} 
@@ -130,7 +127,7 @@ const InviteFriends: React.FC<Props> = ({
           renderItem={({ item }) => (
             <TouchableOpacity 
               className="items-center mx-3" 
-              onPress={() => item.onPress ? item.onPress() : handlePress(item.name)}
+              onPress={() => item.onPress ? copyToClipboard() : handlePress(item.name)}
             >
               <View className=" pr-2 mb-1 bg-transparent ">
                 {item.component}

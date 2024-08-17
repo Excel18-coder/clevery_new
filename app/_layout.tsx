@@ -3,8 +3,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import {SplashScreen, Stack, router} from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
-import {  useColorScheme } from 'react-native';
-import * as Linking from "expo-linking"
+import {  Linking, useColorScheme } from 'react-native';
 import { useFonts } from 'expo-font';
 
 import { Providers,pusherConnector, useThemeStore } from '@/lib'; 

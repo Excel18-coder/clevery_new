@@ -13,8 +13,6 @@ import { endpoint } from '@/lib/env';
 
 // Configuration variables
 const API_BASE_URL = endpoint;
-const GOOGLE_CLIENT_ID = '116758371280-goubu5e97m7lgm69qdeel37364f7k581.apps.googleusercontent.com';
-const GITHUB_CLIENT_ID = "1f1b4b1ec4a3365080ba";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -44,13 +42,13 @@ const useOAuthSignIn = (provider: 'google' | 'github') => {
   const githubDiscovery = {
     authorizationEndpoint: 'https://github.com/login/oauth/authorize',
     tokenEndpoint: 'https://github.com/login/oauth/access_token',
-    revocationEndpoint: `https://github.com/settings/connections/applications/${GITHUB_CLIENT_ID}`,
+    revocationEndpoint: `https://github.com/settings/connections/applications/${process.env.EXPO_GITHUB_CLIENT_ID!}`,
   };
 
   const [request, response, promptAsync] = provider === 'github'
     ? AuthSession.useAuthRequest(
         {
-          clientId: GITHUB_CLIENT_ID,
+          clientId: process.env.EXPO_GITHUB_CLIENT_ID!,
           scopes: ['identity'],
           redirectUri: AuthSession.makeRedirectUri({ scheme: 'com.clevery.app' }),
         },
@@ -96,13 +94,14 @@ const useOAuthSignIn = (provider: 'google' | 'github') => {
  */
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { user, token, loading, setUser, setToken, setLoading } = useAuthStore();
-  const { setProfile } = useProfileStore();
+  const { profile, setProfile } = useProfileStore();
 
   const { handleSignIn: handleGoogleSignIn } = useOAuthSignIn('google');
   const { handleSignIn: handleGithubSignIn } = useOAuthSignIn('github');
 
   useEffect(() => {
     const checkCurrentUser = async () => {
+      if (profile.id) return
       try {
         const currentAccount = await userApi.getCurrentUser();
         if (!currentAccount) {
@@ -185,6 +184,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       title: 'Authentication successful',
       description: 'You are now logged in.',
     })
+    router.navigate('/editprofile')
   };
 
   /**

@@ -1,9 +1,8 @@
 import { request,PERMISSIONS, requestMultiple } from "react-native-permissions";
-import { Alert, Platform,Permission,PermissionsAndroid } from "react-native";
+import { Platform } from "react-native";
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import * as WebBrowser from "expo-web-browser";
-import { format, parseISO } from "date-fns";
 import * as Updates from 'expo-updates';
 import React from "react";
 
@@ -121,7 +120,7 @@ export const selectImage = async () => {
     const selectedImages = selectedAssets.map((asset) => asset.uri);
     return selectedImages;
   } catch (error) {
-    Alert.alert('An Error Occured', 'Failed to pick images. Please try again.');
+    showToastMessage('Failed to pick images. Please try again.');
   }
 };
 
@@ -168,7 +167,7 @@ export const sortMessages=({messages}:{messages:Message[]})=>{
   if(!messages) return []
   const sortedMessages = messages?.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())!;
   const messagesByMonth: { [month: string]: any } = sortedMessages?.reduce((acc: any, message) => {
-    const month = format(parseISO(message?.createdAt), 'ddd MMMM yyyy');
+    const month = formatDateString(message?.createdAt);
     if (!acc[month]) {
       acc[month] = [];
     }
