@@ -6,11 +6,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: 'clevery',
   version: '2.0.0',
   orientation: 'portrait',
-  icon: './assets/images/icon.png',
+  icon: './src/assets/images/icon.png',
   scheme: 'com.clevery.app',
   userInterfaceStyle: 'automatic',
   splash: {
-    image: './assets/images/splash.png',
+    image: './src/assets/images/splash.png',
     resizeMode: 'cover',
     backgroundColor: '#1f2023',
   },
@@ -24,29 +24,36 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: 'com.clevery.app',
     allowBackup: true,
     adaptiveIcon: {
-      foregroundImage: './assets/images/icon.png',
+      foregroundImage: './src/assets/images/icon.png',
       backgroundColor: '#ffffff',
     },
-    versionCode: 1, 
+    versionCode: 1,
   },
   web: {
     bundler: 'metro',
     output: 'static',
-    favicon: './assets/images/icon.png',
+    favicon: './src/assets/images/icon.png',
   },
   plugins: [
     'expo-router',
     'expo-font',
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow Clevery to access your microphone."
+        }
+      ],
+    "@react-native-google-signin/google-signin",
     [
       'expo-notifications',
       {
-        sounds: ['./assets/Sounds/notification.wav'],
+        sounds: ['./src/assets/Sounds/notification.wav'],
       },
-    ]
+    ],
   ],
   extra: {
     router: {
-      origin: false,
+      origin: "https://clevery-api.vercel.app/api",
     },
     eas: {
       projectId: '3df3e8bc-4bda-4ac6-bfbe-a38f7122ff3a',
@@ -54,7 +61,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   owner: 'larrydean',
   runtimeVersion: {
-    policy: 'sdkVersion', 
+    policy: 'sdkVersion',
   },
 });
 

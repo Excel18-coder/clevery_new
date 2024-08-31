@@ -46,8 +46,8 @@ export const PostSchema = baseSchema.extend({
   images: z.array(z.string().url()),
   author: UserSchema,
   comments: z.array(CommentSchema),
-  likes: z.array(z.string()),
-  saves: z.array(z.string()),
+  likes: z.array(z.any()),
+  saves: z.array(z.any()),
 });
 
 // Message schema
