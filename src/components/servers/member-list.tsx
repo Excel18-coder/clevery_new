@@ -1,5 +1,5 @@
-import { Text } from "../themed";
-import { Modal } from "../ui/modal";
+import { Text } from "@/components/themed";
+import { Modal } from "@/components/ui/modal";
 import MembersComponent from "./members";
 
 interface Props {

@@ -1,5 +1,5 @@
-import { TouchableOpacity, FlatList, Pressable, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity, Pressable, ScrollView } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 
 import SearchSuggestions from '@/components/search/suggestions-skeleton';
@@ -40,7 +40,7 @@ const TopUsers = ({ suggestedUsers, addSearch }: Users) => {
     })
     router.push(`/user/${user.id}`)
   }
-  if (!suggestedUsers) return <SearchSuggestions/>
+  if (!suggestedUsers || suggestedUsers.length === 0) return <SearchSuggestions/>
   return (
     <View>
       <Text className='text-sm pb-2 font-rbold' >Top Users</Text>
@@ -64,7 +64,7 @@ const TopUsers = ({ suggestedUsers, addSearch }: Users) => {
   )
 }
 const TopServers = ({ suggestedServers }: { suggestedServers: Server[] }) => {
-  if (!suggestedServers) return <SearchSuggestions/>
+  if (!suggestedServers || suggestedServers.length === 0) return <SearchSuggestions/>
   return (
     <>
       <Text className='text-sm pb-2 font-rbold m-3' >Top Servers</Text>
@@ -128,36 +128,8 @@ const Suggestions: React.FC<SuggestionsProps> = ({
     </View>
   );
 
-  const renderClearAllButton = () => (
-    <TouchableOpacity onPress={onClearAllSearches} className='p-4 items-center'>
-      <Text className='text-base'>Clear All</Text>
-    </TouchableOpacity>
-  );
-
-  const renderRecentSearches = () => {
-    if (!searches?.length) {
-      return null;
-    }
-
-    return (
-      <>
-        <FlatList
-          data={searches}
-          renderItem={renderRecentItem}
-          keyExtractor={(item) => item?.id?.toString()}
-          ListHeaderComponent={
-            <Text className='font-rbold pb-2 text-base'>
-              Recent Searches
-            </Text>}
-        />
-        {renderClearAllButton()}
-      </>
-    );
-  };
-
   return (
     <ScrollView className='px-1 py-2'>
-      {renderRecentSearches()}
       <Text className='text-lg pb-2 font-rbold'>
         Suggestions
       </Text>

@@ -1,9 +1,9 @@
 import { FlatList, View } from 'react-native';
 
-import { Text } from '../themed';
-import Image from '../image';
-import { HStack } from '../ui/hstack';
-import { Skeleton } from '../ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
+import { HStack } from '@/components/ui/hstack';
+import { Text } from '@/components/themed';
+import Image from '@/components/image';
 
 interface MembersComponentProps {
   userImages: string[];

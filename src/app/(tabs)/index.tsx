@@ -4,7 +4,7 @@ import { usePosts } from '@/lib';
 import Post from '@/components/posts';
 import * as WebBrowser from 'expo-web-browser';
 
-import "../global.css"
+import { ErrorMessage, Loader } from '@/components';
 WebBrowser.maybeCompleteAuthSession();
 export default function Home() {
   const [refreshing, setRefreshing] = useState(false);
@@ -26,6 +26,10 @@ export default function Home() {
   };
 
   const keyExtractor = (item: any) => item?.id;
+
+  if(feedLoading) return <Loader loadingText="Loading your feed" />
+
+  if(postsError) return <ErrorMessage message='Something went wrong' />
 
   return (
     <View className='pt-7.5 flex-1'>

@@ -24,7 +24,8 @@ import {
   View,
   Loader,
 } from '@/components';
-import { FontAwesome6, MaterialIcons, Ionicons, AntDesign } from '@expo/vector-icons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { showToastMessage, useProfileStore, useUpdateCurrentUser } from '@/lib';
 import { router } from 'expo-router';
 import { useImageUploader } from '@/lib/uploadthing';
@@ -53,7 +54,7 @@ const UserProfileEdit = () => {
 
   const {
     mutateAsync: updateProfile,
-    isPending,
+    isPending:updating,
     error
   } = useUpdateCurrentUser()
 
@@ -61,8 +62,6 @@ const UserProfileEdit = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { openImagePicker, isUploading } = useImageUploader("imageUploader", {
-    //@ts-ignore
-    onClientUploadComplete: (file) => setAvatarUri(file?.serverData?.url),
     onUploadError: (error) => Alert.alert("Upload Error", error.message),
   });
   
@@ -108,7 +107,7 @@ const UserProfileEdit = () => {
     return {
       opacity: formOpacity.value,
       transform: [{ translateY: formOpacity.value * 50 }],
-      padding: formOpacity.value * 20,
+      padding: formOpacity.value * 5,
     };
   });
 
@@ -119,7 +118,6 @@ const UserProfileEdit = () => {
 
   const chooseFile = useCallback(async () => {
     const file = await openImagePicker({
-      // input: , // Matches the input schema from the FileRouter endpoint
       source: "library", // or "camera"
       onInsufficientPermissions: () => {
         Alert.alert(
@@ -133,14 +131,12 @@ const UserProfileEdit = () => {
       },
     });
     console.log(file);
-    // if (file) {
-    //   setNewMessage((prev) => ({ ...prev, file:file[0] }));
-    // }
+     setAvatarUri(file[0]?.serverData?.url)
   }, []);
 
-  if (isUploading) {
-    <Loader />
-  }
+  if (isUploading) return <Loader loadingText="Uploading image" />
+  if(updating) return <Loader loadingText="Updating profile" />
+  if(error) return <Loader loadingText="Error updating profile" />
   return (
     <ScrollView className=''>
       <VStack space="xl" style={{ padding: 20, paddingTop: 60 }}>
@@ -150,16 +146,7 @@ const UserProfileEdit = () => {
               avatarScale.value = withSpring(1.2, {}, () => {
                 avatarScale.value = withSpring(1.1);
               });
-              openImagePicker({
-                source: "library",
-                onInsufficientPermissions: () => {
-                  Alert.alert(
-                    "No Permissions",
-                    "You need to grant permission to your Photos to use this",
-                    [{ text: "Dismiss" }],
-                  );
-                },
-              });
+              chooseFile();
             }}
           >
             <HStack className="justify-center items-center" space='2xl'>
@@ -167,6 +154,7 @@ const UserProfileEdit = () => {
                 <AvatarImage source={{ uri: avatarUri }} />
               </Avatar>
               <Button
+                onPress={chooseFile}
                 className="flex-1 w-20 flex-row items-center justify-center rounded-lg bg-cyan-500"
               >
                 <MaterialIcons name="image" color="white"className="mr-2" />
@@ -188,8 +176,8 @@ const UserProfileEdit = () => {
                 </FormControlLabel>
                 <Input
                   variant="outline"
-                  className='items-center border-[#bdc3c7] border-2 rounded-lg'
-                  size='lg'
+                  className='items-center border-[#bdc3c7] border-2 rounded-lg w-full'
+                  size='xl'
                 >
                   <InputField
                     value={value!}
@@ -248,7 +236,7 @@ const UserProfileEdit = () => {
           <ButtonText className='text-base font-rregular'>
             {isLoading ? "Saving..." : "Save Changes"}
           </ButtonText>
-          <Ionicons name="save-outline" size={20} color="white" style={{ marginLeft: 8 }} />
+          <FontAwesome6 name="save" size={20} color="white" style={{ marginLeft: 8 }} />
         </AnimatedButton>
       </VStack>
     </ScrollView>

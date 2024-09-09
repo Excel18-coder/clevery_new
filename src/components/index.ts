@@ -14,7 +14,6 @@ export {default as MessagesContainer} from "@/components/chat/messages/container
 export {default as MessageInput} from "@/components/chat/messages/input";
 export {default as UserComment} from "@/components/posts/Comment";
 // export {default as ImageWithCaption} from "@/components/Messages/ImageCont";
-export {default as PostForm} from '@/components/cards/post';
 // export {default as UserCard} from "@/components/UserCard"; 
 export {default as Loader} from "@/components/states/loading";
 export {default as ErrorMessage} from "@/components/states/error";
@@ -23,14 +22,11 @@ export {default as Header} from "@/components/chat/header";
 export {default as ChannelHeader} from "@/components/servers/channel-header"
 export {default as Create} from "@/components/servers/create"
 // export {default as MessagesContainer} from '@/components/Messages/MessageContainer'
-export {default as SearchTabBar} from "@/components/search/tabbar"
 export {default as Suggestions} from "@/components/search/suggestions"
 export {default as SearchResults} from "@/components/search/results"
 export {default as InviteFriends} from '@/components/shared/invite'
 export {default as LoadingUsers} from '@/components/shared/loading-users'
-export {default as CustomButton} from '@/components/shared/CustomButton'
 export {default as FormField} from '@/components/shared/form_field'
-export {default as Butttons} from '@/components/shared/butttons'
 export { default as LogoutComponent } from '@/components/profile/log-out'
 export { default as ServerComponent } from '@/components/servers'
 export { default as Badge } from '@/components/badge/user'

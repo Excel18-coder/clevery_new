@@ -1,162 +1,167 @@
 import { useState } from 'react';
-import { FlatList, TouchableOpacity, Animated, ScrollView, Pressable } from 'react-native';
-import { Text, View } from '../themed';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Switch } from '../ui/switch';
+import { ScrollView, TouchableOpacity, Switch, Image } from 'react-native';
+import { useTheme } from '@react-navigation/native';
+import { Feather } from '@expo/vector-icons';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInRight,
+  SlideOutLeft,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
+import { Text, View } from '@/components/themed';
 
-interface Notification {
-  id: string;
-  type: 'like' | 'comment' | 'follow' | 'message';
-  content: string;
-  time: string;
-  read: boolean;
-}
-
-interface NotificationChannel {
-  id: string;
-  name: string;
-  enabled: boolean;
-  icon: string;
-}
-
-const notificationData: Notification[] = [
-  { id: '1', type: 'like', content: 'John Doe liked your post', time: '2m ago', read: false },
-  { id: '2', type: 'comment', content: 'Alice left a comment on your photo', time: '15m ago', read: false },
-  { id: '3', type: 'follow', content: 'Bob started following you', time: '1h ago', read: true },
-  { id: '4', type: 'message', content: 'You have a new message from Sarah', time: '3h ago', read: true },
-  // Add more notifications as needed
+// Mock data for notifications
+const mockNotifications = [
+  {
+    id: '1',
+    type: 'friend_request',
+    content: 'Emma Thompson sent you a friend request',
+    time: '2 hours ago',
+    avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
+  },
+  {
+    id: '2',
+    type: 'like',
+    content: 'Michael Chen liked your post',
+    time: '4 hours ago',
+    avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
+  },
+  {
+    id: '3',
+    type: 'comment',
+    content: 'Sophia Rodriguez commented on your photo',
+    time: 'Yesterday',
+    avatar: 'https://randomuser.me/api/portraits/women/3.jpg',
+  },
 ];
 
-const initialChannels: NotificationChannel[] = [
-  { id: 'like', name: 'Likes', enabled: true, icon: 'heart' },
-  { id: 'comment', name: 'Comments', enabled: true, icon: 'chatbubble' },
-  { id: 'follow', name: 'Follows', enabled: true, icon: 'person-add' },
-  { id: 'message', name: 'Messages', enabled: true, icon: 'mail' },
+// Mock data for notification channels
+const mockChannels = [
+  { id: '1', name: 'Friend Requests', enabled: true },
+  { id: '2', name: 'Likes', enabled: true },
+  { id: '3', name: 'Comments', enabled: true },
+  { id: '4', name: 'Messages', enabled: true },
+  { id: '5', name: 'Event Invites', enabled: false },
 ];
 
-const NotificationItem: React.FC<{ item: Notification; onPress: () => void }> = ({ item, onPress }) => {
-  const [scaleAnim] = useState(new Animated.Value(1));
+const NotificationItem = ({ notification }) => {
+  const scale = useSharedValue(1);
+  const Custom = Animated.createAnimatedComponent(View);
 
-  const handlePress = () => {
-    Animated.sequence([
-      Animated.timing(scaleAnim, { toValue: 0.95, duration: 100, useNativeDriver: true }),
-      Animated.timing(scaleAnim, { toValue: 1, duration: 100, useNativeDriver: true }),
-    ]).start();
-    onPress();
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.98);
   };
 
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'like': return 'heart';
-      case 'comment': return 'chatbubble';
-      case 'follow': return 'person-add';
-      case 'message': return 'mail';
-      default: return 'notifications';
-    }
+  const handlePressOut = () => {
+    scale.value = withSpring(1);
   };
 
   return (
-    <Animated.View className="mb-3 rounded-xl  shadow-md" style={{ transform: [{ scale: scaleAnim }] }}>
-      <Pressable onPress={handlePress} className="flex-row items-center p-3">
-        <LinearGradient
-          colors={item.read ? ['#4c669f', '#fca5a5'] : ['#4c669f', '#06b6d4']}
-          className="w-12 h-12 rounded-full justify-center items-center mr-3"
-        >
-          <Ionicons name={getIcon(item.type)} size={24} color={item.read ? '#666' : '#fff'} />
-        </LinearGradient>
+    <Animated.View 
+      entering={SlideInRight} 
+      exiting={SlideOutLeft}
+      style={animatedStyle}
+      className="rounded-lg shadow-sm mb-4 p-4"
+    >
+      <View className="flex-row items-center">
+        <Image 
+          source={{ uri: notification.avatar }} 
+          className="w-12 h-12 rounded-full mr-4" 
+        />
         <View className="flex-1">
-          <Text className={`text-base mb-1 ${!item.read ? 'font-pmedium' : 'font-pmedium'}`}>{item.content}</Text>
-          <Text className="text-xs text-gray-500 font-pregular">{item.time}</Text>
+          <Text className="text-base font-rmedium text-gray-800">{notification.content}</Text>
+          <Text className="text-sm font-rregular text-gray-500 mt-1">{notification.time}</Text>
         </View>
-        {!item.read && <View className="w-2.5 h-2.5 rounded-full bg-green-500 ml-3" />}
-      </Pressable>
+      </View>
     </Animated.View>
   );
 };
 
-const ChannelToggle: React.FC<{
-  channel: NotificationChannel;
-  onToggle: (id: string, enabled: boolean) => void
-}> = ({ channel, onToggle }) => {
+const ChannelToggle = ({ channel, onToggle }) => {
   return (
-    <View className="flex-row justify-between items-center py-3 border-b border-gray-200">
-      <View className="flex-row items-center">
-        <Ionicons name={channel.icon as any} size={24} color="#4c669f" className="mr-3" />
-        <Text className="text-base">{channel.name}</Text>
-      </View>
+    <View className="flex-row items-center justify-between py-3 border-b border-gray-200">
+      <Text className="text-base font-rmedium text-gray-800">{channel.name}</Text>
       <Switch
         value={channel.enabled}
-        onValueChange={(enabled) => onToggle(channel.id, enabled)}
-        trackColor={{ false: "#767577", true: "#4c669f" }}
+        onValueChange={() => onToggle(channel.id)}
+        trackColor={{ false: "#767577", true: "#4A90E2" }}
         thumbColor={channel.enabled ? "#f4f3f4" : "#f4f3f4"}
       />
     </View>
   );
 };
 
-const Notifications = () => {
-  const [notifications, setNotifications] = useState(notificationData);
-  const [channels, setChannels] = useState(initialChannels);
+const NotificationsPage = () => {
+  const theme = useTheme();
+  const [notifications, setNotifications] = useState(mockNotifications);
+  const [channels, setChannels] = useState(mockChannels);
   const [showSettings, setShowSettings] = useState(false);
 
-  const handleNotificationPress = (id: string) => {
-    setNotifications(notifications.map(notif =>
-      notif.id === id ? { ...notif, read: true } : notif
+  const handleChannelToggle = (channelId) => {
+    setChannels(channels.map(channel => 
+      channel.id === channelId ? { ...channel, enabled: !channel.enabled } : channel
     ));
   };
-
-  const handleChannelToggle = (id: string, enabled: boolean) => {
-    setChannels(channels.map(channel =>
-      channel.id === id ? { ...channel, enabled } : channel
-    ));
-  };
-
-  const filteredNotifications = notifications.filter(notif =>
-    channels.find(channel => channel.id === notif.type)?.enabled
-  );
 
   return (
-    <View className="flex-1 p-4">
-      <View className="flex-row justify-between items-center mb-4">
-        <Text className="text-base font-rregular">Your Notifications</Text>
+    <ScrollView 
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      contentContainerStyle={{ padding: 20 }}
+    >
+      <Animated.View entering={FadeIn.delay(300)} className="mb-6">
+        <Text className="text-3xl font-rbold text-gray-800 mb-2">Notifications</Text>
+        <Text className="text-base font-rregular text-gray-600">
+          Stay updated with your Clevery network
+        </Text>
+      </Animated.View>
+
+      <View className="flex-row justify-between items-center mb-6">
+        <Text className="text-xl font-rmedium text-gray-800">Recent</Text>
         <TouchableOpacity onPress={() => setShowSettings(!showSettings)}>
-          <Ionicons name={showSettings ? "close" : "settings-outline"} size={24} color="#4c669f" />
+          <Feather name={showSettings ? "x" : "settings"} size={24} color="#4A90E2" />
         </TouchableOpacity>
       </View>
 
-      {showSettings ? (
-        <ScrollView>
-          <Text className="text-xl font-bold mb-4">Notification Settings</Text>
-          {channels.map(channel => (
-            <ChannelToggle
-              key={channel.id}
-              channel={channel}
-              onToggle={handleChannelToggle}
-            />
+      {!showSettings && (
+        <Animated.View entering={FadeIn}>
+          {notifications.map((notification) => (
+            <NotificationItem key={notification.id} notification={notification} />
           ))}
-        </ScrollView>
-      ) : (
-        <>
-          {filteredNotifications.length > 0 ? (
-            <FlatList
-              data={filteredNotifications}
-              renderItem={({ item }) => (
-                <NotificationItem item={item} onPress={() => handleNotificationPress(item.id)} />
-              )}
-              keyExtractor={item => item.id}
-              contentContainerStyle={{ paddingBottom: 16 }}
-            />
-          ) : (
-            <View className="flex-1 justify-center items-center">
-              <Ionicons name="notifications-off-outline" size={64} color="#888" />
-              <Text className="text-lg text-gray-500 mt-4">No notifications yet</Text>
-            </View>
-          )}
-        </>
+        </Animated.View>
       )}
-    </View>
+
+      {showSettings && (
+        <Animated.View entering={FadeIn}>
+          <Text className="text-lg font-rmedium text-gray-800 mb-4">Notification Settings</Text>
+          {channels.map((channel) => (
+            <ChannelToggle key={channel.id} channel={channel} onToggle={handleChannelToggle} />
+          ))}
+          <View className="mt-6 bg-blue-50 rounded-lg p-4">
+            <Text className="text-lg font-rmedium mb-2 text-blue-800">About Notifications</Text>
+            <Text className="text-base font-rregular text-blue-700">
+              Clevery sends notifications to keep you informed about activity in your network. You can customize which types of notifications you receive using the toggles above.
+            </Text>
+          </View>
+        </Animated.View>
+      )}
+
+      <Animated.View entering={FadeIn.delay(600)} className="mt-6 bg-green-100 rounded-lg p-4">
+        <Text className="text-lg font-rmedium mb-2 text-green-800">Pro Tip!</Text>
+        <Text className="text-base font-rregular text-green-700">
+          Customize your notification settings to ensure you never miss important updates while avoiding notification overload. Find the perfect balance for your Clevery experience!
+        </Text>
+      </Animated.View>
+    </ScrollView>
   );
 };
 
-export default Notifications;
+export default NotificationsPage;

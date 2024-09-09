@@ -1,12 +1,12 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 import axios from 'axios';
-import notifee, { AndroidImportance, AndroidStyle, AndroidCategory, EventType } from '@notifee/react-native';
 
 import { Conversation, Message, User } from '@/types';
 import { createSocketIOSDK } from '@/lib/pusher/socket';
 import { endpoint } from '@/lib/env';
 import { useProfileStore } from '@/lib/zustand/store';
+import { showMessageNotification } from '@/lib/notifications';
 
 const NOTIFICATION_CHANNEL_ID = 'new-messages';
 
@@ -57,60 +57,10 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     );
 
     if (AppState.currentState !== 'active') {
-      showNotification(data.conversationId, data.senderName, data.message.text, data.senderImage);
+      showMessageNotification(data.conversationId, data.senderName, data.message.text, data.senderImage);
     }
   }
 
-  const showNotification = async (conversationId: string, senderName: string, messageContent: string, senderImage: string): Promise<void> => {
-    try {
-      const channelId = await notifee.createChannel({
-        id: NOTIFICATION_CHANNEL_ID,
-        name: 'New Messages',
-        importance: AndroidImportance.HIGH,
-        sound: 'default',
-      });
-
-      await notifee.displayNotification({
-        title: `New message from ${senderName}`,
-        body: messageContent,
-        android: {
-          channelId,
-          largeIcon: senderImage,
-          importance: AndroidImportance.HIGH,
-          style: {
-            type: AndroidStyle.MESSAGING,
-            person: {
-              name: senderName,
-              icon: senderImage,
-            },
-            messages: [
-              {
-                text: messageContent,
-                timestamp: Date.now(),
-              },
-            ],
-          },
-          category: AndroidCategory.MESSAGE,
-          actions: [
-            {
-              title: 'Reply',
-              input: {
-                placeholder: 'Type your reply...',
-                allowFreeFormInput: true,
-              },
-              pressAction: {
-                id: 'reply',
-              },
-            },
-          ],
-        },
-        data: { conversationId },
-      });
-      console.log('Notification displayed for new message');
-    } catch (error) {
-      console.error('Error showing notification:', error);
-    }
-  };
 
   const fetchConversations = async (): Promise<void> => {
     console.log('Fetching conversations');
@@ -150,37 +100,6 @@ export const MessagingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       console.error('Error sending message:', error);
     }
   };
-
-  useEffect(() => {
-    if (profile.id) {
-      console.log('User logged in, fetching conversations and setting up Socket.IO subscriptions');
-      fetchConversations();
-
-      const unsubscribe = notifee.onForegroundEvent(({ type, detail }) => {
-        if (type === EventType.ACTION_PRESS && detail.pressAction?.id === 'reply') {
-          const { input, notification } = detail;
-          if (input && notification?.data?.conversationId) {
-            sendMessage(notification.data.conversationId as string, input);
-          }
-        }
-      });
-
-      notifee.onBackgroundEvent(async ({ type, detail }) => {
-        if (type === EventType.ACTION_PRESS && detail.pressAction?.id === 'reply') {
-          const { input, notification } = detail;
-          if (input && notification?.data?.conversationId) {
-            await sendMessage(notification.data.conversationId as string, input);
-          }
-        }
-      });
-
-      return () => {
-        unsubscribe();
-      };
-    } else {
-      console.log('User not logged in, skipping setup');
-    }
-  }, [profile.id]);
 
   useEffect(() => {
     if (socketSDK && profile.id) {

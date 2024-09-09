@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 import { AlertDialog, AlertDialogBackdrop, AlertDialogBody, AlertDialogCloseButton, AlertDialogContent, AlertDialogFooter, AlertDialogHeader } from '@/components/ui/alert-dialog';
 import { Button, ButtonText } from '@/components/ui/button';
-import { AntDesign } from '@expo/vector-icons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const AlertModal = ({ 
   isOpen, 

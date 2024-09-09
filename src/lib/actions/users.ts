@@ -1,9 +1,9 @@
 import axios from "axios";
+import { userPaths as apiPaths } from "@/routes";
+import { Profile } from "@/lib/zustand/store";
 import { handleApiError } from "./error";
 import { endpoint } from "@/lib/env";
 import { User } from "@/types";
-import { userPaths as apiPaths } from "../../../routes";
-import { Profile } from "../zustand/store";
 
 type UserDetailsResponse = User & {
   commonFriends: Array<{ id: string; name: string; image: string }>;

@@ -69,9 +69,9 @@ export const useCombinedSearch = (initialQuery: string = '', initialType: Search
     searchType,
     setSearchType,
     results: {
-      posts: postsQuery.data?.results || [],
-      users: usersQuery.data?.results || [],
-      servers: serversQuery.data?.results || [],
+      posts: postsQuery.data || [],
+      users: usersQuery.data || [],
+      servers: serversQuery.data || [],
     },
     isLoading,
     error,

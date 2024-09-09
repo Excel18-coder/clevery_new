@@ -9,7 +9,9 @@ import Animated, {
   interpolate,
 } from 'react-native-reanimated';
 
-import { Chat, Groups, ServerList, Text, View } from '@/components';
+import { Chat, ServerList, Text, View } from '@/components';
+import StatusPage from '@/components/chat/status';
+import { registerForPushNotificationsAsync } from '@/lib';
 
 interface FilterItem {
   name: string;
@@ -60,9 +62,15 @@ const Messages: React.FC = () => {
     }
   }, []);
 
+const notificationTest = async () => {
+
+const token = registerForPushNotificationsAsync();
+console.log(token)
+}
+
   const handlePress = useCallback((): void => {
     if (activeFilter === 'chats') router.push("/users");
-    else if (activeFilter === 'status') {/* voiceCallHandler(); */ }
+    else if (activeFilter === 'status') notificationTest();
     else if (activeFilter === 'servers') router.push("/create-server");
   }, [activeFilter]);
 
@@ -174,7 +182,7 @@ const Messages: React.FC = () => {
         {FILTER_ITEMS.map((item) => (
           <View key={item.name} style={{ width }}>
             {item.name === 'chats' && <Chat />}
-            {/* {item.name === 'status' && <Groups />} */}
+            {item.name === 'status' && <StatusPage />}
             {item.name === 'servers' && <ServerList />}
           </View>
         ))}

@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSharedValue, withSpring } from 'react-native-reanimated';
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
-import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader } from '../ui/modal';
+
+import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader } from '@/components/ui/modal';
 import { useCommentPost, useProfileStore, useLikeComment } from '@/lib';
 import { Comment as CommentType } from '@/types';
-import { HStack } from '../ui/hstack';
-import Image from '../image';
+import { HStack } from '@/components/ui/hstack';
+import Image from '@/components/image';
 
 const Comment = ({ comment, onReply, onLike, currentUser, depth = 0 }: { 
   comment: CommentType; 

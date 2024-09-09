@@ -7,7 +7,7 @@ import { Channel, Conversation, Message as MessageType } from '@/types';
 import { Text, View } from '@/components/themed';
 import Header from '../header';
 import PopupComponent from './popup';
-import Message from './item';
+import MessageItem from './item';
 
 type NewMessage = {
   caption: string;
@@ -79,16 +79,26 @@ const MessagesContainer: React.FC<Props> = ({
     );
   }, []);
 
+  const handleReply = (replyText, messageId) => {
+    console.log(replyText, messageId);
+    // Handle the reply logic here
+  };
+
+  const handleReact = (reaction, messageId) => {
+    console.log(reaction, messageId);
+    // Handle the reaction logic here
+  };
   return (
     <View className="flex-1">
       <FlatList
         data={messages}
         renderItem={({ item }: { item: any }) => (
-          <Message
-            item={item}
-            onDelete={() => {}}
-            onLongPress={() => togglePopup()}
-            onClose={() => togglePopup()}
+          <MessageItem
+            message={item}
+            onReply={handleReply}
+            onReact={handleReact}
+            // onEdit={() => {}}
+            // onDelete={() => {}}
           />
         )}
         keyExtractor={(item) => item.id}

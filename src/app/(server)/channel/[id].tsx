@@ -2,7 +2,7 @@ import { PusherEvent } from '@pusher/pusher-websocket-react-native';
 import { useEffect, useState } from 'react';
 import { useLocalSearchParams, } from 'expo-router';
 
-import { parseIncomingMessage, pusher, selectImage, sortMessages, useChannelData, useSendChannelMessage} from '@/lib';
+import { parseIncomingMessage, pusher, selectImage, sortMessages, useChannelData } from '@/lib';
 import { ChannelHeader, Loader, MessageInput, MessagesContainer, View } from '@/components'
 import { Message } from '@/types';
 

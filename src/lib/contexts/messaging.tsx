@@ -1,15 +1,21 @@
-import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { createContext, useContext, useEffect, useCallback, useMemo } from 'react';
 import { PusherEvent } from '@pusher/pusher-websocket-react-native';
-import { AppState } from 'react-native';
-import notifee, { AndroidImportance, AndroidStyle, AndroidCategory, EventType } from '@notifee/react-native';
 import { useQueryClient } from '@tanstack/react-query';
+import { AppState } from 'react-native';
+import notifee, { 
+  AndroidImportance, 
+  AndroidStyle, 
+  AndroidCategory, 
+  EventType 
+} from '@notifee/react-native';
 
+import { useGetConversations, useSendMessage } from '@/lib/actions/hooks/conversation';
+import { NOTIFICATION_CHANNELS } from '../notifications';
+import { useProfileStore } from '@/lib/zustand/store';
 import { Conversation, Message } from '@/types';
 import { pusher } from '@/lib/pusher/config';
-import { useProfileStore } from '../zustand/store';
-import { useGetConversations, useSendMessage } from '@/lib/actions/hooks/conversation';
 
-const NOTIFICATION_CHANNEL_ID = 'new-messages';
+const NOTIFICATION_CHANNEL_ID = NOTIFICATION_CHANNELS['ONLINE_FRIENDS']
 
 /**
  * Represents the value provided by the MessagingContext

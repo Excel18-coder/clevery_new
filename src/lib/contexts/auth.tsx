@@ -1,15 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import * as Google from 'expo-auth-session/providers/google';
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
+import * as Linking from 'expo-linking'
 import { router } from 'expo-router';
 import axios from 'axios';
-import * as Linking from 'expo-linking'
+
 import { useAuthStore, useProfileStore } from '@/lib/zustand/store';
-import { userApi } from '@/lib/actions/users';
-import { endpoint, env } from '@/lib/env'; 
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { showToastAlert } from '@/components/alert';
+import { userApi } from '@/lib/actions/users';
+import { endpoint } from '@/lib/env';
 
 // Configuration variables
 const API_BASE_URL = endpoint;
@@ -91,29 +92,20 @@ const useOAuthSignIn = (provider: 'google' | 'github') => {
 
 
 export const googleSignIn = async () => {
-  // GoogleSignin.configure({
-  //   forceCodeForRefreshToken:true,
-  //   offlineAccess:true,
-  //   scopes:["profile","email"]
-  // })
+  await fetch(`${endpoint}/sign-up/provider?provider=google`);
   try {
-    // Check if your device supports Google Play
     await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
-    // Get the user ID token
     const res = await GoogleSignin.signIn();
-    console.log(res)
-    const { idToken } = res
+    const { data:{ serverAuthCode} } = res
 
     console.log('Google Sign-In Successful');
-    // console.log('ID Token:', idToken);
 
-
-    // Here, you would typically send the ID token to your backend
-    // return idToken;
-    const tokenResponse = await axios.get(`http://192.168.42.236:3000/api/auth/callback/google?code=${idToken}&grant_type=code_verifier&state=abc123`);
+    const tokenResponse = await axios.get(`${endpoint}/auth/callback/google?code=${serverAuthCode}&grant_type=code_verifier&state=abc123`);
     console.log(tokenResponse.data);
-    return { success: true, idToken };
+    const user = await userApi.getCurrentUser()
+    console.log('Google auth res user: ', user)
+    return { success: true, serverAuthCode };
   } catch (error) {
     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
       console.log('Google Sign-In Cancelled');
@@ -144,7 +136,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const checkCurrentUser = async () => {
-      if (profile.id) return
+      if (profile?.id) return
       try {
         const currentAccount = await userApi.getCurrentUser();
         if (!currentAccount) {
@@ -152,7 +144,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
         setProfile(currentAccount)
       } catch (error) {
-        console.error('Error checking current user:', error);
         router.replace('sign-in');
       }
     };
@@ -195,8 +186,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * @param credentials - The user's email and password
    */
   const handleCredentialsSignIn = async (credentials: { email: string; password: string }) => {
+    console.log('Sign in with credentials:', credentials);
     const response = await axios.post(`${API_BASE_URL}sign-in`, credentials);
     const data = response.data
+    await WebBrowser.openAuthSessionAsync(data);
+    console.log('Server login res: ', data)
     await handleAuthSuccess({user:data,token:""}); 
     return data
   };

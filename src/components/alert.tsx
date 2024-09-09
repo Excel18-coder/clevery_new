@@ -1,5 +1,5 @@
 import React from 'react';
-import { useToast } from './ui/toast';
+import { Toast, ToastDescription, ToastTitle, useToast } from './ui/toast';
 import { Alert, AlertIcon, AlertText } from './ui/alert';
 import { CloseIcon } from './ui/icon';
 import { ButtonIcon } from './ui/button';
@@ -14,17 +14,14 @@ interface ToastProps {
 }
 
 export const showToastAlert = ({ id, title, status, description }: ToastProps) => {
-  const toast = useToast();
-  return toast.show({
-    render: () => (
+    return (
       <ToastAlert
         id={id}
         title={title}
         description={description}
         status={status}
       />
-    ),
-  });
+    )
 };
 
 const ToastAlert: React.FC<ToastProps> = ({
@@ -35,7 +32,34 @@ const ToastAlert: React.FC<ToastProps> = ({
   variant = 'solid',
   isClosable = true,
 }) => {
-  const toast = useToast();
+
+  const toast = useToast()
+  const [toastId, setToastId] = React.useState('0')
+  const handleToast = () => {
+    if (!toast.isActive(toastId)) {
+      showNewToast()
+    }
+  }
+  const showNewToast = () => {
+    const newId = Math.random().toString()
+    setToastId(newId)
+    toast.show({
+      id: newId,
+      placement: "top",
+      duration: 3000,
+      render: ({ id }) => {
+        const uniqueToastId = "toast-" + id
+        return (
+          <Toast nativeID={uniqueToastId} action="muted" variant="solid">
+            <ToastTitle>Hello!</ToastTitle>
+            <ToastDescription>
+              This is a customized toast message.
+            </ToastDescription>
+          </Toast>
+        )
+      },
+    })
+  }
 
   const handleClose = () => {
     toast.close(id);

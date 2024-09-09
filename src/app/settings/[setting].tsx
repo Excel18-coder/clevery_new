@@ -4,6 +4,12 @@ import { Feather } from '@expo/vector-icons';
 
 import { Account, Appearance, FriendRequests, LogoutComponent, MenuItems, Notifications, Text, View } from '@/components';
 import { useProfileStore } from '@/lib';
+import DevicesPage from '@/components/profile/devices';
+import FeedbackPage from '@/components/profile/feedback';
+import PrivacyPage from '@/components/profile/privacy';
+import TermsOfServicePage from '@/components/profile/terms';
+import SecurityPage from '@/components/profile/security';
+import HelpSupportPage from '@/components/profile/about';
 
 const Settings = () => {
   const { setting } = useLocalSearchParams();
@@ -31,8 +37,20 @@ const renderContent = (setting: string | any) => {
       return <Appearance />;
     case 'notifications':
       return <Notifications />;
+    case 'devices':
+      return <DevicesPage />;
+    case 'feedback':
+      return <FeedbackPage />;
+    case 'privacy':
+      return <PrivacyPage />;
+    case 'terms':
+      return <TermsOfServicePage />;
     case 'friend-requests':
-      return <FriendRequests friendRequests={[]} />;
+      return <FriendRequests />;
+    case 'security':
+      return <SecurityPage />;
+    case 'help':
+      return <HelpSupportPage />;
     case 'logout':
       return <LogoutComponent onCancel={()=>{}} onLogout={()=>{}} username={profile.username || profile.name} />;
     default:

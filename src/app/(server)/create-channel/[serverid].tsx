@@ -1,10 +1,10 @@
 import { memo, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 
-import { showToastMessage, useCreateChannel, useProfileStore } from '@/lib';
+import { showToastMessage, useCreateChannel } from '@/lib';
 import { Loader,View,Create } from '@/components';
-import { ChannelType } from '@/types';
 import ToastAlert from '@/components/alert';
+import { ChannelType } from '@/types';
 
 interface newChannel {
   name: string;
@@ -13,7 +13,6 @@ interface newChannel {
 }
 
 const CreateChannel: React.FC = () => {
-  const { profile } = useProfileStore();
   const [newChannel, setNewChannel] = useState<newChannel>({
     name: ``,
     description: '',
@@ -27,7 +26,7 @@ const CreateChannel: React.FC = () => {
   } = useCreateChannel(serverid as string);
 
   const handleSubmit = async () => {
-    const {channelType:type,description,name} =newChannel
+    const {channelType,description,name} =newChannel
     
     try {
       if(!name) return showToastMessage('Please provide the channel name' )
@@ -38,7 +37,7 @@ const CreateChannel: React.FC = () => {
       const res = await createChannel({
         name,
         description,
-        type:ChannelType.TEXT,
+        type:ChannelType[channelType],
         isPrivate:false
       });
       

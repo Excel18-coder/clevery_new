@@ -1,5 +1,5 @@
 import { TouchableOpacity, FlatList, FlatListProps, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Text, View } from '@/components/themed';
 import { SvgFromXml } from 'react-native-svg';
 import { Image } from 'expo-image';

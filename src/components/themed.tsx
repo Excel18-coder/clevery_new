@@ -1,5 +1,5 @@
+import { forwardRef } from 'react';
 import { Text as DefaultText, View as DefaultView } from 'react-native';
-
 import Colors from '../constants';
 import { useThemeStore } from '@/lib';
 import { useColorScheme } from 'nativewind';
@@ -17,34 +17,49 @@ export function useThemeColor(
   props: { light?: string; dark?: string },
   colorName: keyof typeof Colors.light & keyof typeof Colors.dark
 ) {
-
   const { mode: theme } = useThemeStore();
-  const defaultMode = useColorScheme()
+  const defaultMode = useColorScheme();
 
   const lightmode = () => {
-    if (theme === 'default') return defaultMode;
+    if (theme === 'default') return defaultMode.colorScheme;
     return theme;
-  }
+  };
 
-  const colorFromProps = props[lightmode()!];
+  const colorFromProps = props[lightmode()];
 
   if (colorFromProps) {
     return colorFromProps;
   } else {
-    return Colors[lightmode()!][colorName];
+    return Colors[lightmode()][colorName];
   }
 }
 
-export function Text(props: TextProps) {
+// Wrap Text component with forwardRef
+export const Text = forwardRef<DefaultText, TextProps>((props, ref) => {
   const { style, lightColor, darkColor, className, ...otherProps } = props;
   const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
 
-  return <DefaultText className={className} style={[{ color }, style]} {...otherProps} />;
-}
+  return (
+    <DefaultText
+      ref={ref}
+      className={className}
+      style={[{ color }, style]}
+      {...otherProps}
+    />
+  );
+});
 
-export function View(props: ViewProps) {
+// Wrap View component with forwardRef
+export const View = forwardRef<DefaultView, ViewProps>((props, ref) => {
   const { style, lightColor, darkColor, className, ...otherProps } = props;
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
-  return <DefaultView className={className} style={[{ backgroundColor }, style]} {...otherProps} />;
-}
+  return (
+    <DefaultView
+      ref={ref}
+      className={className}
+      style={[{ backgroundColor }, style]}
+      {...otherProps}
+    />
+  );
+});

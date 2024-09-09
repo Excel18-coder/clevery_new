@@ -1,5 +1,5 @@
 import { TouchableOpacity } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
 import { Text, View } from '../themed';
 import { router } from 'expo-router';
 import Image from '../image';

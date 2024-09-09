@@ -1,6 +1,6 @@
 import { CreateServerData, CreateChannelData, User } from '@/types';
 import { TouchableOpacity } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
 
 import { selectImage } from '@/lib';
 import UploadImage from "../uploadimage";
@@ -64,14 +64,14 @@ const Create: React.FC<CreateProps> = ({
           title={`${title} Name`}
           value={fields.name}
           placeholder={isServer ? "Your server name" : "general"}
-          handleChangeText={(text) => setFields({ ...fields, name: text })}
+          onChangeText={(text) => setFields({ ...fields, name: text })}
         />
 
         <FormField
           title="Description"
           value={fields.description!}
           placeholder={isServer ? "Describe your server " : "Describe your channel"}
-          handleChangeText={(text) => setFields({ ...fields, description: text })}
+          onChangeText={(text) => setFields({ ...fields, description: text })}
         />
 
         {isServer && (

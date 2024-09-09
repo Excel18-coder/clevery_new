@@ -1,12 +1,12 @@
 import { memo, useCallback } from 'react';
-// import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { TouchableOpacity, View, ScrollView } from 'react-native';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import Ionicons  from '@expo/vector-icons/Ionicons';
+import Feather from '@expo/vector-icons/Feather';
 
 import { useThemeStore } from '@/lib/zustand/store';
 import { Text } from '@/components/themed';
 import { showToastMessage } from '@/lib';
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
 const ThemeDescription = {
   light: 'Light backgrounds, dark text. Easy to read and reduces eye strain.',

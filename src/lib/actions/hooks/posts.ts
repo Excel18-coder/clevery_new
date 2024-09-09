@@ -14,7 +14,7 @@ const queryKeys = {
   authorPosts: (authorId: string) => ['posts', 'author', authorId],
 };
 
-export const usePosts = (params?: Omit<PostQuery, 'page'>) => {
+ export const usePosts = (params?: Omit<PostQuery, 'page'>) => {
   return useInfiniteQuery({
     queryKey: [...queryKeys.posts, params],
     queryFn: ({ pageParam = 1 }) => postsApi.getPosts({ ...params!, page: pageParam }),
@@ -23,6 +23,7 @@ export const usePosts = (params?: Omit<PostQuery, 'page'>) => {
       return lastPage.length === params?.limit ? nextPage : undefined;
     },
     initialPageParam: 1,
+    refetchOnMount: false,
   });
 };
 

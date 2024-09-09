@@ -1,149 +1,183 @@
-import React, { useState } from 'react';
-import { FlatList, TextInput, TouchableOpacity, PanResponder, GestureResponderEvent, PanResponderGestureState } from 'react-native';
+import { useState, useCallback, useMemo } from 'react';
+import { FlatList, TextInput, Pressable, Dimensions, NativeSyntheticEvent } from 'react-native';
 import { router } from 'expo-router';
-
-import { Loader, SearchResults, Suggestions, SearchTabBar as TabBar, Text, View } from '@/components';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  FadeIn,
+  FadeOut,
+} from 'react-native-reanimated';
+import { HStack, Loader, SearchResults, Suggestions, Text, View } from '@/components';
 import { useCombinedSearch } from '@/lib/actions/hooks/search';
-import { Post, Server, User } from '@/types';
+import Image from '@/components/image';
+import { Feather } from '@expo/vector-icons';
+import { NativeScrollEvent } from 'react-native';
 
-type TabBarOptions = 'recents' | 'people' | 'media-links' | 'files';
-type SearchType = 'all' | 'posts' | 'users' | 'servers';
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-interface SearchBarProps {
-  setSearch: (query: string) => void;
+const TABS = [
+  { icon: 'clock', text: 'Recents', key: 'recents' },
+  { icon: 'users', text: 'People', key: 'people' },
+  { icon: 'link', text: 'Media Links', key: 'media-links' },
+  { icon: 'file', text: 'Files', key: 'files' },
+] as const;
+
+interface FileItemProps {
+  name: string;
+  size: string;
+  type: 'pdf' | 'doc' | 'xls';
 }
+type TabKey = typeof TABS[number]['key'];
 
-const SearchBar: React.FC<SearchBarProps> = ({ setSearch }) => (
-  <TextInput
-    placeholder="Search"
-    onChangeText={setSearch}
-    className="p-2 my-4 bg-transparent border border-gray-500 text-white rounded-lg"
-  />
+
+// Subcomponents
+const SearchBar = ({ setSearch }: { setSearch: (term: string) => void }) => (
+  <View className="px-4 py-2 my-4 bg-gray-800 rounded-full shadow-md">
+    <TextInput
+      placeholder="Search"
+      placeholderTextColor="#9CA3AF"
+      onChangeText={setSearch}
+      className="text-base"
+    />
+  </View>
 );
 
-const ExploreComponent: React.FC = () => {
-  const [selectedTabBar, setSelectedTabBar] = useState<TabBarOptions>('recents');
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
-  const {
-    setQuery, 
-    searchType, 
-    setSearchType, 
-    results, 
-    isLoading,
-    topCreators,
-    topServers,
-    loadingCreators,
-    loadingServers
-  } = useCombinedSearch();
+const SearchTabBar = ({ activeTab, onTabPress }: { activeTab: TabKey; onTabPress: (tab: TabKey) => void }) => (
+  <View className="py-2 px-4 bg-gray-800 rounded-t-2xl shadow-lg">
+    <HStack className="justify-between">
+      {TABS.map(({ icon, text, key }) => (
+        <Pressable
+          key={key}
+          onPress={() => onTabPress(key)}
+          className={`items-center p-2 ${activeTab === key ? 'bg-blue-500 rounded-lg' : ''}`}
+        >
+          <Feather
+            name={icon}
+            size={24}
+            color={activeTab === key ? '#FFFFFF' : '#9CA3AF'}
+          />
+          <Text className={`text-xs mt-1 ${activeTab === key ? 'text-white' : 'text-gray-400'} font-rregular`}>{text}</Text>
+        </Pressable>
+      ))}
+    </HStack>
+  </View>
+);
 
-  const handleSetSearch = (term: string) => {
+const UserItem = ({ item }: { item: any }) => (
+  <Pressable className='flex-row items-center p-4 rounded-lg mb-2' onPress={() => router.push(item.id)}>
+    <Image
+      source={item.image || ''}
+      height={50}
+      width={50}
+      style='h-[50px] w-[50px] rounded-full mr-4'
+    />
+    <View>
+      <Text className='text-base font-rmedium '>{item.name}</Text>
+      <Text className='text-sm text-gray-400 font-rthin'>{item.username}</Text>
+    </View>
+  </Pressable>
+);
+const FileItem: React.FC<FileItemProps> = ({ name, size, type }) => (
+  <Animated.View 
+    entering={FadeIn.duration(400)} 
+    exiting={FadeOut.duration(300)}
+    className="flex-row items-center bg-white rounded-xl p-4 mb-3 shadow-sm"
+  >
+    <View className="bg-gray-100 p-3 rounded-full">
+      <Feather name={type === 'pdf' ? 'file-text' : type === 'doc' ? 'file' : 'file-plus'} size={20} color="#6b7280" />
+    </View>
+    <View className="flex-1 ml-4">
+      <Text className="text-base font-medium text-gray-800">{name}</Text>
+      <Text className="text-sm text-gray-500">{size}</Text>
+    </View>
+    <Feather name="download" size={20} color="#6b7280" />
+  </Animated.View>
+);
+
+// Main component
+const ExploreComponent = () => {
+  const [activeTab, setActiveTab] = useState<TabKey>('recents');
+  const { setQuery, results, isLoading, topCreators, topServers } = useCombinedSearch();
+  const translateX = useSharedValue(0);
+  const scrollX = useSharedValue(0);
+
+  const { width } = Dimensions.get('window');
+  const handleSetSearch = useCallback((term: string) => {
     setQuery(term);
-    setSearchType(mapTabBarToSearchType(selectedTabBar));
-  };
+  }, [setQuery]);
 
-  const panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onPanResponderMove: (event: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-      if (gestureState.dx < -50) {
-        setSwipeDirection('left');
-      } else if (gestureState.dx > 50) {
-        setSwipeDirection('right');
-      } else {
-        setSwipeDirection(null);
-      }
-    },
-    onPanResponderRelease: (event, gestureState) => {
-      if (swipeDirection === 'left') {
-        const nextTab = getNextTab('left');
-        setSelectedTabBar(nextTab);
-      } else if (swipeDirection === 'right') {
-        const previousTab = getNextTab('right');
-        setSelectedTabBar(previousTab);
-      }
-      setSwipeDirection(null);
-    },
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>): void => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    scrollX.value = contentOffsetX;
+    const index = Math.round(contentOffsetX / width);
+    setActiveTab(TABS[index].key);
+  }, []);
+
+  const handleTabPress = useCallback((tab: TabKey) => {
+    const index = TABS.findIndex(t => t.key === tab);
+    translateX.value = withTiming(index * SCREEN_WIDTH);
+    setActiveTab(tab);
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: translateX.value * -1 }],
+    };
   });
 
-  const getNextTab = (direction: 'left' | 'right'): TabBarOptions => {
-    const tabs: TabBarOptions[] = ['recents', 'people', 'media-links', 'files'];
-    const currentIndex = tabs.indexOf(selectedTabBar);
-    const nextIndex = direction === 'left' ? (currentIndex + 1) % tabs.length : (currentIndex - 1 + tabs.length) % tabs.length;
-    return tabs[nextIndex];
-  };
 
-  return (
-    <View className="flex-1 mt-7" {...panResponder.panHandlers}>
-      <SearchBar setSearch={handleSetSearch} />
-      <TabBar
-        selected={selectedTabBar}
-        onTabPress={setSelectedTabBar}
-      />
-      {renderContent(selectedTabBar, results, isLoading, topCreators, topServers)}
-    </View>
-  );
-};
+  const renderContent = useMemo(() => {
+    if (isLoading) return <Loader loadingText="Searching for results..." />;
 
-const mapTabBarToSearchType = (tabBar: TabBarOptions): SearchType => {
-  switch (tabBar) {
-    case 'people': return 'users';
-    case 'media-links': return 'posts';
-    case 'files': return 'servers';
-    default: return 'all';
-  }
-};
-
-const renderContent = (
-  selectedTabBar: TabBarOptions,
-  results: { posts: Post[]; users: User[]; servers: Server[] },
-  isLoading: boolean,
-  topCreators?: User[],
-  topServers?: Server[]
-) => {
-  if (isLoading) {
-    return <Loader loadingText="Wer'e searching for the result"/>;
-  }
-  
-  switch (selectedTabBar) {
-    case 'recents':
-      const allResults: (Post | User | Server)[] = [
-        ...(results?.posts || []),
-        ...(results?.users || []),
-        ...(results?.servers || [])
-      ];
-      return allResults.length > 0 ? (
-        <SearchResults result={allResults} resultType="all" />
+    const allResults = [...(results?.posts || []), ...(results?.users || []), ...(results?.servers || [])];
+    
+    return [
+      allResults.length > 0 ? (
+        <SearchResults key="all" result={allResults} resultType="all" />
       ) : (
         <Suggestions
-          onClearSearchHistory={() => {}}
-          searchHistory={[]}
-          addSearch={() => {}}
-          onClearAllSearches={() => {}}
+          key="suggestions"
           suggestedServers={topServers || []}
           suggestedUsers={topCreators || []}
+          addSearch={(item) => handleSetSearch(item.name)}
+          onClearAllSearches={() => handleSetSearch('')}
+          onClearSearchHistory={() => handleSetSearch('')}
+          searchHistory={[]}
         />
-      );
-    case 'people':
-      return (
-        <FlatList
-          data={results?.users}
-          renderItem={({ item }) => (
-            <TouchableOpacity 
-              onPress={() => router.push(`/user/${item.id}`)}
-              className="p-4 border-b border-gray-200"
-            >
-              <Text>{item.name}</Text>
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item) => item?.id.toString()}
-        />
-      );
-    case 'media-links':
-      return <SearchResults result={results?.posts} resultType="posts" />;
-    case 'files':
-      return <SearchResults result={results?.servers} resultType="servers" />;
-    default:
-      return null;
-  }
+      ),
+      <FlatList
+        key="users"
+        data={results?.users?.length > 0 ? results.users : topCreators}
+        renderItem={({ item }) => <UserItem item={item} />}
+        keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
+      />,
+      <SearchResults key="posts" result={results?.posts} resultType="posts" />,
+      <SearchResults key="servers" result={results?.servers} resultType="servers" />,
+      <SearchResults key="files" result={results?.servers} resultType="servers" />,
+    ];
+  }, [isLoading, results, topCreators, topServers, handleSetSearch]);
+
+  return (
+    <View className="flex-1 bg-gray-900 pt-7">
+      <SearchBar setSearch={handleSetSearch} />
+      <SearchTabBar activeTab={activeTab} onTabPress={handleTabPress} />
+      <Animated.ScrollView
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        style={animatedStyle}
+      >
+        {TABS.map((_, index) => (
+          <View key={index} style={{ width: SCREEN_WIDTH }}>
+            {renderContent[index]}
+          </View>
+        ))}
+      </Animated.ScrollView>
+    </View>
+  );
 };
 
 export default ExploreComponent;

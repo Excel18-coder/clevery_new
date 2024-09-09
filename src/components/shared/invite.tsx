@@ -2,7 +2,8 @@ import { useState, useCallback } from 'react';
 import { FlatList, TouchableOpacity, TextInput } from 'react-native';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Feather, FontAwesome6 } from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { Image } from 'expo-image';
 
 import { Text, View } from '../themed';

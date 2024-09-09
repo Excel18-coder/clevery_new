@@ -1,38 +1,84 @@
-import { useState } from "react";
-import { View, Text, ScrollView, Dimensions, SafeAreaView } from "react-native";
-import { Link } from "expo-router";
-
-import { CustomButton, FormField,Butttons, Button } from "@/components";
-import { showToastMessage } from "@/lib";
-import { useAuth } from "@/lib/contexts/auth";
+import { useEffect, useState } from "react";
+import { View, Text, ScrollView, Dimensions, SafeAreaView, Image } from "react-native";
+import { Link, router } from "expo-router";
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withSpring, 
+  withDelay,
+  FadeIn,
+  FadeInDown
+} from 'react-native-reanimated';
+import { Button, FormField, Toast, ToastDescription, ToastTitle, useToast } from "@/components";
+import { googleSignIn, useAuth } from "@/lib/contexts/auth";
 import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import * as WebBrowser from 'expo-web-browser';
-type AuthProviders = "google" | "facebook" | "github";
 
 WebBrowser.maybeCompleteAuthSession();
-const SignIn = () => {
-  const {
-    loading,
-    signIn,
-    user
-  } = useAuth()
 
-  const handleGoogleSignIn = async () => {
-    // const result = await googleSignIn();
-    // if (result.success) {
-    //   // Handle successful sign-in
-    //   console.log('Signed in with Google:', result.idToken);
-    //   // You might want to send this token to your backend
-    // } else {
-    //   // Handle sign-in failure
-    //   console.log('Google sign-in failed:', result.error);
-    // }
-  };
- 
+type AuthProviders = "google" | "facebook" | "github";
+
+const SignIn = () => {
+  const { loading, signIn, user } = useAuth();
+  const [toastId, setToastId] = useState('0')
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+  WebBrowser.warmUpAsync()
+  const toast = useToast()
+  const handleToast = () => {
+    if (!toast.isActive(toastId)) {
+      showNewToast({})
+    }
+  }
+  const showNewToast = ({
+    title = "Success",
+    description = "You have successfully signed in.",
+  }) => {
+    const newId = Math.random().toString()
+    setToastId(newId)
+    toast.show({
+      id: newId,
+      placement: "top",
+      duration: 3000,
+      render: ({ id }) => {
+        const uniqueToastId = "toast-" + id
+        return (
+          <Toast nativeID={uniqueToastId} action="muted" variant="outline" className="bg-gray-700 p-4">
+            <ToastTitle className="text-white">{title}</ToastTitle>
+            <ToastDescription className="text-white">
+              {description}
+            </ToastDescription>
+          </Toast>
+        )
+      },
+    })
+  }
+
+  const logoScale = useSharedValue(0.5);
+  const formOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    logoScale.value = withSpring(1);
+    formOpacity.value = withDelay(500, withSpring(1));
+  }, []);
+
+  const logoAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: logoScale.value }],
+    };
+  });
+
+  const formAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: formOpacity.value,
+    };
+  });
+
+  const handleGoogleSignIn = async () => {
+    const result = await googleSignIn();
+  };
 
   const submit = async () => {
     const password=form.password
@@ -40,104 +86,101 @@ const SignIn = () => {
     
     if (form.email === "" || form.password === "") {
   
-      showToastMessage("Please fill in all fields")
+      showNewToast({
+        title:'error !',
+        description:'Please fill in all fields'
+      })
     }
     
     if (!password?.length ){
-      return  showToastMessage("Password must be atleast 8 characters")
+      return  showNewToast({
+        title:'error !',
+        description:'Password must be atleast 8 characters'
+      })
     }
     try {
 
+      console.log(form)
       const result = await signIn("credentials",{
         email,
         password
       })
-      console.log(result)
-
-      // showToastAlert({
-      //   id: "sign-up",
-      //   title: "Success",
-      //   description: "You have successfully logged in",
-      //   status: "success",
-      // })
-      // router.navigate('/editprofile')
+      router.navigate('/editprofile')
       
     } catch (error) {
-      console.log("Sign-in",error)
-      // showToastAlert({
-      //   id: "sign-up",
-      //   title: "Error",
-      //   description: "Something went wrong",
-      //   status: "error",
-      // })
+      console.error("Sign-in",error)
     } 
   };
 
-  
-const signInWithProvider = async (provider: AuthProviders) => {
-  if (provider === 'google') return handleGoogleSignIn();
-  if (provider === 'facebook') return signIn("github");
-  if (provider === 'github') return signIn("github")
-}
-
+  const signInWithProvider = async (provider: AuthProviders) => {
+    if (provider === 'google') return handleGoogleSignIn();
+    if (provider === 'facebook') return signIn("github");
+    if (provider === 'github') return signIn("github")
+  };
 
   return (
-    <SafeAreaView className="bg-black h-full">
-      <ScrollView> 
-        <View
-          className="w-full flex justify-center h-full px-4 my-4"
-          style={{
-            minHeight: Dimensions.get("window").height - 100,
-          }}
-        >
-          <Text className="text-2xl text-white mt-10 font-rmedium">
-            Log in to Clevery
-          </Text>
-          <FormField
-            title="Email" 
-            value={form.email}
-            handleChangeText={(e:any) => setForm({ ...form, email: e })}
-            otherStyles="mt-7"
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
+    <SafeAreaView className="bg-gray-900 h-full">
+      <ScrollView className="px-6 py-10">
+        <View style={{ minHeight: Dimensions.get("window").height - 100 }} className="justify-between">
+          <View>
+            <Animated.View style={logoAnimatedStyle} className="items-center mb-8">
+              <Image source={require('@/assets/images/icon.png')} className="w-24 h-24" />
+            </Animated.View>
+            
+            <Animated.View entering={FadeInDown.delay(200).duration(1000)}>
+              <Text className="text-3xl text-white font-rbold mb-2 text-center">
+                Welcome Back!
+              </Text>
+              <Text className="text-lg text-gray-300 font-rregular mb-8 text-center">
+                We're excited to see you again. Let's get you signed in.
+              </Text>
+            </Animated.View>
 
-          <FormField
-            title="Password"
-            value={form.password}
-            handleChangeText={(e:any) => setForm({ ...form, password: e })}
-            otherStyles="mt-7"
-            autoCapitalize="none"
-          />
+            <Animated.View style={formAnimatedStyle}>
+              <FormField
+                title="Email"
+                value={form.email}
+                onChangeText={(e:any) => setForm({ ...form, email: e })}
+                otherStyles="mb-4"
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
 
-          <Button 
-            className="rounded-lg bg-cyan-600 h-16 mt-7 mb-4 mx-7"
-            onPress={()=>submit()}
-          >
-            <Text className="text-white font-rmedium text-base">signin</Text>
-          </Button>
-          <View className="w-full h-[1px] bg-gray-500"/>
-            <Text className="font-rbold mt-4">
-              <GoogleSigninButton
-                size={GoogleSigninButton.Size.Wide}
-                color={GoogleSigninButton.Color.Dark}
-                onPress={() => {
-                  // initiate sign in
-                }}
-                // disabled={isInProgress}
-              />;
-            </Text>
-          <View className="flex justify-center pt-5 flex-row gap-2">
-            <Text className="text-md text-gray-100 font-rbold">
+              <FormField
+                title="Password"
+                value={form.password}
+                onChangeText={(e:any) => setForm({ ...form, password: e })}
+                otherStyles="mb-6"
+                autoCapitalize="none"
+              />
+
+              <Button 
+                className="rounded-lg bg-cyan-600 h-14 mb-4"
+                onPress={submit}
+              >
+                <Text className="text-white font-rbold text-lg">Sign In</Text>
+              </Button>
+
+              <View className="items-center mb-6">
+                <Text className="text-gray-400 font-rmedium mb-4">Or continue with</Text>
+                <GoogleSigninButton
+                  size={GoogleSigninButton.Size.Wide}
+                  color={GoogleSigninButton.Color.Light}
+                  onPress={() => signInWithProvider("google")}
+                  className="font-rmedium"
+                />
+              </View>
+            </Animated.View>
+          </View>
+
+          <Animated.View entering={FadeIn.delay(800).duration(1000)} className="flex-row justify-center items-center">
+            <Text className="text-gray-300 font-rregular mr-2">
               Don't have an account?
             </Text>
-            <Link
-              href="room"
-              className="text-lg font-psemibold text-secondary"
-            >
-              Signup
+            <Link href="/sign-up" className="text-cyan-400 font-rbold">
+              Sign Up
             </Link>
-          </View>
+          </Animated.View>
         </View>
       </ScrollView>
     </SafeAreaView>

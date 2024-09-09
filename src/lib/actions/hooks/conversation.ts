@@ -22,7 +22,8 @@ export const useGetCreateConversations = (otherUserId: string) => {
 export const useGetConversations = () => {
   return useQuery({
     queryKey: queryKeys.conversations,
-    queryFn: conversationApi.getConversations
+    queryFn: conversationApi.getConversations,
+    refetchOnMount: false,
   });
 };
 

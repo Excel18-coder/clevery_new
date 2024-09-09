@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { serverApi } from '../servers';
-import { CreateChannelData, CreateServerData, DeleteMessagePayload, SendMessageDataPayload, UpdateChannelData, UpdateChannelMessagePayload, UpdateServerData } from '@/types';
+import { CreateChannelData, CreateServerData, DeleteMessagePayload, SendMessageDataPayload, UpdateChannelData,  UpdateMessagePayload,  UpdateServerData } from '@/types';
 
 // Define query keys
 const queryKeys = {
@@ -118,7 +118,7 @@ export const useMessage = (messageId: string) => {
 export const useEditChannelMessage = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: UpdateChannelMessagePayload) => serverApi.editChannelMessage(data),
+    mutationFn: (data: UpdateMessagePayload) => serverApi.editChannelMessage(data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({queryKey: queryKeys.messages(variables.channelId)});
     }

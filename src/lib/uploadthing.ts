@@ -2,11 +2,6 @@ import { generateReactNativeHelpers } from "@uploadthing/expo";
 import { endpoint } from "./env";
 export const { useImageUploader, useDocumentUploader } =
   generateReactNativeHelpers<any>({
-    /**
-     * Your server url.
-     * @default process.env.EXPO_PUBLIC_SERVER_URL
-     * @remarks In dev we will also try to use Expo.debuggerHost
-     */
     url: `${endpoint}/uploadthing`,
   });
 

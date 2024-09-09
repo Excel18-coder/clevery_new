@@ -58,8 +58,8 @@ const ChannelItem = memo(({ item, onEdit, onDelete }: { item: Channel; onEdit: (
           <Button onPress={onEdit} className="p-2 rounded-full">
             <Ionicons name="create-outline" color="white" size={22}/>
           </Button>
-          <Button onPress={onDelete} className="p-2 bg-red-700 rounded-full">
-            <MaterialIcons name="delete" color="white"/>
+          <Button onPress={onDelete} className="p-2 rounded-full border-2 ">
+            <MaterialIcons name="delete" color="red" size={22} className='text-red-700'/>
           </Button>
         </HStack>
       )}

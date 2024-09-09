@@ -1,17 +1,35 @@
-import { FlatList, Pressable } from 'react-native';
+import React from 'react';
+import { FlatList, Image, TouchableOpacity } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 
-import { Post as PostType, Server, User } from '@/types';
+import { Post as PostType, User } from '@/types';
 import { View, Text } from '../themed';
 import { HStack } from '@/components/ui/hstack'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import Image from '../image';
 
 interface Link {
   id: number;
   title: string;
   url: string;
   icon: string;
+}
+
+interface Post {
+  id: number;
+  content: string;
+  createdAt: string;
+  author: User;
+}
+
+interface Server {
+  id: number;
+  name: string;
+  image: string;
+}
+
+interface ServerItemProps {
+  name: string;
+  image: string;
 }
 
 interface File {
@@ -33,35 +51,61 @@ interface FileItemProps {
   type: 'pdf' | 'doc' | 'xls';
 }
 
+// Mock data for testing
+const MOCK_USERS: User[] = [
+  { id: 1, name: 'John Doe', image: 'https://i.pravatar.cc/150?img=1', username: 'johndoe' },
+  { id: 2, name: 'Jane Smith', image: 'https://i.pravatar.cc/150?img=2', username: 'janesmith' },
+  { id: 3, name: 'Bob Johnson', image: 'https://i.pravatar.cc/150?img=3', username: 'bobjohnson' },
+];
+
+const MOCK_SERVERS: Server[] = [
+  { id: 1, name: 'Gaming Hub', image: 'https://picsum.photos/200/200?random=1', username: 'gaminghub', popularity: 98, isServer: true },
+  { id: 2, name: 'Music Lounge', image: 'https://picsum.photos/200/200?random=2', username: 'musiclounge', popularity: 94, isServer: true },
+  { id: 3, name: 'Tech Talk', image: 'https://picsum.photos/200/200?random=3', username: 'techtalk', popularity: 91, isServer: true },
+];
+
+const MOCK_LINKS: Link[] = [
+  { id: 1, title: 'Introduction to React Native', url: 'https://reactnative.dev/docs/getting-started', icon: 'book-open' },
+  { id: 2, title: 'Animated Library in React Native', url: 'https://reactnative.dev/docs/animated', icon: 'zap' },
+  { id: 3, title: 'React Native Gesture Handler', url: 'https://docs.swmansion.com/react-native-gesture-handler/', icon: 'send' },
+];
+
+const MOCK_FILES: File[] = [
+  { id: 1, name: 'Project Proposal.pdf', size: '2.5 MB', type: 'pdf' },
+  { id: 2, name: 'Meeting Notes.doc', size: '1.2 MB', type: 'doc' },
+  { id: 3, name: 'Budget Sheet.xls', size: '3.7 MB', type: 'xls' },
+];
+
+const MOCK_POSTS: PostType[] = [
+  { id: 1, content: 'Just finished a great React Native tutorial!', createdAt: new Date().toISOString(), author: MOCK_USERS[0] },
+  { id: 2, content: 'Looking for collaborators on a new project. Any takers?', createdAt: new Date().toISOString(), author: MOCK_USERS[1] },
+  { id: 3, content: 'Check out this awesome new JavaScript framework!', createdAt: new Date().toISOString(), author: MOCK_USERS[2] },
+];
+
 interface SearchResultsProps {
-  result: (PostType | Server | User | Link)[];
+  result: (PostType | Server | User | Link | File)[];
   resultType: 'all' | 'media-links' | 'posts' | 'users' | 'servers' | 'files';
 }
 
 const UserItem: React.FC<User> = ({ id, username, image, name }) => (
-  <Pressable className="flex-row items-center p-4 rounded-lg mb-2 shadow-sm">
+  <TouchableOpacity className="flex-row items-center p-4 rounded-lg mb-2 shadow-sm">
     <Image
-      source={ image!}
-      height={80}
-      width={80}
-      style='h-[50px] w-[50px] rounded-[25px] border '
+      source={{uri:image!}}
+      className='h-[50px] w-[50px] rounded-[25px] border '
     />
     <Text className="ml-4 text-sm font-rregular">{username || name}</Text>
-  </Pressable>
+  </TouchableOpacity>
 );
 
 const ServerItem: React.FC<Server> = ({ id, name, image }) => (
-  <Pressable className="flex-row items-center p-4 rounded-lg mb-2 shadow-sm">
-
+  <TouchableOpacity className="flex-row items-center p-4 rounded-lg mb-2 shadow-sm">
     <Image
-      source={image || ''}
-      height={80}
-      width={80}
-      style='h-[50px] w-[50px] rounded-[25px] border '
-    />    <Text className="ml-4 text-sm font-rregular">{name}</Text>
-  </Pressable>
+      source={{uri:image || ''}}
+      className='h-[50px] w-[50px] rounded-[25px] border '
+    />
+    <Text className="ml-4 text-sm font-rregular">{name}</Text>
+  </TouchableOpacity>
 );
-
 
 const LinkItem: React.FC<LinkItemProps> = ({ title, url, icon }) => (
   <Animated.View 
@@ -103,10 +147,8 @@ const Post: React.FC<PostType> = ({ id, content, createdAt, author }) => (
       <View>
         <View className="flex-row items-center mb-2">
           <Image
-            source={ author.image! }
-            height={80}
-            width={80}
-            style='h-[50px] w-[50px] rounded-[25px] border'
+            source={{uri:author.image!}}
+            className='h-[50px] w-[50px] rounded-[25px] border'
           />
           <Text className="ml-2 font-rbold">{author.name}</Text>
         </View>
@@ -118,12 +160,13 @@ const Post: React.FC<PostType> = ({ id, content, createdAt, author }) => (
 );
 
 const SearchResults: React.FC<SearchResultsProps> = ({ result, resultType }) => {
-  const renderItem = ({ item }: { item: PostType | Server | User | Link }) => {
+  const renderItem = ({ item }: { item: PostType | Server | User | Link | File }) => {
     if (resultType === 'all') {
       if ('content' in item) return <Post {...(item as PostType)} />;
       if ('username' in item) return <UserItem {...(item as User)} />;
       if ('name' in item && !('username' in item)) return <ServerItem {...(item as Server)} />;
       if ('url' in item) return <LinkItem {...(item as Link)} />;
+      if ('size' in item) return <FileItem {...(item as File)} />;
     }
 
     switch (resultType) {
@@ -136,7 +179,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ result, resultType }) => 
       case 'media-links':
         return <LinkItem {...(item as Link)} />;
       case 'files':
-        return <FileItem {...(item as any)} />;
+        return <FileItem {...(item as File)} />;
       default:
         return null;
     }
@@ -165,4 +208,15 @@ const SearchResults: React.FC<SearchResultsProps> = ({ result, resultType }) => 
   );
 };
 
-export default SearchResults;
+// Example usage with mock data
+const TestSearchResults: React.FC = () => {
+  const allResults = [...MOCK_POSTS, ...MOCK_SERVERS, ...MOCK_USERS, ...MOCK_LINKS, ...MOCK_FILES];
+  
+  return (
+    <View style={{ flex: 1 }}>
+      <SearchResults result={allResults} resultType="all" />
+    </View>
+  );
+};
+
+export default TestSearchResults;
