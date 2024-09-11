@@ -3,7 +3,7 @@ import { Pressable, ScrollView } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { Text, View } from '@/components';
+import { Text, View } from '@/components/themed';
 
 const TOSSection = ({ title, content, icon }) => {
   const [expanded, setExpanded] = useState(false);

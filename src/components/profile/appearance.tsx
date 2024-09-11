@@ -1,101 +1,169 @@
-import { memo, useCallback } from 'react';
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { memo, useCallback, useState } from 'react';
 import { TouchableOpacity, View, ScrollView } from 'react-native';
-import Ionicons  from '@expo/vector-icons/Ionicons';
-import Feather from '@expo/vector-icons/Feather';
+import Animated, { useAnimatedStyle, withTiming, FadeIn, FadeOut } from 'react-native-reanimated';
+import { Ionicons, Feather } from '@expo/vector-icons';
 
 import { useThemeStore } from '@/lib/zustand/store';
 import { Text } from '@/components/themed';
 import { showToastMessage } from '@/lib';
 
 const ThemeDescription = {
-  light: 'Light backgrounds, dark text. Easy to read and reduces eye strain.',
-  dark: 'Dark backgrounds, light text. Ideal for low-light environments.',
-  default: 'Automatically adjusts based on system settings.',
+  light: 'Light backgrounds, dark text. Easy to read and reduces eye strain in bright environments.',
+  dark: 'Dark backgrounds, light text. Ideal for low-light environments and helps conserve battery life on OLED screens.',
+  default: 'Automatically adjusts based on your system settings, ensuring a consistent experience across your devices.',
 };
 
 const Appearance = () => {
   const { mode, setMode } = useThemeStore();
+  const [expandedSection, setExpandedSection] = useState('');
 
+  const Custom = Animated.createAnimatedComponent(View);
+  const CustomText = Animated.createAnimatedComponent(Text);
   const toggleTheme = useCallback((newMode: 'light' | 'dark' | 'default') => {
     setMode(newMode);
+    showToastMessage(`Theme changed to ${newMode} mode`);
   }, [setMode]);
 
   const MenuItem = memo(({ iconName, label, description }: { iconName: any; label: string; description: string }) => {
+    const isExpanded = expandedSection === label.toLowerCase();
+
     const animatedStyle = useAnimatedStyle(() => ({
       opacity: withTiming(mode === label.toLowerCase() ? 1 : 0.6, { duration: 300 }),
+      transform: [{ scale: withTiming(mode === label.toLowerCase() ? 1.05 : 1, { duration: 300 }) }],
     }));
 
     return (
-      <Animated.View className="mb-4 rounded-lg overflow-hidden bg-white/10" style={animatedStyle}>
-        <View className="p-4">
+      <Animated.View
+        className="mb-4 rounded-lg overflow-hidden bg-white/10"
+        style={animatedStyle}
+      >
+        <TouchableOpacity
+          onPress={() => setExpandedSection(isExpanded ? '' : label.toLowerCase())}
+          className="p-4"
+        >
           <View className="flex-row items-center mb-1">
             <Feather name={iconName} size={24} color="gray" />
-            <Text className="text-lg font-rmedium ml-2 ">{label}</Text>
+            <Text className="text-lg font-rmedium ml-2">{label}</Text>
+            <Feather
+              name={isExpanded ? 'chevron-up' : 'chevron-down'}
+              size={20}
+              color="gray"
+              style={{ marginLeft: 'auto' }}
+            />
           </View>
-          <Text className="text-xs font-rregular opacity-70">{description}</Text>
-        </View>
+          {isExpanded && (
+            <Animated.View entering={FadeIn} exiting={FadeOut}>
+              <Text className="text-sm font-rregular opacity-70 mt-2">{description}</Text>
+            </Animated.View>
+          )}
+        </TouchableOpacity>
       </Animated.View>
     );
   });
 
   const ColorOption = memo(({ color }: { color: string }) => {
-    const accentColor = mode === 'light' ? 'black' : mode === 'dark' ? 'white' : 'black';
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: withTiming(mode === 'light' ? 1.1 : 1, { duration: 300 }) }],
+    }));
+
     return (
-      <View
+      <Animated.View
         className="w-10 h-10 rounded-full justify-center items-center"
-        style={{ backgroundColor: color }}
+        style={[{ backgroundColor: color }, animatedStyle]}
       >
-        {accentColor === color && (
-          <TouchableOpacity 
-            onPress={() => showToastMessage("This feature will be available soon")}
-          >
-            <Ionicons name="checkmark-circle" size={20} color="white" />
-          </TouchableOpacity>
-        )}
-      </View>
+        <TouchableOpacity onPress={() => showToastMessage("Accent color feature coming soon!")}>
+          <Ionicons name="color-palette" size={20} color="white" />
+        </TouchableOpacity>
+      </Animated.View>
     );
   });
 
   return (
     <ScrollView className="flex-1 p-5">
-      <Text className="text-2xl font-rbold mb-5">Appearance</Text>
+      <CustomText 
+        className="text-3xl font-rbold mb-5"
+        entering={FadeIn.duration(500).delay(200)}
+      >
+        Appearance
+      </CustomText>
 
-      <View className="mb-5">
-        {Object.entries(ThemeDescription).map(([theme, description]) => (
-          <MenuItem
-            key={theme}
-            iconName={theme === 'light' ? 'sun' : theme === 'dark' ? 'moon' : 'smartphone'}
-            label={theme.charAt(0).toUpperCase() + theme.slice(1)}
-            description={description}
-          />
+      <Animated.View 
+        className="flex-row rounded-lg p-4 mb-6"
+        entering={FadeIn.duration(500).delay(400)}
+      >
+        <Text className="text-sm font-rregular text-blue-800">
+          Customize your app's look and feel. Choose a theme that suits your style and enhances your viewing experience.
+        </Text>
+      </Animated.View>
+
+      <Animated.View 
+        className="mb-5"
+        entering={FadeIn.duration(500).delay(600)}
+      >
+        {Object.entries(ThemeDescription).map(([theme, description], index) => (
+          <Animated.View key={theme} entering={FadeIn.duration(300).delay(index * 100)}>
+            <MenuItem
+              iconName={theme === 'light' ? 'sun' : theme === 'dark' ? 'moon' : 'smartphone'}
+              label={theme.charAt(0).toUpperCase() + theme.slice(1)}
+              description={description}
+            />
+          </Animated.View>
         ))}
-      </View>
+      </Animated.View>
 
-      <Text className="text-lg font-rbold mt-5 mb-2">Theme Selection</Text>
-      <View className="flex-row justify-between">
-        {['default', 'light', 'dark'].map((theme) => (
-          <TouchableOpacity
-            key={theme}
-            className="flex-row items-center"
-            onPress={() => toggleTheme(theme as 'light' | 'dark' | 'default')}
+      <CustomText 
+        className="text-xl font-rbold mt-5 mb-4"
+        entering={FadeIn.duration(500).delay(800)}
+      >
+        Theme Selection
+      </CustomText>
+      <Animated.View 
+        className="flex-row justify-between rounded-lg p-4"
+        entering={FadeIn.duration(500).delay(1000)}
+      >
+        {['default', 'light', 'dark'].map((theme, index) => (
+          <Animated.View key={theme} entering={FadeIn.duration(300).delay(1200 + index * 100)}>
+            <TouchableOpacity
+              className="flex-row items-center"
+              onPress={() => toggleTheme(theme as 'light' | 'dark' | 'default')}
+            >
+              <View className={`h-6 w-6 rounded-full border-2 border-blue-500 items-center justify-center ${mode === theme ? 'bg-blue-500' : ''}`}>
+                {mode === theme && <View className="h-3 w-3 rounded-full bg-white" />}
+              </View>
+              <Text className="text-base ml-2 font-rmedium">{theme.charAt(0).toUpperCase() + theme.slice(1)}</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        ))}
+      </Animated.View>
+
+      <CustomText 
+        className="text-xl font-rbold mt-8 mb-4"
+        entering={FadeIn.duration(500).delay(1500)}
+      >
+        Accent Color
+      </CustomText>
+      <Animated.View 
+        className="flex-row justify-between mt-2 rounded-lg p-4"
+        entering={FadeIn.duration(500).delay(1700)}
+      >
+        {['#007AFF', '#FF3B30', '#4CD964', '#FF9500', '#5856D6'].map((color, index) => (
+          <Animated.View 
+            key={color} 
+            className="items-center justify-center"
+            entering={FadeIn.duration(300).delay(1900 + index * 100)}
           >
-            <View className={`h-5 w-5 rounded-full border-2 border-blue-500 items-center justify-center ${mode === theme ? 'bg-blue-500' : ''}`}>
-              {mode === theme && <View className="h-2.5 w-2.5 rounded-full bg-white" />}
-            </View>
-            <Text className="text-sm ml-2 font-rregular">{theme}</Text>
-          </TouchableOpacity>
+            <ColorOption color={color} />
+            <Text className="text-xs mt-1 font-rregular">{color}</Text>
+          </Animated.View>
         ))}
-      </View>
+      </Animated.View>
 
-      <Text className="text-lg font-rbold mt-5 mb-2">Accent Color</Text>
-      <View className="flex-row justify-between mt-2">
-        {['#007AFF', '#FF3B30', '#4CD964', '#FF9500', '#5856D6'].map((color) => (
-          <View key={color} className="w-10 h-10 rounded-full border-2 border-blue-500 items-center justify-center">
-            <ColorOption key={color} color={color} />
-          </View>
-        ))}
-      </View>
+      <CustomText 
+        className="text-sm font-rregular text-gray-500 mt-6 mb-10"
+        entering={FadeIn.duration(500).delay(2400)}
+      >
+        Tip: You can quickly switch between light and dark modes by long-pressing the app icon on your profile page.
+      </CustomText>
     </ScrollView>
   );
 };

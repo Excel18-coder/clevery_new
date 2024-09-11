@@ -24,6 +24,8 @@ export const useGetConversations = () => {
     queryKey: queryKeys.conversations,
     queryFn: conversationApi.getConversations,
     refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true
   });
 };
 

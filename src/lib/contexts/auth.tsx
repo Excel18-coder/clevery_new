@@ -136,6 +136,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const checkCurrentUser = async () => {
+      console.log(profile?.id)
       if (profile?.id) return
       try {
         const currentAccount = await userApi.getCurrentUser();

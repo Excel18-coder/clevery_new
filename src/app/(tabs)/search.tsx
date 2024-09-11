@@ -10,9 +10,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { HStack, Loader, SearchResults, Suggestions, Text, View } from '@/components';
 import { useCombinedSearch } from '@/lib/actions/hooks/search';
-import Image from '@/components/image';
 import { Feather } from '@expo/vector-icons';
 import { NativeScrollEvent } from 'react-native';
+import { Image } from 'expo-image';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -68,9 +68,7 @@ const UserItem = ({ item }: { item: any }) => (
   <Pressable className='flex-row items-center p-4 rounded-lg mb-2' onPress={() => router.push(item.id)}>
     <Image
       source={item.image || ''}
-      height={50}
-      width={50}
-      style='h-[50px] w-[50px] rounded-full mr-4'
+      style={{ height: 50, width: 50, borderRadius: 25, marginRight: 10, borderWidth: 1, borderColor: 'gray' }}
     />
     <View>
       <Text className='text-base font-rmedium '>{item.name}</Text>
@@ -78,23 +76,6 @@ const UserItem = ({ item }: { item: any }) => (
     </View>
   </Pressable>
 );
-const FileItem: React.FC<FileItemProps> = ({ name, size, type }) => (
-  <Animated.View 
-    entering={FadeIn.duration(400)} 
-    exiting={FadeOut.duration(300)}
-    className="flex-row items-center bg-white rounded-xl p-4 mb-3 shadow-sm"
-  >
-    <View className="bg-gray-100 p-3 rounded-full">
-      <Feather name={type === 'pdf' ? 'file-text' : type === 'doc' ? 'file' : 'file-plus'} size={20} color="#6b7280" />
-    </View>
-    <View className="flex-1 ml-4">
-      <Text className="text-base font-medium text-gray-800">{name}</Text>
-      <Text className="text-sm text-gray-500">{size}</Text>
-    </View>
-    <Feather name="download" size={20} color="#6b7280" />
-  </Animated.View>
-);
-
 // Main component
 const ExploreComponent = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('recents');

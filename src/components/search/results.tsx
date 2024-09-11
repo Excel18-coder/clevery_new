@@ -5,7 +5,7 @@ import { Post as PostType, Server, User } from '@/types';
 import { View, Text } from '../themed';
 import { HStack } from '@/components/ui/hstack'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import Image from '../image';
+import { Image } from 'expo-image';
 
 interface Link {
   id: number;
@@ -42,9 +42,7 @@ const UserItem: React.FC<User> = ({ id, username, image, name }) => (
   <Pressable className="flex-row items-center p-4 rounded-lg mb-2 shadow-sm">
     <Image
       source={ image!}
-      height={80}
-      width={80}
-      style='h-[50px] w-[50px] rounded-[25px] border '
+      style={{ height: 50, width: 50, borderRadius: 25, marginRight: 10, borderWidth: 1, borderColor: 'gray' }}
     />
     <Text className="ml-4 text-sm font-rregular">{username || name}</Text>
   </Pressable>
@@ -55,9 +53,7 @@ const ServerItem: React.FC<Server> = ({ id, name, image }) => (
 
     <Image
       source={image || ''}
-      height={80}
-      width={80}
-      style='h-[50px] w-[50px] rounded-[25px] border '
+      style={{height: 50, width: 50, borderRadius: 25, borderWidth: 1, borderColor: 'gray'}}
     />    <Text className="ml-4 text-sm font-rregular">{name}</Text>
   </Pressable>
 );
@@ -104,9 +100,7 @@ const Post: React.FC<PostType> = ({ id, content, createdAt, author }) => (
         <View className="flex-row items-center mb-2">
           <Image
             source={ author.image! }
-            height={80}
-            width={80}
-            style='h-[50px] w-[50px] rounded-[25px] border'
+              style={{ height: 50, width: 50, borderRadius: 25, marginRight: 10, borderWidth: 1, borderColor: 'gray' }}
           />
           <Text className="ml-2 font-rbold">{author.name}</Text>
         </View>

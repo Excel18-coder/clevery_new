@@ -15,7 +15,6 @@ SplashScreen.preventAutoHideAsync();
 const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_WEB_CLIENT_ID
 GoogleSignin.configure({
   webClientId: GOOGLE_WEB_CLIENT_ID,
-  scopes: ['https://www.googleapis.com/auth/drive.readonly'], 
   offlineAccess: true,
   hostedDomain: '', // specifies a hosted domain restriction
   forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
@@ -96,6 +95,7 @@ function RootLayoutNav() {
         <Stack.Screen name="users" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="editprofile" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="welcome" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="invitation" options={{ presentation: 'modal', headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );

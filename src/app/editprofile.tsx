@@ -8,7 +8,6 @@ import Animated, {
   interpolateColor,
 } from 'react-native-reanimated';
 import {
-  Avatar,
   Box,
   Button,
   ButtonText,
@@ -20,7 +19,6 @@ import {
   InputIcon,
   VStack,
   HStack,
-  AvatarImage,
   View,
   Loader,
 } from '@/components';
@@ -30,6 +28,7 @@ import { showToastMessage, useProfileStore, useUpdateCurrentUser } from '@/lib';
 import { router } from 'expo-router';
 import { useImageUploader } from '@/lib/uploadthing';
 import * as Linking from 'expo-linking';
+import { Image } from 'react-native';
 
 const AnimatedButton = Animated.createAnimatedComponent(Button);
 const AnimatedBox = Animated.createAnimatedComponent(Box);
@@ -150,9 +149,9 @@ const UserProfileEdit = () => {
             }}
           >
             <HStack className="justify-center items-center" space='2xl'>
-              <Avatar size="2xl" className="items-center rounded-md border-[#3498db]">
-                <AvatarImage source={{ uri: avatarUri }} />
-              </Avatar>
+              <View className="items-center rounded-md border-[#3498db]">
+                <Image source={{ uri: avatarUri }} />
+              </View>
               <Button
                 onPress={chooseFile}
                 className="flex-1 w-20 flex-row items-center justify-center rounded-lg bg-cyan-500"

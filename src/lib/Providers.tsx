@@ -21,17 +21,17 @@ export const Providers = ({ children }:{children:React.ReactNode}) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView>
-        <AuthProvider>
-          <MessagingProvider>
+      <AuthProvider>
+        <MessagingProvider>
+          <GestureHandlerRootView>
             <GluestackUIProvider mode={lightmode()} >
               <OverlayProvider>
                 {children}
               </OverlayProvider>
             </GluestackUIProvider>
-          </MessagingProvider>
-        </AuthProvider>
-      </GestureHandlerRootView>
+          </GestureHandlerRootView>
+        </MessagingProvider>
+      </AuthProvider>
     </QueryClientProvider>
   )
 }

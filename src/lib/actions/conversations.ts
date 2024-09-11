@@ -131,8 +131,10 @@ export const conversationApi = {
    * @throws Error with a descriptive message if the request fails.
    */
   markMessagesAsSeen: async (conversationId: string, messageIds: string[]): Promise<void> => {
+    console.log(conversationId, messageIds);
     try {
-      await axios.post(`${endpoint}${apiPaths.markMessagesAsSeen(conversationId)}`, { messageIds });
+     const res= await axios.put(`${endpoint}${apiPaths.markMessagesAsSeen(conversationId)}`, { messageIds });
+     console.log(res);
     } catch (error) {
       throw handleApiError(error, "Failed to mark messages as seen");
     }

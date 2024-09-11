@@ -134,7 +134,7 @@ const UserMessages: React.FC = () => {
         file:fileUrl
       }
     });
-// [{"customId": null, "key": "ff8ab8be-5f6c-4b04-979a-ce2cc35073e0-vmbbu5.jpg", "name": "image 2.jpg", "serverData": {"imageId": "file-5a773d260e1e593e3331dc19ddfc2816a5fae98a-jpg", "url": "https://cdn.sanity.io/files/mqczcmfz/production/5a773d260e1e593e3331dc19ddfc2816a5fae98a.jpg"}, "size": 61966, "type": "image/jpeg", "url": "https://utfs.io/f/ff8ab8be-5f6c-4b04-979a-ce2cc35073e0-vmbbu5.jpg"}]
+    
     setNewMessage({ caption: '', file: undefined});
   }, [newMessage, conversation, id, sendMessage]);
 
@@ -196,7 +196,6 @@ const UserMessages: React.FC = () => {
         onMessageChange={handleMessageChange}
         onSend={handleSend}
         sending={sendingMessage}
-        onChooseFile={chooseFile}
       />
     </View>
   );

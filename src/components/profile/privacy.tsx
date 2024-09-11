@@ -1,8 +1,14 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, TouchableOpacity } from 'react-native';
+import { Pressable, ScrollView } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
-import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { 
+  FadeIn, 
+  FadeOut, 
+  useAnimatedStyle, 
+  useSharedValue, 
+  withSpring 
+} from 'react-native-reanimated';
 import { Text, View } from '@/components';
 
 const PrivacySection = ({ title, content, icon }) => {

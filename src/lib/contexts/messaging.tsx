@@ -204,8 +204,8 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
 
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (nextAppState === 'active') {
-        console.log('App became active, refreshing conversations');
-        refetch();
+        // Re-subscribe to pusher channels when app is active
+        
       }
     });
 

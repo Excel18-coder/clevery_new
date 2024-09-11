@@ -1,5 +1,5 @@
 import { memo, useState, useCallback, useMemo } from 'react';
-import { TouchableOpacity, FlatList } from 'react-native';
+import { TouchableOpacity, FlatList, Image as RNImage } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Post as PostType } from '@/types';
@@ -11,7 +11,7 @@ import {
   useProfileStore, useSavePost 
 } from '@/lib';
 import { Text, View } from '../themed';
-import Image from '../image';
+import { Image } from 'expo-image';
 
 const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
@@ -19,7 +19,7 @@ const OverlappingImages = memo(({ images, numberofcomments }:any) => (
   <View className="flex-row items-center gap-4xs py-[2.5px]">
     <View className="flex-row overflow-hidden w-12.5">
       {images?.map((imageSource, index) => (
-        <Image key={index} source={imageSource} style="w-4 h-4 rounded-[10px] mr-[-10px]" width={40} height={40} />
+        <RNImage key={index} source={{uri:imageSource}} className="w-4 h-4 rounded-[10px] mr-[-10px]" />
       ))}
     </View>
     <Text className="text-sm font-rmedium">{numberofcomments} people commented</Text>
@@ -27,7 +27,7 @@ const OverlappingImages = memo(({ images, numberofcomments }:any) => (
 ));
 
 const ImageComponent = memo(({ image, width, height }:any) => (
-  <Image source={ image}  style={`m-[3px] rounded-[5px] ${height} ${width}`} width={width} height={height} />
+  <Image source={ image}  style={{height, width, borderRadius: 10,borderWidth: 1, borderColor: 'gray' }}/>
 ));
 
 const AuthorInfo = memo(({ author, timestamp, iscomment }: any) => (
@@ -36,10 +36,9 @@ const AuthorInfo = memo(({ author, timestamp, iscomment }: any) => (
       {author?.image && (
         <Image
           source={author?.image}
-          height={80}
-          width={80}
-          style='mr-2.5 w-[50px] h-[50px] rounded-3xl'
+          style={{marginRight:10, borderRadius: 25, borderWidth: 1, borderColor: 'gray', width: 50, height: 50}}
         />
+        // 'mr-2.5 w-[50px] h-[50px] rounded-3xl'
       )}
     </TouchableOpacity>
     <View className='flex-1'>
@@ -113,7 +112,7 @@ const Post = memo(({ author, content: caption, createdAt: timestamp, id: postId,
       <View className="flex-1 flex-col justify-center p-1 items-center">
         <Text className="font-rmedium text-base w-full ">{caption}</Text>
         {images?.length === 1 ? (
-          <ImageComponent image={images[0]} width="w-[350px]" height="h-[230px]" />
+          <ImageComponent image={images[0]} width={350} height={230} />
         ) : (
           <FlatList
             data={images}

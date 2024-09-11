@@ -1,15 +1,19 @@
 import { useCallback } from 'react';
-import { FlatList, TouchableOpacity, View } from 'react-native';
+import { FlatList, Pressable, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler';
+import Animated, { 
+  FadeInDown, 
+  useAnimatedStyle, 
+  useSharedValue, 
+  withSpring 
+} from 'react-native-reanimated';
 
 import { Text } from '@/components/themed';
 import { useMessaging } from '@/lib/contexts/messaging';
 import UserCard from './user-card';
 
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const Chat = () => {
   const { conversations } = useMessaging();
@@ -56,7 +60,7 @@ const Chat = () => {
         >
           Start by adding friends and begin chatting!
         </Animated.Text>
-        <AnimatedTouchableOpacity
+        <AnimatedPressable
           onPress={navigateToUsers}
           onPressIn={onPressIn}
           onPressOut={onPressOut}
@@ -65,7 +69,7 @@ const Chat = () => {
           entering={FadeInDown.delay(600).duration(500)}
         >
           <Text className="text-white font-semibold">Find Friends</Text>
-        </AnimatedTouchableOpacity>
+        </AnimatedPressable>
       </View>
     );
   }
@@ -80,26 +84,24 @@ const Chat = () => {
   ), [navigate]);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <ScrollView>
-        <View className="flex-1">
-          <FlatList
-            data={conversations}
-            keyExtractor={(item) => item?.id}
-            renderItem={renderItem}
-            ItemSeparatorComponent={() => <View className="h-px bg-gray-400 mx-1" />}
-            ListEmptyComponent={() => (
-              <Animated.View 
-                className="flex-1 justify-center items-center p-5"
-                entering={FadeInDown.duration(500)}
-              >
-                <Text className="text-lg text-gray-600 text-center">No conversations to display</Text>
-              </Animated.View>
-            )}
-          />
-        </View>
-      </ScrollView>
-    </GestureHandlerRootView>
+    <View className="flex-1">
+      <FlatList
+        data={conversations}
+        keyExtractor={(item) => item?.id}
+        renderItem={renderItem}
+        ItemSeparatorComponent={() => <View className="h-px bg-gray-400 mx-1" />}
+        ListEmptyComponent={() => (
+          <Animated.View 
+            className="flex-1 justify-center items-center p-5"
+            entering={FadeInDown.duration(500)}
+          >
+            <Text className="text-lg text-gray-600 text-center">
+              No conversations to display
+            </Text>
+          </Animated.View>
+        )}
+      />
+    </View>
   );
 };
 

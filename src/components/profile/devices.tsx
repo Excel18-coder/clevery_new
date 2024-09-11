@@ -24,7 +24,7 @@ const initialDevices = [
 const DeviceItem = ({ device, onRemove }) => {
   const theme = useTheme();
   
-  const getDeviceIcon = (type) => {
+  const getDeviceIcon = (type):any => {
     switch (type) {
       case 'mobile': return 'smartphone';
       case 'desktop': return 'monitor';

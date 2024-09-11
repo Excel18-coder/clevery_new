@@ -39,7 +39,6 @@ export * from '@/components/ui/input';
 export * from '@/components/ui/checkbox';
 export * from '@/components/ui/switch';
 export * from '@/components/ui/toast';
-export * from '@/components/ui/avatar';
 export * from '@/components/ui/hstack'
 export * from '@/components/ui/vstack'
 export * from '@/components/ui/select'
@@ -48,7 +47,6 @@ export * from '@/components/ui/button'
 export * from '@/components/ui/progress'
 export * from '@/components/ui/checkbox'
 export * from '@/components/ui/alert'
-export * from '@/components/ui/avatar'
 export * from '@/components/ui/alert-dialog'
 export * from '@/components/ui/fab'
 export * from '@/components/ui/icon'

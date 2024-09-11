@@ -11,7 +11,6 @@ import Animated, {
 
 import { Chat, ServerList, Text, View } from '@/components';
 import StatusPage from '@/components/chat/status';
-import { registerForPushNotificationsAsync } from '@/lib';
 
 interface FilterItem {
   name: string;
@@ -62,15 +61,9 @@ const Messages: React.FC = () => {
     }
   }, []);
 
-const notificationTest = async () => {
-
-const token = registerForPushNotificationsAsync();
-console.log(token)
-}
-
   const handlePress = useCallback((): void => {
     if (activeFilter === 'chats') router.push("/users");
-    else if (activeFilter === 'status') notificationTest();
+    else if (activeFilter === 'status') router.push('/welcome');
     else if (activeFilter === 'servers') router.push("/create-server");
   }, [activeFilter]);
 
@@ -182,8 +175,8 @@ console.log(token)
         {FILTER_ITEMS.map((item) => (
           <View key={item.name} style={{ width }}>
             {item.name === 'chats' && <Chat />}
-            {item.name === 'status' && <StatusPage />}
-            {item.name === 'servers' && <ServerList />}
+            {/* {item.name === 'status' && <StatusPage />}
+            {item.name === 'servers' && <ServerList />} */}
           </View>
         ))}
       </Animated.ScrollView>

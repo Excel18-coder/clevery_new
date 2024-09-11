@@ -102,7 +102,7 @@ const CommentsPopup = ({ isVisible, onClose, postId,initialComments }) => {
         const response = await sendComment({
           postId,
           comment: newComment,
-          parentCommentId: replyTo.id,
+          parentId: replyTo.id,
         });
         setComments(prevComments => updateCommentsTree(prevComments, replyTo.id, response));
         setReplyTo(null);
@@ -127,7 +127,7 @@ const CommentsPopup = ({ isVisible, onClose, postId,initialComments }) => {
 
   const handleLike = async (commentId: string) => {
     try {
-      await likeComment({ commentId });
+      await likeComment(commentId);
       setComments(prevComments => 
         updateCommentsTree(prevComments, commentId, comment => ({
           ...comment,

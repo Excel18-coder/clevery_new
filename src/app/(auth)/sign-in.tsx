@@ -13,6 +13,8 @@ import { Button, FormField, Toast, ToastDescription, ToastTitle, useToast } from
 import { googleSignIn, useAuth } from "@/lib/contexts/auth";
 import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import * as WebBrowser from 'expo-web-browser';
+import { endpoint, useProfileStore } from "@/lib";
+import { userApi } from "@/lib/actions/users";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -20,6 +22,7 @@ type AuthProviders = "google" | "facebook" | "github";
 
 const SignIn = () => {
   const { loading, signIn, user } = useAuth();
+  const {profile, setProfile} = useProfileStore()
   const [toastId, setToastId] = useState('0')
   const [form, setForm] = useState({
     email: "",
@@ -63,6 +66,11 @@ const SignIn = () => {
     logoScale.value = withSpring(1);
     formOpacity.value = withDelay(500, withSpring(1));
   }, []);
+  useEffect(() => {
+    if(profile?.id.trim()) {
+      router.replace('/')
+    }
+  }, [profile]);
 
   const logoAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -77,14 +85,17 @@ const SignIn = () => {
   });
 
   const handleGoogleSignIn = async () => {
-    const result = await googleSignIn();
+    await googleSignIn();
+    
+    const user = await userApi.getCurrentUser()
+    setProfile(user)
   };
 
   const submit = async () => {
-    const password=form.password
-    const email = form.email
     
-    if (form.email === "" || form.password === "") {
+    const { email, password } = form
+    
+    if (!email.trim()|| !password.trim()) {
   
       showNewToast({
         title:'error !',
@@ -165,7 +176,7 @@ const SignIn = () => {
                 <Text className="text-gray-400 font-rmedium mb-4">Or continue with</Text>
                 <GoogleSigninButton
                   size={GoogleSigninButton.Size.Wide}
-                  color={GoogleSigninButton.Color.Light}
+                  color={GoogleSigninButton.Color.Dark}
                   onPress={() => signInWithProvider("google")}
                   className="font-rmedium"
                 />

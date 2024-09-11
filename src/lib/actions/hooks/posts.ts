@@ -24,6 +24,7 @@ const queryKeys = {
     },
     initialPageParam: 1,
     refetchOnMount: false,
+    refetchOnWindowFocus: false
   });
 };
 
@@ -48,7 +49,8 @@ export const useCreatePost = () => {
 export const usePost = (postId: string) => {
   return useQuery({
     queryKey: queryKeys.post(postId),
-    queryFn: () => postsApi.getPostById(postId)
+    queryFn: () => postsApi.getPostById(postId),
+    enabled: !!postId
   });
 };
 
@@ -96,7 +98,7 @@ export const useSavePost = () => {
 export const useCommentPost = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (commentObj: { postId: string; comment: string }) => 
+    mutationFn: (commentObj: { postId: string; comment: string,parentId?:string }) => 
       postsApi.commentPost(commentObj),
     onSuccess: (data) => {
       queryClient.invalidateQueries({queryKey: queryKeys.post(data.id)});

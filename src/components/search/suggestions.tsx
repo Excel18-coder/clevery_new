@@ -1,4 +1,4 @@
-import { TouchableOpacity, Pressable, ScrollView } from 'react-native';
+import { Pressable, ScrollView } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 
@@ -6,8 +6,8 @@ import SearchSuggestions from '@/components/search/suggestions-skeleton';
 import { Text, View } from '@/components/themed';
 import { useSearchStore } from '@/lib';
 import { Server, User } from '@/types';
-import Image from '../image';
 import { HStack } from '../ui/hstack';
+import { Image } from 'expo-image';
 
 type RecentItem = {
   id: string;
@@ -49,9 +49,7 @@ const TopUsers = ({ suggestedUsers, addSearch }: Users) => {
           <Pressable className='flex-row items-center p-1.5' onPress={() => handleUserClick(item)}>
             <Image
               source={item.image!}
-              height={80}
-              width={80}
-              style='h-[50px] w-[50px] rounded-[25px] border mr-4 '
+              style={{ height: 50, width: 50, borderRadius: 25, marginRight: 10, borderWidth: 1, borderColor: 'gray' }}
             />
             <View>
               <Text className='text-sm font-rmedium'>{item.name}</Text>
@@ -72,9 +70,7 @@ const TopServers = ({ suggestedServers }: { suggestedServers: Server[] }) => {
         <View className='flex-row items-center p-1.5' key={item.id}>
           <Image
             source={item.image!}
-            height={80}
-            width={80}
-            style='h-[50px] w-[50px] rounded-full border mr-4'
+              style={{ height: 50, width: 50, borderRadius: 25, marginRight: 10, borderWidth: 1, borderColor: 'gray' }}
           />
           <View>
             <Text className='text-sm font-rmedium'>
@@ -107,12 +103,10 @@ const Suggestions: React.FC<SuggestionsProps> = ({
 
   const renderRecentItem = ({ item }: { item: RecentItem }) => (
     <View className='flex-row  justify-between items-center '>
-      <TouchableOpacity className='flex-row items-center p-1.5' >
+      <Pressable className='flex-row items-center p-1.5' >
         <Image
           source={item.image!}
-          height={80}
-          width={80}
-          style='h-[50px] w-[50px] rounded-[25px] border mr-4 '
+          style={{ height: 30, width: 50, borderRadius: 25, marginRight: 10, borderWidth: 1, borderColor: 'gray' }}
         />
 
         <View>
@@ -120,11 +114,11 @@ const Suggestions: React.FC<SuggestionsProps> = ({
             {item.name}
           </Text>
         </View>
-      </TouchableOpacity>
+      </Pressable>
 
-      <TouchableOpacity onPress={() => handleClearPress(item?.id)}>
+      <Pressable onPress={() => handleClearPress(item?.id)}>
         <Ionicons name="close-circle-outline" size={24} color="#666" />
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 
