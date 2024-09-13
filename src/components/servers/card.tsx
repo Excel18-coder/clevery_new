@@ -2,7 +2,7 @@ import { TouchableOpacity } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import { Text, View } from '../themed';
 import { router } from 'expo-router';
-import Image from '../image';
+import { Image } from 'expo-image';
 
 interface ServerCardProps {
   id: string;
@@ -13,13 +13,11 @@ interface ServerCardProps {
 
 const ServerCard: React.FC<ServerCardProps> = ({ id, name, description, image }) => {
   return (
-    <TouchableOpacity onPress={() => router.navigate(`/server/${id}`)} className='flex-1' >
+    <TouchableOpacity onPress={() => router.push(`/server/${id}`)} className='flex-1' >
       <View className='flex-row items-center p-4'>
         <Image
-          source={image}
-          width={80}
-          height={80} 
-          style='h-[60px] w-[60px] rounded-[30px]'
+          source={{uri: image}}
+          style={{ height: 60, width: 60, borderRadius: 30 }}
         />
         <View className='ml-4'>
           <Text className='text-base font-rbold'>{name}</Text>

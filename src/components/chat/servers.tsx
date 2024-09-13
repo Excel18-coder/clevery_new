@@ -10,11 +10,7 @@ import ServerCard from '../servers/card'
 export default function ServerList() {
 
   const { data: servers, isLoading: loading, error } = useServers()
-
-
-  if (loading) return <LoadingServers />
-  if (error) return <LoadingServers />
-
+  
   const navigateToCreateServer = () => {
     router.navigate(`/create-server`)
   };
@@ -38,6 +34,8 @@ export default function ServerList() {
       </View>
     );
   }
+  if (loading) return <LoadingServers />
+  if (error) return <LoadingServers />
   return (
     <View style={{ flex: 1 }} >
       <FlatList
@@ -46,7 +44,7 @@ export default function ServerList() {
           <ServerCard {...item}
             id={item.id}
             name={item?.name}
-            icon={item?.icon}
+            image={item?.image}
           />
         )}
         keyExtractor={(item) => item?.id}

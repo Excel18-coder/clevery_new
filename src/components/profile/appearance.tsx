@@ -1,5 +1,5 @@
 import { memo, useCallback, useState } from 'react';
-import { TouchableOpacity, View, ScrollView } from 'react-native';
+import { TouchableOpacity, View, ScrollView, Pressable } from 'react-native';
 import Animated, { useAnimatedStyle, withTiming, FadeIn, FadeOut } from 'react-native-reanimated';
 import { Ionicons, Feather } from '@expo/vector-icons';
 
@@ -25,8 +25,6 @@ const Appearance = () => {
   }, [setMode]);
 
   const MenuItem = memo(({ iconName, label, description }: { iconName: any; label: string; description: string }) => {
-    const isExpanded = expandedSection === label.toLowerCase();
-
     const animatedStyle = useAnimatedStyle(() => ({
       opacity: withTiming(mode === label.toLowerCase() ? 1 : 0.6, { duration: 300 }),
       transform: [{ scale: withTiming(mode === label.toLowerCase() ? 1.05 : 1, { duration: 300 }) }],
@@ -37,26 +35,17 @@ const Appearance = () => {
         className="mb-4 rounded-lg overflow-hidden bg-white/10"
         style={animatedStyle}
       >
-        <TouchableOpacity
-          onPress={() => setExpandedSection(isExpanded ? '' : label.toLowerCase())}
+        <Pressable
           className="p-4"
         >
           <View className="flex-row items-center mb-1">
             <Feather name={iconName} size={24} color="gray" />
             <Text className="text-lg font-rmedium ml-2">{label}</Text>
-            <Feather
-              name={isExpanded ? 'chevron-up' : 'chevron-down'}
-              size={20}
-              color="gray"
-              style={{ marginLeft: 'auto' }}
-            />
           </View>
-          {isExpanded && (
             <Animated.View entering={FadeIn} exiting={FadeOut}>
               <Text className="text-sm font-rregular opacity-70 mt-2">{description}</Text>
             </Animated.View>
-          )}
-        </TouchableOpacity>
+        </Pressable>
       </Animated.View>
     );
   });

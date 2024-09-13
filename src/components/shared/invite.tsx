@@ -68,7 +68,7 @@ const InviteFriends: React.FC<Props> = ({
     >
       <Image
         source={{ uri: item.image}}
-        className="w-12 h-12 rounded-xl mr-4"
+        style={{ width: 48, height: 48, borderRadius: 24, borderWidth: 1, borderColor: 'gray',marginRight: 10 }}
       />
       <Text className="flex-1 font-rregular text-base text-gray-50">{item.name}</Text>
       <TouchableOpacity 
@@ -83,13 +83,17 @@ const InviteFriends: React.FC<Props> = ({
   return (
     <LinearGradient
       colors={['#6a11cb', '#2575fc']}
-      className="flex-1 p-5"
+      className="flex-1 p-5 mt-7"
     >
-      <TouchableOpacity className="self-end mb-3" onPress={onClose}>
-        <Feather name="x" size={24} color="white" />
-      </TouchableOpacity>
-
-      <Text className="text-2xl font-rbold text-white mb-5">Invite Friends</Text>
+      <HStack className="flex-row items-center justify-between">
+        <Text className="text-3xl font-rmedium text-white">Invite Friends</Text>
+        <TouchableOpacity
+          onPress={onClose}
+          className="p-2 bg-gray-200 rounded-full"
+        >
+          <Feather name="x" size={24} color="white" />
+        </TouchableOpacity>
+      </HStack>
 
       {selectedUsers.length > 0 && (
         <FlatList
@@ -101,7 +105,10 @@ const InviteFriends: React.FC<Props> = ({
               className="mr-3"
               onPress={() => removeUser(item.id)}
             >
-              <Image source={{ uri: item.image }} className="w-12 h-12 rounded-xl border-2 " />
+              <Image
+                source={{ uri: item.image}}
+                style={{ width: 48, height: 48, borderRadius: 24, borderWidth: 1, borderColor: 'gray',marginRight: 10 }}
+              />
               <View className="absolute -top-1 -right-1 bg-black bg-opacity-50 rounded-xl p-1">
                 <Feather name="x" size={12} color="gray" />
               </View>

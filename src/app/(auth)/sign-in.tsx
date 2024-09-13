@@ -66,6 +66,7 @@ const SignIn = () => {
     logoScale.value = withSpring(1);
     formOpacity.value = withDelay(500, withSpring(1));
   }, []);
+  
   useEffect(() => {
     if(profile?.id.trim()) {
       router.replace('/')
@@ -84,12 +85,15 @@ const SignIn = () => {
     };
   });
 
-  const handleGoogleSignIn = async () => {
+ const handleGoogleSignIn = async () => {
     await googleSignIn();
     
-    const user = await userApi.getCurrentUser()
-    setProfile(user)
-  };
+    setTimeout(async() => {
+    const user = await userApi.getCurrentUser();
+    setProfile(user);
+        router.replace('/');
+    }, 3000);
+};
 
   const submit = async () => {
     

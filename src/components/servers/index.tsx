@@ -9,12 +9,10 @@ import { router } from 'expo-router';
 import { memo } from 'react';
 
 import { formatDateString, useServer } from '@/lib';
-import { Modal } from 'react-native';
 import useDisclose from '@/lib/hooks/useDisclose';
-import Loader from '../states/loading';
-import { Text, View } from '../themed';
+import Loader from '@/components/states/loading';
+import { Text, View } from '@/components/themed';
 import MembersComponent from './members';
-import AdminDashboard from './admin';
 
 interface ServerComponentProps {
   serverId: string;
@@ -41,7 +39,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
   const bannerImageUrl = 'https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&w=400'
   if (loadingServer) return <Loader loadingText='Loading Server' />
   if (error) return <Loader loadingText='Something went wrong' />
-
+  
   return (
     <>
       <ScrollView className='flex-1'>
@@ -56,27 +54,27 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
                 source={{uri:server?.image!}}
                 className='h-[70px] w-[70px] rounded-[35px] border'
               />
-              <Text className='font-rbold  mt-5 mr-auto text-lg '>{server?.name}</Text>
+              <Text className='font-rbold  mt-5 mr-auto text-3xl '>{server?.name}</Text>
             </View>
-            <TouchableOpacity className='p-2 rounded mt-[-30px]' onPress={onOpen}>
+            <TouchableOpacity className='p-2 rounded mt-[-30px]' onPress={()=>router.push(`/admin?id=${serverId}`)}>
               <Feather name="edit" size={22} color={"gray"} />
             </TouchableOpacity>
           </View>
-          <Text className='text-xs font-rbold mb-2'>
-            Created on: <Text className='font-rregular  mb-4 text-sm '>{formatDateString(server?.createdAt!)}</Text>
+          <Text className='text-sm font-rbold mb-2'>
+            Created on: <Text className='font-rregular mb-4 text-sm '>{formatDateString(server?.createdAt!)}</Text>
           </Text>
 
-          <Text className='text-xs font-rbold mb-2'>
+          <Text className='text-sm font-rbold mb-2'>
             About: <Text className='font-rregular  mb-4 text-sm '>{server?.description}</Text>
           </Text>
 
-          <View className='flex justify-between flex-row'>
-            <Text className='text-base font-rmedium mb-2 text-gray-700' >Channels:</Text>
+          <View className='flex justify-between flex-row mt-6'>
+            <Text className='text-base font-rbold mb-6 text-gray-700' >Channels:</Text>
             <Feather name='plus' color={"gray"} size={20} onPress={() => router.navigate(`/create-channel/${serverId}`)} />
           </View>
 
           {!!textChannels?.length && (
-            <View >
+            <View className='mb-4 ml-2' >
               <Text className='text-xs font-rbold mb-2'>Text Channels:</Text>
               {textChannels?.map((channel, i) => (
                 <TouchableOpacity
@@ -98,7 +96,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
           )}
 
           {!!audioChannels?.length && (
-            <View >
+            <View className='mb-4 ml-2' >
               <Text className='text-xs font-rbold mb-2'>Voice Channels:</Text>
               {audioChannels?.map((channel, i) => (
                 <TouchableOpacity
@@ -117,7 +115,7 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
           )}
 
           {!!videoChannels?.length && (
-            <View >
+            <View className='mb-4 ml-2' >
               <Text className='text-xs font-rbold mb-2'>Video Channels:</Text>
               {videoChannels?.map((channel, i) => (
                 <TouchableOpacity
@@ -140,12 +138,6 @@ const ServerComponent: React.FC<ServerComponentProps> = ({
           />
         </View>
       </ScrollView>
-
-      {isOpen &&
-        <Modal style={{ flex: 1 }} >
-          <AdminDashboard {...server} />
-        </Modal>
-      }
     </>
   );
 };

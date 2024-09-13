@@ -32,7 +32,9 @@ export const useTopServers = () => {
 export const useServer = (serverId: string) => {
   return useQuery({
     queryKey: queryKeys.server(serverId), 
-    queryFn: () => serverApi.getServerById(serverId)
+    queryFn: () => serverApi.getServerById(serverId),
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 

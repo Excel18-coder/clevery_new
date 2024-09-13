@@ -66,9 +66,9 @@ const Channel = () => {
     const { caption, file } = newMessage;
     if (caption || file ) {
       
-     const message = await sendChannelMessage(caption).then(() => {
-        setNewMessage({ caption: '', file:'' });
-      });
+     const message = await sendChannelMessage(caption)
+     
+     setNewMessage({ caption: '', file:'' });
       console.log(message)
     }
   };
@@ -117,7 +117,6 @@ const closeFile = () => {
         onMessageChange={(e)=>setNewMessage({...newMessage,caption:e})}
         onSend={handleSend}
         sending={sendMessageLoading}
-        onChooseFile={chooseFile}
       />
     </View>
   )

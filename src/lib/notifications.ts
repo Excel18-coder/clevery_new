@@ -2,7 +2,6 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import notifee, { AndroidImportance, AndroidStyle, AndroidCategory, EventType } from '@notifee/react-native';
-import { z } from 'zod';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -68,16 +67,12 @@ export enum NOTIFICATION_CHANNELS {
   ONLINE_FRIENDS = 'online_friends'
 }
 
-const NotificationConfigSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  importance: z.nativeEnum(AndroidImportance),
-  sound: z.string().optional()
-});
-
-type NotificationConfig = z.infer<typeof NotificationConfigSchema>;
-
-const DisabledChannelsSchema = z.array(z.nativeEnum(NOTIFICATION_CHANNELS));
+interface NotificationConfig {
+  id: string;
+  name: string;
+  importance: AndroidImportance;
+  sound?: string;
+}
 
 interface NotificationData {
   title: string;
@@ -86,7 +81,7 @@ interface NotificationData {
   category?: AndroidCategory;
   data?: Record<string, unknown>;
 }
-
+ 
 // Zustand store for disabled notification channels
 interface DisabledChannelsState {
   disabledChannels: NOTIFICATION_CHANNELS[];
@@ -155,7 +150,7 @@ export const showNotification = async (
   }
 
   try {
-    const channelConfig = NotificationConfigSchema.parse(defaultChannelConfigs[channel]);
+    const channelConfig = defaultChannelConfigs[channel];
       //@ts-ignore
     const id = await notifee.createChannel(channelConfig);
 

@@ -63,7 +63,7 @@ const Messages: React.FC = () => {
 
   const handlePress = useCallback((): void => {
     if (activeFilter === 'chats') router.push("/users");
-    else if (activeFilter === 'status') router.push('/welcome');
+    else if (activeFilter === 'status') router.push('/');
     else if (activeFilter === 'servers') router.push("/create-server");
   }, [activeFilter]);
 
@@ -175,8 +175,8 @@ const Messages: React.FC = () => {
         {FILTER_ITEMS.map((item) => (
           <View key={item.name} style={{ width }}>
             {item.name === 'chats' && <Chat />}
-            {/* {item.name === 'status' && <StatusPage />}
-            {item.name === 'servers' && <ServerList />} */}
+            {item.name === 'status' && <StatusPage />}
+            {item.name === 'servers' && <ServerList />}
           </View>
         ))}
       </Animated.ScrollView>

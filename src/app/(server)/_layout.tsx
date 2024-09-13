@@ -9,6 +9,7 @@ const ServerLayout = () => {
         <Stack.Screen name="channel/[id]" options={{ presentation: 'card', headerShown: false  }} />
         <Stack.Screen name="create-channel/[serverid]" options={{ presentation: 'card', headerShown: false  }} />
         <Stack.Screen name="create-server" options={{ headerShown: false }} />
+        <Stack.Screen name="admin" options={{ presentation: 'modal', headerShown: false }} />
       </Stack>
 
       <StatusBar backgroundColor="#161622"/>

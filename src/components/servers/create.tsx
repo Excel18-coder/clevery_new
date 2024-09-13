@@ -10,8 +10,11 @@ import { VStack } from '@/components/ui/vstack';
 import { Text, View } from '@/components/themed';
 import FormField from '@/components/shared/form_field';
 import { HStack } from '@/components/ui/hstack';
-import { Select, SelectItem } from '@/components/ui/select';
+import { Select, SelectBackdrop, SelectContent, SelectDragIndicator, SelectDragIndicatorWrapper, SelectIcon, SelectInput, SelectItem, SelectPortal, SelectTrigger } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { ChevronDownIcon } from '../ui/icon';
+import { Switch } from '../ui/switch';
+import { useTheme } from '@react-navigation/native';
 
 type Fields = CreateServerData | CreateChannelData;
 
@@ -44,7 +47,7 @@ const InfoCard = ({ title, description, icon }) => (
 const MembersList = ({ selectedUsers, setPopupVisible }) => (
   <VStack className="space-y-2 mb-4">
     <Text className="text-lg font-rmedium text-gray-300">Members:</Text>
-    <HStack className="space-x-2 items-center flex-wrap">
+    <HStack className="space-x-2  flex-wrap">
       {selectedUsers?.map((user) => (
         <View key={user.id} className="bg-gray-700 rounded-full p-1 mb-2">
           <Image
@@ -63,25 +66,28 @@ const MembersList = ({ selectedUsers, setPopupVisible }) => (
   </VStack>
 );
 
+
+
 const ChannelTypeSelect = ({ fields, setFields }) => (
-  <Select
-    placeholder='Channel Type'
-    accessibilityLabel='Channel Type'
-    defaultValue='TEXT'
-    onValueChange={(v) => setFields({ ...fields, type: v } as CreateChannelData)}
-    selectedValue={(fields as CreateChannelData).type}
-    className="bg-gray-700 border-gray-600 mb-4"
-  >
-    <SelectItem label='Text' value='TEXT'>
-      <Feather name='hash' size={16} color="white" />
-    </SelectItem>
-    <SelectItem label='Voice' value='AUDIO'>
-      <Feather name='mic' size={16} color="white" />
-    </SelectItem>
-    <SelectItem label='Video' value='VIDEO' >
-      <Feather name='video' size={16} color="white" />
-    </SelectItem>
-  </Select>
+  <Select  onValueChange={(value) => setFields({ ...fields, type: value })} className='w-full my-8 bg-transparent'>
+    <SelectTrigger variant="outline" size="md" className="w-full justify-between">
+      <SelectInput placeholder="Select option" />
+      <SelectIcon className="mr-3" as={ChevronDownIcon} />
+    </SelectTrigger>
+    <SelectPortal>
+      <SelectBackdrop />
+      <SelectContent>
+        <SelectDragIndicatorWrapper>
+          <SelectDragIndicator />
+        </SelectDragIndicatorWrapper>
+
+        <SelectItem label="Text" value="TEXT"  />
+        <SelectItem label="Audio" value="AUDIO" />
+        <SelectItem label="Video" value="VIDEO" />
+      </SelectContent>
+  </SelectPortal>
+</Select>
+
 );
 
 const Create: React.FC<CreateProps> = ({
@@ -102,6 +108,7 @@ const Create: React.FC<CreateProps> = ({
 
   const isServer = type === 'server';
   const title = isServer ? 'Server' : 'Channel';
+  const {colors} = useTheme();
 
   return (
     <ScrollView className="flex-1 bg-gray-900">
@@ -141,7 +148,7 @@ const Create: React.FC<CreateProps> = ({
             value={fields.name}
             placeholder={isServer ? "e.g., Awesome Gaming Squad" : "e.g., general-chat"}
             onChangeText={(text) => setFields({ ...fields, name: text })}
-            otherStyles="bg-gray-800 border-gray-700"
+            otherStyles=" border-gray-700"
           />
 
           <FormField
@@ -149,12 +156,22 @@ const Create: React.FC<CreateProps> = ({
             value={fields.description!}
             placeholder={isServer ? "Describe what your server is about" : "What's this channel for?"}
             onChangeText={(text) => setFields({ ...fields, description: text })}
-            otherStyles="bg-gray-800 border-gray-700"
+            otherStyles=" border-gray-700"
           />
 
           {isServer && <MembersList selectedUsers={selectedUsers} setPopupVisible={setPopupVisible} />}
 
           {!isServer && <ChannelTypeSelect fields={fields} setFields={setFields} />}
+          {!isServer && 
+          <>
+          <Text className="text-base font-pregular text-gray-300 mb-2 mr-auto ml-3">Private</Text>
+            <Switch size="md" isDisabled={false} value={fields?.isPrivate}
+             onValueChange={(value) => setFields({ ...fields, isPrivate: value })}
+             className='bg-transparent mr-[70%] mb-6'
+             trackColor={{ false: colors.primary, true: colors.primary }}
+            />
+          </>
+          }
 
           <Button
             onPress={handleSubmit}

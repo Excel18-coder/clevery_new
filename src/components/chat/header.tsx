@@ -1,10 +1,10 @@
-import { TouchableOpacity } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { memo } from 'react'
 
 import { Text, View } from '@/components/themed'
 import { formatDateString } from '@/lib'
 import Image from '@/components/image'
+import { Pressable } from 'react-native'
 
 const Header = ({ user, messages, created, channel }: any) => {
 
@@ -38,7 +38,7 @@ const Header = ({ user, messages, created, channel }: any) => {
   }
   return (
     <View >
-      <TouchableOpacity
+      <Pressable
         className='flex-row items-center h-[90px] rounded-[50px] '
       >
         {user?.image &&
@@ -49,7 +49,7 @@ const Header = ({ user, messages, created, channel }: any) => {
             style='w-[60px] h-[60px] rounded-[20px]'
           />
         }
-      </TouchableOpacity>
+      </Pressable>
 
       <Text className='font-rbold text-xl' >
         {user?.name || user?.username}

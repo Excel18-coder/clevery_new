@@ -134,7 +134,7 @@ export const conversationApi = {
     console.log(conversationId, messageIds);
     try {
      const res= await axios.put(`${endpoint}${apiPaths.markMessagesAsSeen(conversationId)}`, { messageIds });
-     console.log(res);
+     return res.data
     } catch (error) {
       throw handleApiError(error, "Failed to mark messages as seen");
     }

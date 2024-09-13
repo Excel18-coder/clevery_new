@@ -50,6 +50,8 @@ export const usePost = (postId: string) => {
   return useQuery({
     queryKey: queryKeys.post(postId),
     queryFn: () => postsApi.getPostById(postId),
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
     enabled: !!postId
   });
 };

@@ -29,10 +29,10 @@ export default function Home() {
 
   if(feedLoading) return <Loader loadingText="Loading your feed" />
 
-  if(postsError) return <ErrorMessage message='Something went wrong' />
+  if(postsError) return <ErrorMessage message='Something went wrong' onRetry={handleRefresh} />
 
   const handlePress = async() => {
-   router.navigate('/invitation')
+  //  router.navigate('/welcome')
   }
   return (
     <View className='pt-7.5 flex-1'>

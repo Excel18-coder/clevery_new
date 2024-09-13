@@ -36,7 +36,7 @@ const AuthorInfo = memo(({ author, timestamp, iscomment }: any) => (
       {author?.image && (
         <Image
           source={author?.image}
-          style={{marginRight:10, borderRadius: 25, borderWidth: 1, borderColor: 'gray', width: 50, height: 50}}
+          style={{marginRight:10, borderRadius: 25, borderWidth: 1, borderColor: 'gray', width: 50, height: 50, zIndex: 1, resizeMode: 'cover'}}
         />
         // 'mr-2.5 w-[50px] h-[50px] rounded-3xl'
       )}
@@ -102,7 +102,7 @@ const Post = memo(({ author, content: caption, createdAt: timestamp, id: postId,
   }, [postId, savePost]);
 
   const handleDeletePost = useCallback(() => {
-    router.push(`/edit-post/${postId}`);
+    router.push(`/create-post?id=${postId}`);
   }, [postId]);
 
   

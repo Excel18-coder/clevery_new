@@ -89,9 +89,7 @@ function RootLayoutNav() {
         <Stack.Screen name="(server)" options={{ headerShown: false }} />
         <Stack.Screen name="conversation/[id]" options={{ presentation: 'containedModal', headerShown: false }} />
         <Stack.Screen name="user/[id]" options={{ presentation: 'modal', headerShown: false }} />
-        <Stack.Screen name="post/[id]" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="settings/[setting]" options={{ presentation: 'card', headerShown: false }} />
-        <Stack.Screen name="edit-post/[postid]" options={{ presentation: 'card', headerShown: false }} />
         <Stack.Screen name="users" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="editprofile" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="welcome" options={{ presentation: 'modal', headerShown: false }} />

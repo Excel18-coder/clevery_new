@@ -1,9 +1,5 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect } from 'react';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import * as Google from 'expo-auth-session/providers/google';
-import * as AuthSession from 'expo-auth-session';
-import * as WebBrowser from 'expo-web-browser';
-import * as Linking from 'expo-linking'
 import { router } from 'expo-router';
 import axios from 'axios';
 
@@ -14,8 +10,6 @@ import { endpoint } from '@/lib/env';
 
 // Configuration variables
 const API_BASE_URL = endpoint;
-
-WebBrowser.maybeCompleteAuthSession();
 
 /**
  * Represents the structure of a user object.
@@ -34,69 +28,15 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-/**
- * Custom hook for OAuth sign-in
- * @param provider - The OAuth provider ('google' or 'github')
- * @returns Object containing handleSignIn function and authResult
- */
-const useOAuthSignIn = (provider: 'google' | 'github') => {
-  const githubDiscovery = {
-    authorizationEndpoint: 'https://github.com/login/oauth/authorize',
-    tokenEndpoint: 'https://github.com/login/oauth/access_token',
-    revocationEndpoint: `https://github.com/settings/connections/applications/${process.env.EXPO_GITHUB_CLIENT_ID!}`,
-  };
-
-  const [request, response, promptAsync] = provider === 'github'
-    ? AuthSession.useAuthRequest(
-        {
-          clientId: process.env.EXPO_GITHUB_CLIENT_ID!,
-          scopes: ['identity'],
-          redirectUri: AuthSession.makeRedirectUri({ scheme: 'com.clevery.app' }),
-        },
-        githubDiscovery
-      )
-    : Google.useAuthRequest({
-        clientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
-        // scopes: ['email,profile'],
-        redirectUri: Linking.createURL('/redirect'),
-      });
-
-  const [authResult, setAuthResult] = useState<AuthSession.AuthSessionResult | null>(null);
-
-  useEffect(() => {
-    if (response?.type === 'success') {
-      console.log(response)
-      setAuthResult(response);
-    }
-  }, [response]);
-
-  const handleSignIn = useCallback(async () => {
-    try {
-      const result = await promptAsync();
-      console.log(result)
-      if (result.type === 'success' && result.params.code) {
-        const tokenResponse = await axios.post(`${API_BASE_URL}/auth/${provider}/callback`, { code: result.params.code });
-        return tokenResponse.data;
-      } else {
-        throw new Error('OAuth sign-in was cancelled or failed');
-      }
-    } catch (error) {
-      console.error('OAuth sign-in error:', error);
-      throw error;
-    }
-  }, [promptAsync, provider]);
-
-  return { handleSignIn, authResult };
-};
-
-
-
 export const googleSignIn = async () => {
   await fetch(`${endpoint}/sign-up/provider?provider=google`);
   try {
     await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
     const res = await GoogleSignin.signIn();
+    if (!res) {
+      throw new Error('Google Sign-In failed');
+    }
     const { data:{ serverAuthCode} } = res
 
     console.log('Google Sign-In Successful');
@@ -131,15 +71,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { user, token, loading, setUser, setLoading } = useAuthStore();
   const { profile, setProfile } = useProfileStore();
 
-  const { handleSignIn: handleGoogleSignIn } = useOAuthSignIn('google');
-  const { handleSignIn: handleGithubSignIn } = useOAuthSignIn('github');
-
   useEffect(() => {
     const checkCurrentUser = async () => {
-      console.log(profile?.id)
       if (profile?.id) return
       try {
         const currentAccount = await userApi.getCurrentUser();
+        console.log('currentAccount: ', currentAccount)
         if (!currentAccount) {
           router.navigate('sign-up');
         }
@@ -159,7 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * @throws Error if credentials are not provided for 'credentials' provider
    */
   const signIn = useCallback(async (
-    provider: 'google' | 'github' | 'credentials',
+    provider: 'google' | 'credentials',
     credentials?: { email: string; password: string }
   ) => {
     try {
@@ -171,16 +108,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
         await handleCredentialsSignIn(credentials);
       } else {
-        const handleSignIn = provider === 'google' ? handleGoogleSignIn : handleGithubSignIn;
-        const data = await handleSignIn();
-        await handleAuthSuccess(data);
+          await googleSignIn();
       }
     } catch (error) {
       handleAuthError(error);
     } finally {
       setLoading(false);
     }
-  }, [setLoading, handleGoogleSignIn, handleGithubSignIn]);
+  }, [setLoading]);
 
   /**
    * Handles the credentials (email/password) sign-in process
@@ -190,7 +125,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log('Sign in with credentials:', credentials);
     const response = await axios.post(`${API_BASE_URL}sign-in`, credentials);
     const data = response.data
-    await WebBrowser.openAuthSessionAsync(data);
     console.log('Server login res: ', data)
     await handleAuthSuccess({user:data,token:""}); 
     return data
@@ -243,19 +177,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       errorMessage = error.message;
     }
 
-    // return (
-    //   <Toast />
-    //   // Toast.show({
-    //   //   render: () => (
-    //   //     <ToastAlert
-    //   //       id="sign-up"
-    //   //       title="Something went wrong"
-    //   //       description={errorMessage}
-    //   //       status="error"
-    //   //     />
-    //   //   ),
-    //   // })
-    // )
   };
 
   /**

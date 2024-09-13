@@ -60,7 +60,7 @@ const MessagesContainer: React.FC<Props> = ({
             <Ionicons name="close" size={24} color="#007aff" />
           </TouchableOpacity>
           {isImage ? (
-            <Image source={{ uri: source }} className="w-56 h-52" />
+            <Image source={{ uri: source }} style={{ resizeMode: 'cover',width: 224, height: 208 }} />
           ) : (
             <View className="w-56 h-12 mb-2 flex-row items-center">
               <Ionicons name="document" size={24} color="black" />

@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { View, Image, TouchableOpacity, Dimensions, PanResponder, Modal } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   useSharedValue,
@@ -73,7 +72,6 @@ const FullScreenImage = ({ uri, onClose, isOpen }) => {
   return (
     <Modal visible={isVisible || isOpen} transparent={true}>
       <View className="flex-1 bg-black">
-        <StatusBar hidden />
         <Animated.View 
           className="flex-1 justify-center items-center" 
           style={rStyle} 

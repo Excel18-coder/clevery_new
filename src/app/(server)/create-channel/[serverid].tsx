@@ -9,14 +9,16 @@ import { ChannelType } from '@/types';
 interface newChannel {
   name: string;
   description: string;
-  channelType: string;
+  type: string;
+  isPrivate: boolean
 }
 
 const CreateChannel: React.FC = () => {
   const [newChannel, setNewChannel] = useState<newChannel>({
     name: ``,
     description: '',
-    channelType: 'TEXT',
+    type: 'TEXT',
+    isPrivate: false
   });
   const {serverid} = useLocalSearchParams()
   const { 
@@ -26,8 +28,7 @@ const CreateChannel: React.FC = () => {
   } = useCreateChannel(serverid as string);
 
   const handleSubmit = async () => {
-    const {channelType,description,name} =newChannel
-    
+    const {name, type, description} =newChannel
     try {
       if(!name) return showToastMessage('Please provide the channel name' )
       if(!description) return showToastMessage('Please provide the channel description' )
@@ -37,7 +38,7 @@ const CreateChannel: React.FC = () => {
       const res = await createChannel({
         name,
         description,
-        type:ChannelType[channelType],
+        type:ChannelType[type],
         isPrivate:false
       });
       

@@ -22,9 +22,9 @@ export const useChannelData = (channelId: string) => {
     error: messagesError 
   } = useChannelMessages(channelId);
 
-  const { mutate: sendMessage, isPending: sendMessageLoading } = useSendChannelMessage();
-  const { mutate: editMessage, isPending: editMessageLoading } = useEditChannelMessage();
-  const { mutate: deleteMessage, isPending: deleteMessageLoading } = useDeleteChannelMessage();
+  const { mutateAsync: sendMessage, isPending: sendMessageLoading } = useSendChannelMessage();
+  const { mutateAsync: editMessage, isPending: editMessageLoading } = useEditChannelMessage();
+  const { mutateAsync: deleteMessage, isPending: deleteMessageLoading } = useDeleteChannelMessage();
   
   const serverId = channel?.serverId || "";
 
@@ -41,9 +41,9 @@ export const useChannelData = (channelId: string) => {
   const isLoading = channelLoading || messagesLoading;
   const error = channelError || messagesError;
 
-  const sendChannelMessage = useCallback((content: string) => {
-    if (serverId) {
-      sendMessage({ channelId, serverId, message: { text: content } });
+  const sendChannelMessage = useCallback(async(content: string) => {
+    if (serverId && channelId && content) {
+     await sendMessage({ channelId, serverId, message: { text: content } });
     }
   }, [channelId, serverId, sendMessage]);
 

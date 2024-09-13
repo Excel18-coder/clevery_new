@@ -31,8 +31,6 @@ interface MessagingContextValue {
   sendMessage: (conversationId: string, message: string) => Promise<Message>;
 }
 
-
-
 const MessagingContext = createContext<MessagingContextValue | null>(null);
 
 // const queryClient = new QueryClient();
@@ -108,7 +106,6 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     }
   }, []);
 
-
   const { data: conversations = [], isLoading, error, refetch } = useGetConversations()
   const queryClient = useQueryClient();
 
@@ -121,7 +118,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
    * Subscribes to Pusher channels for each conversation
    */
   const subscribeToPusherChannels = useCallback(async () => {
-    console.log('Subscribing to Pusher channels for conversations');
+    // console.log('Subscribing to Pusher channels for conversations');
     if (!pusher || !profile?.id) {
       console.log('Pusher not initialized or user not logged in');
       return;
@@ -139,7 +136,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
             }
           }
         });
-        console.log(`Subscribed to channel: private-${conversation.id}`);
+        // console.log(`Subscribed to channel: private-${conversation.id}`);
       } catch (error) {
         console.error(`Error subscribing to channel for conversation ${conversation.id}:`, error);
       }
@@ -169,7 +166,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
 
   useEffect(() => {
     if (profile.id) {
-      console.log('User logged in, setting up Pusher subscriptions');
+      // console.log('User logged in, setting up Pusher subscriptions');
 
       const unsubscribe = notifee.onForegroundEvent(({ type, detail }) => {
         if (type === EventType.ACTION_PRESS && detail.pressAction?.id === 'reply') {
@@ -210,13 +207,13 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     });
 
     return () => {
-      console.log('Cleaning up MessagingProvider');
+      // console.log('Cleaning up MessagingProvider');
       subscription.remove();
       if (pusher && profile?.id) {
         conversations.forEach(conversation => {
           pusher.unsubscribe({channelName: `private-${conversation.id}`});
         });
-        console.log('Unsubscribed from all conversation channels');
+        // console.log('Unsubscribed from all conversation channels');
       }
     };
   }, [pusher, conversations, profile?.id, subscribeToPusherChannels, refetch]);

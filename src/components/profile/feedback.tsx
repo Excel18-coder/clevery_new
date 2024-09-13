@@ -25,8 +25,8 @@ const FeedbackPage = () => {
   const [feedback, setFeedback] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDeveloper, setIsDeveloper] = useState(false);
-  const [developerFeedback, setDeveloperFeedback] = useState('');
-  const [wantToContribute, setWantToContribute] = useState(false);
+  const [developerNote, setDeveloperNote] = useState('');
+  const [willContribute, setWillContribute] = useState(false);
 
   const buttonScale = useSharedValue(1);
   const starScales = [useSharedValue(1), useSharedValue(1), useSharedValue(1), useSharedValue(1), useSharedValue(1)];
@@ -73,8 +73,8 @@ const FeedbackPage = () => {
         rating, 
         comment: feedback,
         isDeveloper,
-        developerFeedback,
-        wantToContribute
+        developerNote,
+        willContribute
       }),
     });
   };
@@ -84,8 +84,8 @@ const FeedbackPage = () => {
     setRating(0);
     setFeedback('');
     setIsDeveloper(false);
-    setDeveloperFeedback('');
-    setWantToContribute(false);
+    setDeveloperNote('');
+    setWillContribute(false);
   };
 
   return (
@@ -162,8 +162,8 @@ const FeedbackPage = () => {
             <TextInput
               multiline
               numberOfLines={4}
-              value={developerFeedback}
-              onChangeText={setDeveloperFeedback}
+              value={developerNote}
+              onChangeText={setDeveloperNote}
               placeholder="Share your technical feedback or suggestions..."
               className="border border-gray-300 rounded-lg p-3 text-base mb-3"
               textAlignVertical="top"
@@ -171,8 +171,8 @@ const FeedbackPage = () => {
             />
             <View className="flex-row items-center">
               <Switch
-                value={wantToContribute}
-                onValueChange={setWantToContribute}
+                value={willContribute}
+                onValueChange={setWillContribute}
                 trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
               />
               <Text className="ml-2 font-rregular text-sm">I'm interested in contributing to the project</Text>

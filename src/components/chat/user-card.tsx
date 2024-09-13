@@ -3,7 +3,7 @@ import { Pressable } from 'react-native';
 import { Text, View } from '../themed';
 import { Conversation } from '@/types';
 import { HStack } from '../ui/hstack';
-import Image from '../image';
+import { Image } from 'expo-image';
 interface UserCardProps {
   conversation: Conversation
   onSelectUser: (id: string) => void;
@@ -22,9 +22,7 @@ const UserCard: React.FC<UserCardProps> = ({ conversation, onSelectUser }) => {
         <View className='mr-2.5'>
           <Image
             source={image ? image : "https://via.placeholder.com/150"}
-            width={80}
-            height={80}
-            style='w-12.5 h-12.5 rounded-[25px]'
+            style={{ height: 60, width: 60, borderRadius: 30, borderWidth: 1, borderColor: 'gray' }}
           />
           {isOnline && 
             <View style={{ position: 'absolute', right: 0, bottom: 0, width: 14, height: 14,

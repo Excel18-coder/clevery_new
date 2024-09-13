@@ -3,12 +3,12 @@
     "preview": {
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleDebug"
+        "gradleCommand": ":app:assembleRelease"
       }
     },
     "preview2": {
       "android": {
-        "gradleCommand": ":app:assembleDebug"
+        "gradleCommand": ":app:assembleRelease"
       }
     },
     "preview3": {
