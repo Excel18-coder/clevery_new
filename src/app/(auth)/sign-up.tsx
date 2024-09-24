@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, ScrollView, SafeAreaView, Animated } from "react-native";
+import { View, Text, ScrollView, Animated } from "react-native";
 import { Link, router } from "expo-router";
 import * as WebBrowser from 'expo-web-browser';
 import { endpoint, showToastMessage } from "@/lib";
@@ -45,11 +45,11 @@ const SignUp = () => {
     }
 
     try {
-      const res = await signUp(form);
-      console.log(res);
+     await signUp(form);
+      
       setShowWelcome(true);
       setTimeout(() => {
-        router.replace("/");
+        router.replace("/welcome");
       }, 3000);
     } catch (error: any) {
       console.log("Failed to create user: ", error.message);
@@ -67,11 +67,11 @@ const SignUp = () => {
   const signInWithProvider = async (provider: AuthProviders) => {
     if (provider === 'google') return googleSignUp();
     if (provider === 'facebook') return signIn("google");
-    if (provider === 'github') return signIn("github");
+    if (provider === 'github') return signIn("google");
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor:' #111827' }}>
+    <View style={{ flex: 1, backgroundColor:'#111827' }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 20 }}>
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
           <Text className="text-3xl font-rbold text-center mb-5 text-white">
@@ -105,7 +105,7 @@ const SignUp = () => {
             autoCapitalize="none"
           />
             <Button 
-              className="rounded-lg bg-cyan-600 h-14 mb-4"
+              className="rounded-lg bg-cyan-600 h-14 mb-4 mt-4"
               onPress={submit}
             >
               <Text className="text-white font-rbold text-lg">Sign In</Text>
@@ -153,7 +153,7 @@ const SignUp = () => {
           </Animated.View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

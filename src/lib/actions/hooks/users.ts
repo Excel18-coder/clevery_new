@@ -7,6 +7,7 @@ import { userApi, UpdateUserInput } from '@/lib/actions/users';
 
 const queryKeys = {
   currentUser: ['currentUser'],
+  currentUserWithActivity: ['currentUserWithActivity'],
   users: ['users'],
   topCreators: ['topCreators'],
   user: (id: string) => ['user', id],
@@ -18,6 +19,15 @@ export const useCurrentUser = () => {
   return useQuery({
     queryKey: queryKeys.currentUser,
     queryFn: userApi.getCurrentUser
+  });
+};
+export const useCurrentUserWithActivity = () => {
+  return useQuery({
+    queryKey: queryKeys.currentUserWithActivity,
+    queryFn: userApi.getCurrentUserWithActivity,
+    staleTime: 1000 * 60 * 60,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false
   });
 };
 

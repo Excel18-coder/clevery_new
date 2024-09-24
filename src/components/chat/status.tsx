@@ -69,13 +69,12 @@ const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 const StatusPage: React.FC = () => {
   const [statuses, setStatuses] = useState<Status[]>(MOCK_STATUSES);
   const [newStatus, setNewStatus] = useState('');
-  const { profile } = useProfileStore();
   const scrollY = useSharedValue(0);
   const isCreatingStatus = useSharedValue(0);
   const listRef = useAnimatedRef<FlatList>();
 
   const headerHeight = useDerivedValue(() => {
-    return interpolate(scrollY.value, [0, 200], [300, 100], Extrapolation.CLAMP);
+    return interpolate(scrollY.value, [0, 100], [100, 50], Extrapolation.CLAMP);
   });
 
   const headerStyle = useAnimatedStyle(() => ({
@@ -143,10 +142,10 @@ const StatusPage: React.FC = () => {
     <Animated.View style={headerStyle}>
       <AnimatedLinearGradient
         colors={gradientColors.value}
-        style={[{ flex: 1, justifyContent: 'flex-end', padding: 20 }]}
+        style={[{ flex: 1, justifyContent: 'flex-end', padding: 40 }]}
       >
         <CustomBlurView intensity={blurIntensity}>
-          <Text className="text-5xl font-rbold mb-3 shadow-sm">Your Status</Text>
+          <Text className="text-5xl font-rbold mb-3 shadow-sm mt-4 text-gray-500">Your Status</Text>
           <Text className="text-xl font-rregular opacity-80">Share your thoughts!</Text>
         </CustomBlurView>
       </AnimatedLinearGradient>

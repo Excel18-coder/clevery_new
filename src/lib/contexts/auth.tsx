@@ -107,7 +107,7 @@ const handleGoogleSignIn = async (): Promise<{ success: boolean; serverAuthCode?
 
     // @ts-ignore
     setProfile(userData);
-    router.replace('/');
+    // router.replace('/');
   }, [setProfile]);
 
   const handleAuthError = useCallback((error: unknown): string => {

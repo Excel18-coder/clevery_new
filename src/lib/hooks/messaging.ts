@@ -8,15 +8,21 @@ import {
   parseIncomingMessage,
   pusher,
   sortMessages,
-  useChannelData,
   useGetConversation,
   useSendMessage,
   useProfileStore,
   useMarkMessagesAsSeen,
-  showToastMessage
+  showToastMessage,
+  useChannel,
+  useChannelMessages,
+  useSendChannelMessage,
+  useEditChannelMessage,
+  useDeleteChannelMessage,
+  useUpdateChannel,
+  useDeleteChannel
 } from '@/lib';
 import { useImageUploader } from '@/lib/uploadthing';
-import { Channel, Conversation, Message } from '@/types';
+import { Message } from '@/types';
 
 interface NewMessage {
   caption: string;
@@ -24,70 +30,48 @@ interface NewMessage {
 }
 
 const useUnifiedMessaging = () => {
+  const { id, serverId } = useLocalSearchParams();
+  const isChannel = !!serverId;
+  const { profile } = useProfileStore();
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<NewMessage>({ caption: '', file: undefined });
   const [isTyping, setIsTyping] = useState(false);
-  const { profile } = useProfileStore();
-  
-  const { id, serverId } = useLocalSearchParams();
-  const isChannel = Boolean(serverId);
 
-  const channelData = useChannelData(id as string);
-  const {
-    data: conversation,
-    isPending: loadingConversation,
-    error: conversationError
-  } = useGetConversation(id as string);
+  const channelData = useChannelData(id as string, isChannel);
+  const conversationData = useConversationData(id as string, isChannel);
 
-  const { mutateAsync: sendDMMessage, isPending: sendingDMMessage } = useSendMessage();
-  const { mutateAsync: markAsSeen } = useMarkMessagesAsSeen();
+  const currentChat = isChannel ? channelData.channel : conversationData.conversation;
+  const isLoading = isChannel ? channelData.isLoading : conversationData.isLoading;
+  const error = isChannel ? channelData.error : conversationData.error;
+  const isSending = isChannel ? channelData.sendMessageLoading : conversationData.sendingDMMessage;
 
-  const {
-    channel,
-    sendChannelMessage,
-    isLoading: loadingChannel,
-    sendMessageLoading: sendingChannelMessage,
-    error: channelError
-  } = channelData;
-
-  const isLoading = isChannel ? loadingChannel : loadingConversation;
-  const error = isChannel ? channelError : conversationError;
-  const isSending = isChannel ? sendingChannelMessage : sendingDMMessage;
-
-  const currentChat:any= isChannel ? channel : conversation;
-
-  const messageHandler = useCallback((message: Message) => {
-    setMessages((prev) => {
-      if (prev.find((msg) => msg.id === message.id)) {
-        return prev;
-      } else {
-        return [message, ...prev];
-      }
-    });
-  }, []);
+  const { openImagePicker, isUploading } = useImageUploader("imageUploader", {
+    onClientUploadComplete: () => Alert.alert("Upload Completed"),
+    onUploadError: (error) => Alert.alert("Upload Error", error.message),
+  });
 
   useEffect(() => {
     if (!currentChat?.id) return;
 
     const channelName = isChannel ? currentChat.id : `private-${currentChat.id}`;
     
-    pusher.subscribe({
-      channelName,
-      onEvent: (event: PusherEvent) => {
-        if (event.eventName === (isChannel ? 'new-channel-message' : 'new-message')) {
-          const cleanedObject = parseIncomingMessage(event);
-          messageHandler(cleanedObject?.data);
-        } else if (event.eventName === 'typing' && !isChannel) {
-          setIsTyping(true);
-          setTimeout(() => setIsTyping(false), 3000);
-        }
+    const handleEvent = (event: PusherEvent) => {
+      if (event.eventName === (isChannel ? 'new-channel-message' : 'new-message')) {
+        const cleanedObject = parseIncomingMessage(event);
+        messageHandler(cleanedObject?.data);
+      } else if (event.eventName === 'typing' && !isChannel) {
+        setIsTyping(true);
+        setTimeout(() => setIsTyping(false), 3000);
       }
-    });
+    };
+
+    pusher.subscribe({ channelName, onEvent: handleEvent });
 
     return () => {
       pusher.unsubscribe({ channelName });
     };
-  }, [currentChat?.id, isChannel, messageHandler]);
+  }, [currentChat?.id, isChannel]);
 
   useEffect(() => {
     if (!currentChat) return;
@@ -99,15 +83,14 @@ const useUnifiedMessaging = () => {
         .filter(msg => !msg.seen && msg.senderId !== profile?.id)
         .map(msg => msg.id);
       if (unreadIds.length > 0) {
-        markAsSeen({ conversationId: currentChat.id, messageIds: unreadIds });
+        conversationData.markAsSeen({ conversationId: currentChat.id, messageIds: unreadIds });
       }
     }
-  }, [currentChat?.messages, isChannel, profile?.id, markAsSeen]);
+  }, [currentChat?.messages, isChannel, profile?.id, conversationData.markAsSeen]);
 
-  const { openImagePicker, isUploading } = useImageUploader("imageUploader", {
-    onClientUploadComplete: () => Alert.alert("Upload Completed"),
-    onUploadError: (error) => Alert.alert("Upload Error", error.message),
-  });
+  const messageHandler = useCallback((message: Message) => {
+    setMessages(prev => prev.some(msg => msg.id === message.id) ? prev : [message, ...prev]);
+  }, []);
 
   const chooseFile = useCallback(async () => {
     const file = await openImagePicker({
@@ -124,7 +107,7 @@ const useUnifiedMessaging = () => {
       },
     });
     if (file) {
-      setNewMessage((prev) => ({ ...prev, file: file[0].serverData.url }));
+      setNewMessage(prev => ({ ...prev, file: file[0].serverData.url }));
     }
   }, [openImagePicker]);
 
@@ -140,9 +123,9 @@ const useUnifiedMessaging = () => {
     }
 
     if (isChannel) {
-      await sendChannelMessage(caption);
+      await channelData.sendChannelMessage(caption);
     } else {
-      await sendDMMessage({
+      await conversationData.sendDMMessage({
         conversationId: currentChat.id,
         message: {
           text: caption,
@@ -152,14 +135,14 @@ const useUnifiedMessaging = () => {
     }
     
     setNewMessage({ caption: '', file: undefined });
-  }, [newMessage, currentChat, id, isChannel, sendChannelMessage, sendDMMessage]);
+  }, [newMessage, currentChat, id, isChannel, channelData.sendChannelMessage, conversationData.sendDMMessage]);
 
   const closeFile = useCallback(() => {
-    setNewMessage((prev) => ({ ...prev, file: undefined }));
+    setNewMessage(prev => ({ ...prev, file: undefined }));
   }, []);
 
   const handleMessageChange = useCallback((text: string) => {
-    setNewMessage((prev) => ({ ...prev, caption: text }));
+    setNewMessage(prev => ({ ...prev, caption: text }));
   }, []);
 
   const sortedMessages = useMemo(() => sortMessages({ messages }), [messages]);
@@ -179,6 +162,68 @@ const useUnifiedMessaging = () => {
     closeFile,
     setNewMessage,
     isUploading
+  };
+};
+
+const useChannelData = (channelId: string, isChannel: boolean) => {
+  const {
+    data: channel,
+    isLoading,
+    error
+  } = useChannel(isChannel?channelId:'');
+  
+  const {
+    data: messages,
+    isLoading: messagesLoading,
+    error: messagesError
+  } = useChannelMessages(isChannel?channelId:'');
+
+  const { mutateAsync: sendMessage, isPending: sendMessageLoading } = useSendChannelMessage();
+  const { mutateAsync: editMessage } = useEditChannelMessage();
+  const { mutateAsync: deleteMessage } = useDeleteChannelMessage();
+
+  const serverId = useMemo(() => channel?.serverId || "", [channel]);
+
+  const { mutate: updateChannel } = useUpdateChannel(serverId, channelId);
+  const { mutate: deleteChannel } = useDeleteChannel(serverId);
+
+  const sendChannelMessage = useCallback(async (content: string) => {
+    if (serverId && channelId && content.trim()) {
+      await sendMessage({ channelId, serverId, message: { text: content.trim() } });
+    }
+  }, [channelId, serverId, sendMessage]);
+  
+  return {
+    channel,
+    messages,
+    sendChannelMessage,
+    editMessage,
+    deleteMessage,
+    updateChannel,
+    deleteChannel,
+    isLoading: isLoading || messagesLoading,
+    error: error || messagesError,
+    sendMessageLoading
+  };
+};
+
+const useConversationData = (conversationId: string, isChannel: boolean) => {
+  const {
+    data: conversation,
+    isPending: isLoading,
+    error
+  } = useGetConversation(!isChannel?conversationId:'');
+
+  const { mutateAsync: sendDMMessage, isPending: sendingDMMessage } = useSendMessage();
+  const { mutateAsync: markAsSeen } = useMarkMessagesAsSeen();
+
+  return {
+    conversation,
+    sendDMMessage,
+    markAsSeen,
+    isLoading,
+    error,
+    sendingDMMessage
   };
 };
 

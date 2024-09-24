@@ -29,6 +29,14 @@ export const userApi = {
       throw handleApiError(error, "Failed to fetch current user");
     }
   },
+  getCurrentUserWithActivity: async (): Promise<Profile> => {
+    try {
+      const response = await axios.get<Profile>(`${endpoint}${apiPaths.currentUser}/activity`);
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error, "Failed to fetch current user");
+    }
+  },
 
   /**
    * Gets all the users

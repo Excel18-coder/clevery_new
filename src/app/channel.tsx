@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { SafeAreaView, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import Animated from 'react-native-reanimated';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -31,9 +31,9 @@ function Channel() {
   if (isLoading) return <Loader loadingText='Loading your conversation' />;
   
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <Animated.View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
+        <View className='flex-row items-center p-2.5 mt-7' >
           <TouchableOpacity onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={24} color="gray" />
           </TouchableOpacity>
@@ -70,7 +70,7 @@ function Channel() {
         onSend={handleSend}
         sending={isSending}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 export default React.memo(Channel)

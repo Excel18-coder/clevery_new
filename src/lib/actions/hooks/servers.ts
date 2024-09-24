@@ -35,6 +35,7 @@ export const useServer = (serverId: string) => {
   return useQuery({
     queryKey: queryKeys.server(serverId), 
     queryFn: () => serverApi.getServerById(serverId),
+    enabled: !!serverId,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
@@ -73,14 +74,21 @@ export const useDeleteServer = () => {
 export const useChannel = (channelId: string) => {
   return useQuery({
     queryKey: queryKeys.channel(channelId), 
-    queryFn: () => serverApi.getChannelById(channelId), enabled: Boolean(channelId)},
-    );
+    queryFn: () => serverApi.getChannelById(channelId), 
+    refetchOnMount: false, 
+    refetchOnWindowFocus: false, 
+    enabled: !!channelId
+  });
 };
 
 export const useServerChannels = (serverId: string) => {
   return useQuery({
     queryKey: queryKeys.channels(serverId), 
-    queryFn: () => serverApi.getServerChannels(serverId)
+    queryFn: () => serverApi.getServerChannels(serverId),
+    enabled: !!serverId,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false, 
+    staleTime: Infinity
   });
 };
 
@@ -109,7 +117,7 @@ export const useChannelMessages = (channelId: string) => {
   return useQuery({
     queryKey: queryKeys.messages(channelId),
     queryFn:()=>serverApi.getChannelMessages(channelId),
-    enabled: Boolean(channelId),
+    enabled: !!channelId,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
@@ -118,7 +126,9 @@ export const useChannelMessages = (channelId: string) => {
 export const useMessage = (messageId: string) => {
   return useQuery({
     queryKey: queryKeys.message(messageId), 
-    queryFn: () => serverApi.getMessageById(messageId)
+    queryFn: () => serverApi.getMessageById(messageId),
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 

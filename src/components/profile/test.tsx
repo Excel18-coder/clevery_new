@@ -19,7 +19,6 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const AnimatedIcon = Animated.createAnimatedComponent(Feather);
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
-const { width: screenWidth } = Dimensions.get('window');
 
 const features = [
   {

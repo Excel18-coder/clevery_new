@@ -50,9 +50,8 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
       )
     );
 
-    if (AppState.currentState !== 'active') {
       showDirectMessageNotification(data.conversationId, data.senderName, data.message.text, data.senderImage);
-    }
+      
   }, [profile?.id, queryClient]);
 
   /**

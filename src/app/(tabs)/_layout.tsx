@@ -1,7 +1,7 @@
 import { View } from '@/components';
-import Image from '@/components/image';
 import { useProfileStore } from '@/lib';
 import { Feather, Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { Tabs } from 'expo-router';
 
 export default function TabLayout() {
@@ -15,10 +15,11 @@ export default function TabLayout() {
 
     return (
       <View>
-        <Image source={userImage}
-          width={80}
-          height={80}
-          style='h-[30px] w-[30px] rounded-[15px] border-[0.5px] border-gray-400'
+        <Image
+          source={userImage}
+          width={30}
+          height={30}
+          style={{height:30, width:30, borderRadius:15, borderColor:'gray', borderWidth:0.5}}
         />
       </View>
     )

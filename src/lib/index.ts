@@ -54,7 +54,8 @@ export {
   useUpdateCurrentUser,
   useUpdateProfilePicture,
   useUser,
-  useUsers
+  useUsers,
+  useCurrentUserWithActivity
 } from "./actions/hooks/users";
 
 export {

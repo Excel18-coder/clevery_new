@@ -76,7 +76,7 @@ const NotificationItem = ({ notification }) => {
       <View className="flex-row items-center">
         <Image
           source={{ uri: notification.avatar }} 
-          className="w-12 h-12 rounded-full mr-4" 
+          style={{ width: 56, height: 56, borderRadius: 28, marginRight: 10 }}
         />
         <View className="flex-1">
           <Text className="text-base font-rmedium text-gray-800">{notification.content}</Text>

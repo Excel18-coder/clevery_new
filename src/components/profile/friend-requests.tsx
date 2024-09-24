@@ -72,8 +72,8 @@ const FriendRequestCard = ({ request, onAccept, onDecline }) => {
     >
       <View className="flex-row items-center p-4">
         <Image
-          source={{ uri: request.avatar }} 
-          className="w-16 h-16 rounded-full mr-4" 
+          source={{ uri: request.avatar }}
+          style={{ width: 56, height: 56, borderRadius: 28, marginRight: 10 }}
         />
         <View className="flex-1">
           <Text className="text-lg font-rmedium text-gray-800">{request.name}</Text>
@@ -90,7 +90,7 @@ const FriendRequestCard = ({ request, onAccept, onDecline }) => {
           onPressOut={handlePressOut}
           className="bg-gray-200 rounded-full py-2 px-4 mr-2"
         >
-          <Text className="text-sm font-rmedium text-gray-700">Decline</Text>
+          <Text className="text-sm font-rmedium text-black">Decline</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => onAccept(request.id)}
@@ -164,8 +164,8 @@ const FriendRequestsPage = () => {
 
       {friendRequests.length > 0 && (
         <Animated.View entering={FadeIn.delay(600)} className="mt-6 bg-green-100 rounded-lg p-4">
-          <Text className="text-lg font-rmedium mb-2 text-green-800">Pro Tip!</Text>
-          <Text className="text-base font-rregular text-green-700">
+          <Text className="text-lg font-rmedium mb-2">Pro Tip!</Text>
+          <Text className="text-base font-rregular text-gray-600">
             Accepting friend requests can lead to exciting new connections and experiences on Clevery. Don't forget to review each request carefully!
           </Text>
         </Animated.View>

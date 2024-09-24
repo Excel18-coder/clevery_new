@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Pressable, Dimensions, Image, FlatList } from 'react-native';
+import { Pressable, Dimensions, Image, FlatList, TouchableOpacity,View as RNView, Text as RNText } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeInDown, useAnimatedStyle, useSharedValue, interpolate, useAnimatedScrollHandler } from 'react-native-reanimated';
@@ -7,7 +7,7 @@ import { Text, View } from '@/components';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const AnimatedPressable = Animated.createAnimatedComponent(TouchableOpacity);
 const Custom = Animated.createAnimatedComponent(LinearGradient);
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -31,7 +31,7 @@ const { width: screenWidth } = Dimensions.get('window');
   ];
 const FeatureSection = ({ title, content, icon }) => {
   return (
-    <Animated.View entering={FadeInDown.delay(300).duration(500)} className="mb-6 rounded-lg shadow-md p-2">
+    <Animated.View entering={FadeInDown.delay(300).duration(500)} className="mb-6 rounded-lg shadow-md p-5">
       <View className="flex-row items-center mb-2">
         <Feather name={icon} size={24} color="#4A90E2" className="mr-3" />
         <Text className="text-lg font-rmedium">{title}</Text>
@@ -202,44 +202,44 @@ const WelcomePage = () => {
         ))}
 
         <Animated.View entering={FadeIn.delay(800).duration(500)} className="mt-8 bg-cyan-600 rounded-lg p-4">
-          <Text className="text-lg font-rmedium mb-2 text-white">Ready to Join the Fun?</Text>
-          <Text className="text-base font-rregular mb-4 text-white">
+          <RNText className="text-lg font-rmedium mb-2 text-white">Ready to Join the Fun?</RNText>
+          <RNText className="text-base font-rregular mb-4 text-white">
             Customize your profile or jump right in. Your Clevery adventure begins now!
-          </Text>
+          </RNText>
 
-          <View className="flex-row items-center mb-4 z-10 bg-cyan-600">
+          <RNView className="flex-row items-center mb-4">
             <AnimatedPressable
               onPress={onCheckboxPress}
               style={buttonAnimatedStyle}
-              className="mr-2"
+              className="mr-2 bg-transparent"
             >
               <Feather 
                 name={termsAccepted ? "check-square" : "square"} 
                 size={24} 
-                color="#FFFFFF" 
+                color="#2563eb" 
               />
             </AnimatedPressable>
-            <Text className="text-base font-rregular text-white">
-              I accept the <Text className="text-blue-300 underline" onPress={() => {}}>Terms of Service</Text>
-            </Text>
-          </View>
+            <Animated.Text className="text-base font-rregular text-white">
+              I accept the <Animated.Text className="text-blue-300 underline" onPress={() => {}}>Terms of Service</Animated.Text>
+            </Animated.Text>
+          </RNView>
 
-          <View className="flex-row justify-between bg-cyan-600">
-            <Pressable
-              onPress={() => router.navigate('/sign-up')}
+          <RNView className="flex-row justify-between bg-cyan-600">
+            <TouchableOpacity
+              onPress={() => router.navigate('/')}
               disabled={!termsAccepted}
-              className={`bg-blue-500 py-3 z-20 bottom-0 px-6 rounded-full ${!termsAccepted ? 'opacity-50' : ''}`}
+              className={`bg-blue-500 py-3 z-20 bottom-0 px-6 rounded-full shadow-md ${!termsAccepted ? 'opacity-50' : ''}`}
             >
-              <Text className="font-rbold text-white">Start Exploring</Text>
-            </Pressable>
-            <Pressable
+              <RNText className="font-rbold text-gray-50">Start Exploring</RNText>
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={() => router.navigate('/editprofile')}
               disabled={!termsAccepted}
-              className={`bg-gray-700 py-3 z-20 bottom-0 px-6 rounded-full ${!termsAccepted ? 'opacity-50' : ''}`}
+              className={`bg-gray-700 py-3 z-20 bottom-0 px-6 rounded-full shadow-md ${!termsAccepted ? 'opacity-50' : ''}`}
             >
-              <Text className="font-rbold ">Customize Profile</Text>
-            </Pressable>
-          </View>
+              <RNText className="font-rbold text-gray-50">Customize Profile</RNText>
+            </TouchableOpacity>
+          </RNView>
         </Animated.View>
       </Animated.ScrollView>
     </View>

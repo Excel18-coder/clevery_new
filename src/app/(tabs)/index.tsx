@@ -8,6 +8,7 @@ import PostsSkeleton from '@/components/posts/skeleton';
 import Post from '@/components/posts';
 import { postsApi } from '@/lib/actions/posts';
 import { queryKeys } from '@/lib/actions/hooks/posts';
+import { router } from 'expo-router';
 
 
 export default function Home() {
@@ -26,8 +27,8 @@ export default function Home() {
     queryFn: ({ pageParam = 1 }) => postsApi.getPosts({ page: pageParam }),
     getNextPageParam: (lastPage) => {
       // Check if there are more pages based on totalPages in metadata
-      return lastPage.metadata.currentPage < lastPage.metadata.totalPages
-        ? lastPage.metadata.currentPage + 1
+      return lastPage.metadata?.currentPage < lastPage.metadata?.totalPages
+        ? lastPage.metadata?.currentPage + 1
         : undefined;
     },
     initialPageParam: 1,
@@ -46,7 +47,7 @@ export default function Home() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const keyExtractor = useCallback((item) => item?.id.toString(), []);
+  const keyExtractor = useCallback((item) => item?.id?.toString(), []);
 
   const renderItem = useCallback(({ item }) => (
     <Post key={item?.id} {...item} />
@@ -57,11 +58,11 @@ export default function Home() {
   if (isError) return <ErrorMessage message='Something went wrong' onRetry={handleRefresh} />;
 
   const handlePress = async () => {
-    // router.navigate('/welcome')
+    // router.navigate('/invitation')
   };
 
   // Flatten posts data from all pages
-  const flattenedData = data?.pages.flatMap(page => page.posts) || [];
+  const flattenedData = data?.pages.flatMap(page => page?.posts) || [];
 
   return (
     <View className='pt-7.5 flex-1'>

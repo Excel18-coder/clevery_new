@@ -47,7 +47,6 @@ const MenuItems: React.FC = () => {
       <MenuItem iconName="info" label="About Us" route="about" />
       <MenuItem iconName="star" label="Feedback" route="feedback" />
       <MenuItem iconName="log-out" label="Logout" route="logout" />
-      <MenuItem iconName="activity" label="Logout" route="logout" />
     </View>
   );
 };

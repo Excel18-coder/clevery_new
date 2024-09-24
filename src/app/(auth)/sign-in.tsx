@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Dimensions, SafeAreaView, Image } from "react-native";
+import { View, Text, ScrollView, Dimensions, Image } from "react-native";
 import { Link, router } from "expo-router";
 import Animated, { 
   useSharedValue, 
@@ -67,12 +67,12 @@ const SignIn = () => {
     formOpacity.value = withDelay(500, withSpring(1));
   }, []);
   
-  useEffect(() => {
-    if(profile?.id.trim()) {
-      handleToast()
-      router.replace('/')
-    }
-  }, [profile]);
+  // useEffect(() => {
+  //   if(profile?.id.trim()) {
+  //     handleToast()
+  //     router.replace('/')
+  //   }
+  // }, [profile]);
 
   const logoAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -129,7 +129,7 @@ const SignIn = () => {
   if(loading) return <Loader loadingText="Signing in..."/>
 
   return (
-    <SafeAreaView className="bg-gray-900 h-full">
+    <View className="bg-gray-900 h-full">
       <ScrollView className="px-6 py-10">
         <View style={{ minHeight: Dimensions.get("window").height - 100 }} className="justify-between">
           <View>
@@ -193,7 +193,7 @@ const SignIn = () => {
           </Animated.View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

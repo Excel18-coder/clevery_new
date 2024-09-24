@@ -169,7 +169,6 @@ export const serverApi = {
    */
   sendChannelMessage: async (messageData: SendMessageDataPayload): Promise<FullModel<Message>> => {
     try {
-      console.log(messageData);
       const response = await axios.post<FullModel<Message>>(
         `${endpoint}${apiPaths.sendMessage(messageData.serverId, messageData.channelId)}`,
         messageData.message

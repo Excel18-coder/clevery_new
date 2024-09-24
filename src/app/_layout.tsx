@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { SplashScreen, Stack, router } from 'expo-router';
+import { SplashScreen, Stack } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
-import { Linking, useColorScheme } from 'react-native';
+import { useColorScheme } from 'react-native';
 import { useFonts } from 'expo-font';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Providers, pusherConnector, useThemeStore } from '../lib';
 
 import "../../global.css"
+// import "./styles.css"
  
 SplashScreen.preventAutoHideAsync();
 
@@ -16,8 +17,8 @@ const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_WEB_CLIENT_ID
 GoogleSignin.configure({
   webClientId: GOOGLE_WEB_CLIENT_ID,
   offlineAccess: true,
-  hostedDomain: '', // specifies a hosted domain restriction
-  forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
+  hostedDomain: '',
+  forceCodeForRefreshToken: true,
   accountName: '',
   iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
   googleServicePlistPath: '',

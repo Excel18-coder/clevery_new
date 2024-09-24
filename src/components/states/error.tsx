@@ -16,7 +16,7 @@ const Error = ({
       <View className="bg-white rounded-2xl shadow-lg p-8 items-center max-w-md w-full">
         <View className="w-36 h-36 mb-6">
           <LottieView
-            source={'https://lottie.host/f8b078ad-5f90-452f-97ac-25370cde0f76/kuhYX87K09.json'}
+            source={require('@/assets/animations/error.json')}
             autoPlay
             loop
             style={{

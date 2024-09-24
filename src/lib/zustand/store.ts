@@ -24,7 +24,9 @@ export interface Profile extends User {
     instagram: string
     discord: string
   }
-  phoneNumber:string
+  phoneNumber:string;
+  visitors:User[]
+  hobbies:string[]
 }
 interface Search {
   id: string;
