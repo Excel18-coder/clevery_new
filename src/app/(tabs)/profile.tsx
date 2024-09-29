@@ -15,10 +15,10 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { Loader, MenuItems, Text, UserInfo, View } from '@/components';
-import { formatDateString, useProfileStore } from '@/lib';
+import { formatDateString, multiFormatDateString, useProfileStore } from '@/lib';
 import Image from '@/components/image';
 import {  Image as RNImage  } from 'expo-image';
-import item from '@/components/chat/messages/item';
+import GalleryPage from '@/components/profile/gallery';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -96,7 +96,7 @@ const ProfilePage = () => {
         />
       );
     } else {
-      return <Text className="p-4 text-center">Gallery content goes here</Text>;
+      return <GalleryPage onAddImages={()=>{}}/>;
     }
   }, [renderItem]);
 
@@ -220,7 +220,7 @@ const FriendsComponent = React.memo(({friends}:any) => {
               <Text className="font-rmedium">{item.name}</Text>
               <Text className="text-gray-600 text-xs font-rregular">@{item.username || item.name}</Text>
             </View>
-            <Text className="text-xs text-gray-500">Friends since {item.createdAt && formatDateString(item.createdAt)}</Text>
+            <Text className="text-xs text-gray-500 font-rregular">Friends since {item.createdAt && multiFormatDateString(item.createdAt)}</Text>
           </View>
         )}
       />
@@ -238,9 +238,9 @@ const HobbiesComponent = React.memo(({ hobbies }:any) => {
             key={hobby}
             className={`m-1 p-2 bg-gray-500 rounded-full z-10 shadow-sm `}
           >
-            <Text className={`font-rmedium`}>
+            <Animated.Text className={`font-rmedium text-white`}>
               {hobby}
-            </Text>
+            </Animated.Text>
           </Animated.View>
         ))}
       </View>

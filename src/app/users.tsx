@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 
-import { ErrorMessage, InviteFriends } from '@/components';
 import { useAddFriend, useUsers, useProfileStore } from '@/lib';
+import { ErrorMessage, InviteFriends, Loader } from '@/components';
 import { User } from '@/types';
 
 const AddFriends: React.FC = () => {
@@ -16,6 +16,7 @@ const AddFriends: React.FC = () => {
 
   const { 
     data: allUsers, 
+    isLoading:loading,
     isError: errorUsers 
   } = useUsers();
 
@@ -36,6 +37,7 @@ const AddFriends: React.FC = () => {
   }, [friends,allUsers])
   
   
+  if (loading ) return <Loader loadingText="Loading potential friends" />;
   if (errorUsers ) return <ErrorMessage message="Failed to get users" />;
 
   async function filterNonFriends() {

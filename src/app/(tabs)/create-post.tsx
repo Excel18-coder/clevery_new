@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback, useEffect, memo } from 'react';
-import { ScrollView, TextInput, Image, Pressable, Text as RNText, Alert, Linking } from 'react-native';
+import React, { useState, useRef, useCallback, useEffect, memo } from 'react';
+import { ScrollView, TextInput, Image, Pressable, Text as RNText, Alert, Linking, TouchableOpacity } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import Feather from '@expo/vector-icons/Feather';
 import Animated, {
@@ -158,7 +158,7 @@ const CreateUpdatePost = () => {
     router.navigate('/');
   } 
 
-  const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+  const AnimatedPressable = Animated.createAnimatedComponent(TouchableOpacity);
 
   const buttonScale = useSharedValue(1);
   const buttonAnimatedStyle = useAnimatedStyle(() => ({
@@ -206,13 +206,13 @@ const CreateUpdatePost = () => {
             value={content}
             placeholderClassName='text-base font-rregular text-gray-400'
             onChangeText={setContent}
-            className="rounded-lg p-4 text-base font-rregular border border-gray-200 bg-gray-500"
+            className="rounded-lg p-4 text-base font-rregular border border-gray-200 bg-gray-300"
             style={{ textAlignVertical: 'top' }}
           />
         </Textarea>
       </Animated.View>
 
-      <Animated.View entering={FadeIn.delay(200).duration(500)} className="mb-6  p-4 rounded-lg bg-gray-700">
+      <Animated.View entering={FadeIn.delay(200).duration(500)} className="mb-6  p-4 rounded-lg bg-gray-300">
         <Text className="text-xl font-rmedium text-gray-800 mb-2">Images</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {images.map((image, index) => (
@@ -220,7 +220,7 @@ const CreateUpdatePost = () => {
               <Image source={{ uri: image }} style={{ width: 120, height: 120, borderRadius: 10 }} />
               <AnimatedPressable 
                 onPress={() => handleRemoveImage(index)}
-                className="absolute top-1 right-1 bg-black bg-opacity-50 rounded-full p-2"
+                className="absolute top-1 right-1 bg-cyan-600 bg-opacity-50 rounded-full p-2"
                 entering={FadeIn.delay(300)}
               >
                 <Feather name="x" size={18} color="white" />
@@ -263,7 +263,7 @@ const CreateUpdatePost = () => {
             onKeyPress={handleKeyPress}
             placeholderClassName='text-base font-rregular text-gray-500'
             placeholder="Add a tag"
-            className="flex-1 bg-gray-500 rounded-lg p-2 text-base font-rregular text-gray-800 mr-2"
+            className="flex-1 bg-gray-300 rounded-lg p-2 text-base font-rregular text-gray-800 mr-2"
           />
           <Pressable 
             onPress={handleAddTag}
@@ -293,9 +293,9 @@ const CreateUpdatePost = () => {
           style={buttonAnimatedStyle}
           className="bg-blue-500 rounded-lg py-3 px-6"
         >
-          <Text className="text-lg font-rmedium text-white text-center">
+          <Animated.Text className="text-lg font-rmedium text-white text-center">
             {isUpdating ? 'Update Post' : 'Create Post'}
-          </Text>
+          </Animated.Text>
         </AnimatedPressable>
         {isUpdating && 
         <AnimatedPressable
@@ -306,13 +306,13 @@ const CreateUpdatePost = () => {
           disabled={deletingPost}
           className="bg-red-600 rounded-lg py-3 px-6"
         >
-          <Text className="text-lg font-rmedium text-white text-center">
+          <Animated.Text className="text-lg font-rmedium text-white text-center">
             Delete Post
-          </Text>
+          </Animated.Text>
         </AnimatedPressable>}
       </Animated.View>
     </ScrollView>
   );
 };
 
-export default memo(CreateUpdatePost);
+export default React.memo(CreateUpdatePost);

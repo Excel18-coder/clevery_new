@@ -1,15 +1,11 @@
 import { useState, useCallback, memo } from 'react';
 import { FlashList } from '@shopify/flash-list';
 import { Pressable, View } from 'react-native';
-import { useInfiniteQuery } from '@tanstack/react-query';
 
 import { ErrorMessage, Loader, Text } from '@/components';
 import PostsSkeleton from '@/components/posts/skeleton';
 import Post from '@/components/posts';
-import { postsApi } from '@/lib/actions/posts';
-import { queryKeys } from '@/lib/actions/hooks/posts';
-import { router } from 'expo-router';
-
+import { usePosts } from '@/lib';
 
 function Home() {
   const [refreshing, setRefreshing] = useState(false);
@@ -22,48 +18,43 @@ function Home() {
     isError,
     isLoading,
     refetch,
-  } = useInfiniteQuery({
-    queryKey: queryKeys.posts,
-    queryFn: ({ pageParam = 1 }) => postsApi.getPosts({ page: pageParam }),
-    getNextPageParam: (lastPage) => {
-      // Check if there are more pages based on totalPages in metadata
-      return lastPage.metadata?.currentPage < lastPage.metadata?.totalPages
-        ? lastPage.metadata?.currentPage + 1
-        : undefined;
-    },
-    initialPageParam: 1,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false
-  });
+  } = usePosts()
 
-  
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    refetch().then(() => setRefreshing(false));
+    try {
+      await refetch();
+    } catch (error) {
+      console.error('Error refreshing:', error);
+    } finally {
+      setRefreshing(false);
+    }
   }, [refetch]);
 
   const handleLoadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
+      fetchNextPage().catch(error => {
+        console.error('Error loading more posts:', error);
+      });
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const keyExtractor = (item) => item?.id;
 
-  const renderItem = useCallback(({ item }) => (
+  const renderItem = useCallback(({ item }: { item: any }) => (
     <Post key={item?.id} {...item} />
   ), []);
 
-  if (isLoading) return <Loader loadingText="Loading your feed" />;
-
-  if (isError) return <ErrorMessage message='Something went wrong' onRetry={handleRefresh} />;
-
-  const handlePress = async () => {
+  const handlePress = useCallback(() => {
     // router.navigate('/invitation')
-  };
+  }, []);
 
-  // Flatten posts data from all pages
-  const flattenedData = data?.pages.flatMap(page => page?.posts) || [];
+
+  if (isLoading) return <PostsSkeleton />;
+
+  if (isError || data?.pages?.posts?.length < 5) return <ErrorMessage message='Something went wrong' onRetry={handleRefresh} />;
+
+  const flattenedData = data?.pages?.flatMap(page => page?.posts) || [];
+  
   
   return (
     <View className='pt-7.5 flex-1'>
@@ -73,7 +64,7 @@ function Home() {
       <FlashList
         data={flattenedData}
         renderItem={renderItem}
-        keyExtractor={keyExtractor}
+        keyExtractor={(item: any) => item?.id?.toString()}
         ListEmptyComponent={<PostsSkeleton />}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews={true}
@@ -89,4 +80,5 @@ function Home() {
     </View>
   );
 }
-export default memo(Home)
+
+export default memo(Home);

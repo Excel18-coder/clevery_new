@@ -2,7 +2,7 @@ import { Pressable } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 
-import { Account, Appearance, FriendRequests, LogoutComponent, MenuItems, Notifications, Text, View } from '@/components';
+import { Account, Appearance, FriendRequests, Loader, LogoutComponent, MenuItems, Notifications, Text, View } from '@/components';
 import { useProfileStore } from '@/lib';
 import DevicesPage from '@/components/profile/devices';
 import FeedbackPage from '@/components/profile/feedback';
@@ -11,6 +11,8 @@ import TermsOfServicePage from '@/components/profile/terms';
 import SecurityPage from '@/components/profile/security';
 import HelpSupportPage from '@/components/profile/about';
 import ActivityPage from '@/components/profile/activity';
+import Error from '@/components/states/error';
+import AboutUsPage from '@/components/profile/help';
 
 const Settings = () => {
   const { setting } = useLocalSearchParams();
@@ -54,6 +56,10 @@ const renderContent = (setting: string | any) => {
       return <SecurityPage />;
     case 'help':
       return <HelpSupportPage />;
+    case 'about':
+      return <AboutUsPage />;
+    // case 'payments':
+    //   return <Loader />;
     case 'logout':
       return <LogoutComponent />;
     default:

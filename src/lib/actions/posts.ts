@@ -9,6 +9,17 @@ type FullModel<T> = T & { id: string; createdAt: Date; updatedAt: Date };
 // Posts API Types
 type UpdatePostData = Partial<Omit<Post, 'authorId' | 'createdAt' | 'updatedAt' | 'author' |'comments'>>;
 
+interface Metadata {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+}
+
+interface PostsApiResponse {
+  posts: Post[];
+  metadata: Metadata;
+}
 // Posts API
 export const postsApi = {
   /**
@@ -17,11 +28,11 @@ export const postsApi = {
    * @returns A promise that resolves to the API response containing fetched posts and metadata
    * @throws Error with a descriptive message if the request fails
    */
-  getPosts: async (params?: PostQuery): Promise<FullModel<Post>[]> => {
+  getPosts: async (params?: PostQuery): Promise<any> => {
     try {
       // const queryString = new URLSearchParams(params as Record<number, string>).toString();
       // ?${queryString}
-      const response = await axios.get<FullModel<Post>[]>(`${endpoint}${apiPaths.getPosts}`);
+      const response = await axios.get<any>(`${endpoint}${apiPaths.getPosts}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to fetch posts");

@@ -1,6 +1,6 @@
 import Ionicons  from '@expo/vector-icons/Ionicons';
 import { Text, View } from '../themed';
-import LottieView from 'lottie-react-native';
+import { Image } from 'expo-image';
 
 const Loader = ({
   loadingText = 'Loading...',
@@ -10,16 +10,14 @@ const Loader = ({
     <View className="flex-1 justify-center items-center shadow-lg ">
       <View className="rounded-2xl shadow-md p-8 items-center max-w-sm w-full">
         <View className="w-36 h-36 mb-6">
-          <LottieView
-            source={require('@/assets/animations/loading.json')}
-            autoPlay
-            loop
+          <Image
+            source={{uri:'https://cdn.sanity.io/files/mqczcmfz/production/4c9c4e70b75bd3566bcbcdbb67a59fd0cbb46ec9.gif'}}
             style={{
+              flex: 1,
               width: '100%',
-              height: '100%',
             }}
-            hardwareAccelerationAndroid
-            speed={0.7}
+            contentFit='cover'
+            transition={1000}
           />
         </View>
 

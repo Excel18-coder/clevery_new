@@ -1,5 +1,5 @@
-import React, { useCallback, useRef } from 'react';
-import { ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useCallback, useRef, useState } from 'react';
+import { ScrollView, TouchableOpacity, Dimensions, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@react-navigation/native';
 import { PieChart } from 'react-native-chart-kit';
@@ -13,21 +13,24 @@ import Animated, {
   withTiming,
   useAnimatedScrollHandler,
   interpolate,
-  Extrapolation
+  Extrapolation,
+  SlideInRight,
+  SlideOutLeft,
+  ZoomIn,
+  ZoomOut
 } from 'react-native-reanimated';
 import { formatDateString, useCurrentUserWithActivity } from '@/lib';
 import { HStack, Loader, Text, View } from '@/components';
+import PopularityBadge from '../badge/popularity';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const AnimatedIcon = ({ name, size, color }) => {
   const scale = useSharedValue(1);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   const handlePress = useCallback(() => {
     scale.value = withSpring(1.2, {}, () => {
@@ -46,46 +49,50 @@ const AnimatedIcon = ({ name, size, color }) => {
 
 const ActivityCard = ({ icon, title, count, color }) => {
   const theme = useTheme();
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(50);
+  const scale = useSharedValue(1);
 
-  React.useEffect(() => {
-    opacity.value = withTiming(1, { duration: 500 });
-    translateY.value = withSpring(0);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePress = useCallback(() => {
+    scale.value = withSpring(1.1, {}, () => {
+      scale.value = withSpring(1);
+    });
   }, []);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: opacity.value,
-      transform: [{ translateY: translateY.value }],
-    };
-  });
-
   return (
-    <Animated.View style={animatedStyle}>
-      <HStack className="rounded-xl p-4 shadow-md items-center bg-white">
-        <View className="mr-4 p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
+    <Pressable onPress={handlePress}>
+      <Animated.View 
+        style={animatedStyle}
+        className="rounded-xl p-5 w-full shadow-md items-center bg-white"
+        entering={ZoomIn.springify()}
+      >
+        <View className="mb-2 p-3 rounded-full" style={{ backgroundColor: `${color}20` }}>
           <AnimatedIcon name={icon} size={24} color={color} />
         </View>
         <View>
-          <Text className="text-lg font-rbold" style={{ color }}>{count}</Text>
-          <Text className="text-sm font-rregular" style={{ color: theme.colors.text }}>{title}</Text>
+          <Text className="text-lg font-rbold text-center" style={{ color }}>{count}</Text>
+          <Text className="text-sm font-rregular text-center" style={{ color: theme.colors.text }}>{title}</Text>
         </View>
-      </HStack>
-    </Animated.View>
+      </Animated.View>
+    </Pressable>
   );
 };
 
 const ActivityTimeline = ({ data }) => {
-
   return (
     <View className="mt-6">
       {data.map((item, index) => (
-        <Animated.View key={item.id} entering={FadeIn.delay(index * 100)} exiting={FadeOut}>
+        <Animated.View 
+          key={item.id} 
+          entering={SlideInRight.delay(index * 100)}
+          exiting={SlideOutLeft}
+        >
           <View className="flex-row">
             <View className="items-center mr-4">
               <View className="w-3 h-3 rounded-full bg-blue-500" />
-              {index < data.length - 1 && <View className="w-0.5 h-16 bg-blue-200" />}
+              {index < data?.length - 1 && <View className="w-0.5 h-16 bg-blue-200" />}
             </View>
             <View className="flex-1 pb-6">
               <Text className="text-lg font-rbold">{item.title}</Text>
@@ -101,8 +108,9 @@ const ActivityTimeline = ({ data }) => {
 
 const ActivityChart = ({ data }) => {
   const theme = useTheme();
+  const [selectedSlice, setSelectedSlice] = useState(null);
 
-   const chartConfig = {
+  const chartConfig = {
     backgroundGradientFrom: theme.colors.background,
     backgroundGradientTo: theme.colors.background,
     color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
@@ -111,28 +119,28 @@ const ActivityChart = ({ data }) => {
   const chartData = [
     {
       name: 'Posts',
-      population: data.contentCreation.posts.length,
+      population: data.contentCreation.posts?.length,
       color: '#FF6B6B',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12
     },
     {
       name: 'Comments',
-      population: data.contentCreation.comments.length,
+      population: data.contentCreation.comments?.length,
       color: '#854d0e',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12
     },
     {
       name: 'Likes',
-      population: data.engagement.interactions.likes.length,
+      population: data.engagement.interactions.likes?.length,
       color: '#FF69B4',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12
     },
     {
       name: 'Saves',
-      population: data.engagement.interactions.saves.length,
+      population: data.engagement.interactions.saves?.length,
       color: '#FFA500',
       legendFontColor: '#7F7F7F',
       legendFontSize: 12
@@ -152,6 +160,7 @@ const ActivityChart = ({ data }) => {
       legendFontSize: 12
     }
   ];
+
   return (
     <Animated.View entering={FadeIn.duration(1000)}>
       <PieChart
@@ -164,11 +173,21 @@ const ActivityChart = ({ data }) => {
         paddingLeft="15"
         absolute
       />
+      {selectedSlice !== null && (
+        <Animated.View 
+          className="bg-white rounded-lg p-4 mt-4 shadow-md"
+          entering={ZoomIn.springify()}
+          exiting={ZoomOut.springify()}
+        >
+          <Text className="text-lg font-rbold">{chartData[selectedSlice].name}</Text>
+          <Text className="text-base">Count: {chartData[selectedSlice].population}</Text>
+        </Animated.View>
+      )}
     </Animated.View>
   );
 };
-const AnimatedHeader = ({ scrollY }) => {
 
+const AnimatedHeader = ({ scrollY }) => {
   const headerStyle = useAnimatedStyle(() => {
     const opacity = interpolate(
       scrollY.value,
@@ -207,6 +226,42 @@ const AnimatedHeader = ({ scrollY }) => {
   );
 };
 
+const ProgressBar = ({ progress, color }) => {
+  const width = useSharedValue(0);
+
+  React.useEffect(() => {
+    width.value = withTiming(progress, { duration: 1000 });
+  }, [progress]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    width: `${width.value * 100}%`,
+  }));
+
+  return (
+    <View className="h-2 bg-gray-200 rounded-full overflow-hidden">
+      <Animated.View
+        className="h-full rounded-full"
+        style={[animatedStyle, { backgroundColor: color }]}
+      />
+    </View>
+  );
+};
+
+const EngagementMetric = ({ title, current, total, color }) => {
+  const progress = total > 0 ? current / total : 0;
+
+  return (
+    <Animated.View 
+      className="bg-white rounded-lg p-4 mb-4 shadow-md"
+      entering={FadeIn.duration(500)}
+    >
+      <Text className="text-lg font-rbold mb-2">{title}</Text>
+      <ProgressBar progress={progress} color={color} />
+      <Text className="text-sm text-gray-500 mt-2">{`${current} / ${total}`}</Text>
+    </Animated.View>
+  );
+};
+
 const ActivityPage = () => {
   const theme = useTheme();
   const scrollY = useSharedValue(0);
@@ -223,7 +278,7 @@ const ActivityPage = () => {
     },
   });
 
-  if (isLoadingActivity) return<Loader loadingText="We're loading your activity"/>
+  if (isLoadingActivity) return <Loader loadingText="We're loading your activity" />;
 
   if (!activity) {
     return (
@@ -233,7 +288,8 @@ const ActivityPage = () => {
       </View>
     );
   }
-//@ts-ignore
+
+  //@ts-ignore
   const { userInfo, contentCreation, engagement, communityInvolvement, networkGrowth, communication, userFeedback } = activity;
 
   return (
@@ -244,16 +300,16 @@ const ActivityPage = () => {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
       >
-        <View style={{ height: 200 }} /> 
+        <View style={{ height: 200 }} />
         <View className="p-5">
-          <View className="flex-row justify-between mb-5">
-            <ActivityCard icon="file-text" title="Posts" count={contentCreation.posts.length} color="#FF6B6B" />
-            <ActivityCard icon="message-square" title="Comments" count={contentCreation.comments.length} color="#4ECDC4" />
+          <View className="flex-row justify-between items-center mb-5">
+            <ActivityCard icon="file-text" title="Posts" count={contentCreation.posts?.length} color="#FF6B6B" />
+            <ActivityCard icon="message-square" title="Comments" count={contentCreation.comments?.length} color="#4ECDC4" />
           </View>
           
-          <View className="flex-row justify-between">
-            <ActivityCard icon="heart" title="Likes" count={engagement.interactions.likes.length} color="#FF69B4" />
-            <ActivityCard icon="bookmark" title="Saves" count={engagement.interactions.saves.length} color="#FFA500" />
+          <View className="flex-row gap-8 mb-5">
+            <ActivityCard icon="heart" title="Likes" count={engagement.interactions.likes?.length} color="#FF69B4" />
+            <ActivityCard icon="bookmark" title="Saves" count={engagement.interactions.saves?.length} color="#FFA500" />
           </View>
 
           <Animated.View entering={FadeIn.duration(1000).delay(300)}>
@@ -264,6 +320,22 @@ const ActivityPage = () => {
           <Animated.View entering={FadeIn.duration(1000).delay(600)}>
             <Text className="text-2xl font-rbold mt-8 mb-4">Activity Stats</Text>
             <ActivityChart data={activity} />
+          </Animated.View>
+
+          <Animated.View entering={FadeIn.duration(1000).delay(900)}>
+            <Text className="text-2xl font-rbold mt-8 mb-4">Engagement Metrics</Text>
+            <EngagementMetric 
+              title="Post Engagement"
+              current={engagement.interactions.likes?.length + engagement.interactions.comments?.length}
+              total={contentCreation.posts?.length * 10}
+              color="#FF6B6B"
+            />
+            <EngagementMetric 
+              title="Community Participation"
+              current={communityInvolvement.eventsAttended}
+              total={communityInvolvement.totalEvents}
+              color="#4ECDC4"
+            />
           </Animated.View>
 
           <Animated.View entering={FadeIn.duration(1000).delay(900)}>
@@ -292,7 +364,7 @@ const ActivityPage = () => {
               <Animated.View
                 key={membership.id}
                 entering={FadeIn.duration(500).delay(index * 100)}
-                className="rounded-xl p-4 shadow-md mb-3"
+                className="rounded-xl p-4 shadow-md mb-3 bg-white"
               >
                 <Text className="text-base font-rbold">{`Server: ${membership.serverName}`}</Text>
                 <Text className="text-sm text-gray-500">{`Role: ${membership.role}`}</Text>
@@ -308,7 +380,7 @@ const ActivityPage = () => {
             <View className="bg-white rounded-xl p-4 shadow-md mb-3">
               <Text className="text-lg font-rmedium">Friends: {networkGrowth.socialNetwork.friends}</Text>
               <Text className="text-lg font-rmedium">Profile Visitors: {networkGrowth.socialNetwork.visitors}</Text>
-              <Text className="text-lg font-rmedium">Invites Sent: {networkGrowth.socialNetwork.invites.length}</Text>
+              <Text className="text-lg font-rmedium">Invites Sent: {networkGrowth.socialNetwork.invites?.length}</Text>
             </View>
           </Animated.View>
 
@@ -318,16 +390,80 @@ const ActivityPage = () => {
               <Text className="text-lg font-rmedium">
                 Initiated Conversations: {communication.messaging.initiatedConversations}
               </Text>
-              <Text className="text-lg font-rmedium">Recent Conversations: {communication.messaging.recentConversations.length}</Text>
+              <Text className="text-lg font-rmedium">Recent Conversations: {communication.messaging.recentConversations?.length}</Text>
             </View>
           </Animated.View>
 
           <Animated.View entering={FadeIn.duration(1000).delay(2100)}>
             <Text className="text-2xl font-rbold mt-8 mb-4">User Feedback</Text>
             <View className="bg-white rounded-xl p-4 shadow-md mb-3">
-              <Text className="text-lg font-rmedium">Notifications: {userFeedback.notifications.length}</Text>
-              <Text className="text-lg font-rmedium">Feedbacks Provided: {userFeedback.feedbacks.length}</Text>
+              <Text className="text-lg font-rmedium">Notifications: {userFeedback.notifications?.length}</Text>
+              <Text className="text-lg font-rmedium">Feedbacks Provided: {userFeedback.feedbacks?.length}</Text>
             </View>
+          </Animated.View>
+
+          <Animated.View entering={FadeIn.duration(1000).delay(2400)}>
+            <Text className="text-2xl font-rbold mt-8 mb-4">Achievement Badges</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {[
+                { icon: 'award', title: 'Top Contributor', color: '#FFD700' },
+                { icon: 'thumbs-up', title: 'Most Liked', color: '#FF69B4' },
+                { icon: 'users', title: 'Social Butterfly', color: '#4169E1' },
+                { icon: 'star', title: 'Rising Star', color: '#FFA500' },
+              ].map((badge, index) => (
+                <Animated.View 
+                  key={badge.title}
+                  className="mr-4 items-center"
+                  entering={ZoomIn.delay(index * 200)}
+                >
+                  <View className="w-16 h-16 rounded-full justify-center items-center mb-2" style={{ backgroundColor: badge.color }}>
+                    <Feather name={badge.icon} size={32} color="white" />
+                  </View>
+                  <Text className="text-sm font-rmedium text-center">{badge.title}</Text>
+                </Animated.View>
+              ))}
+            </ScrollView>
+          </Animated.View>
+
+          <Animated.View entering={FadeIn.duration(1000).delay(2700)}>
+            <Text className="text-2xl font-rbold mt-8 mb-4">Activity Streak</Text>
+            <View className="bg-white rounded-xl p-4 shadow-md mb-3">
+              <Text className="text-lg font-rmedium mb-2">Current Streak: 7 days</Text>
+              <View className="flex-row justify-between">
+                {[1, 2, 3, 4, 5, 6, 7].map((day) => (
+                  <View key={day} className="items-center">
+                    <View className={`w-8 h-8 rounded-full ${day <= 7 ? 'bg-green-500' : 'bg-gray-300'} justify-center items-center`}>
+                      <Feather name="check" size={16} color="white" />
+                    </View>
+                    <Text className="text-xs mt-1">Day {day}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </Animated.View>
+
+          <Animated.View entering={FadeIn.duration(1000).delay(3000)}>
+            <Text className="text-2xl font-rbold mt-8 mb-4">Upcoming Events</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {[
+                { title: 'Community Meetup', date: '2023-10-15', icon: 'users' },
+                { title: 'Webinar: Advanced Techniques', date: '2023-10-22', icon: 'video' },
+                { title: 'Q&A Session', date: '2023-10-29', icon: 'help-circle' },
+              ].map((event, index) => (
+                <Animated.View 
+                  key={event.title}
+                  className="mr-4 bg-white rounded-xl p-4 shadow-md"
+                  style={{ width: SCREEN_WIDTH * 0.7 }}
+                  entering={SlideInRight.delay(index * 200)}
+                >
+                  <View className="flex-row items-center mb-2">
+                    <Feather name={event.icon} size={24} color={theme.colors.primary} />
+                    <Text className="text-lg font-rbold ml-2">{event.title}</Text>
+                  </View>
+                  <Text className="text-sm text-gray-500">{event.date}</Text>
+                </Animated.View>
+              ))}
+            </ScrollView>
           </Animated.View>
         </View>
       </Animated.ScrollView>

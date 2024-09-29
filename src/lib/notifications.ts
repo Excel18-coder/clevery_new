@@ -496,3 +496,26 @@ export const showOnlineFriendsNotification = async (
     data: { onlineFriendCount },
   });
 };
+
+
+export  const showOnlineNotification = useCallback(async (friend: {name,image}): Promise<void> => {
+  try {
+    const channelId = await notifee.createChannel({
+      id: NOTIFICATION_CHANNELS['ONLINE_FRIENDS'],
+      name: 'Friend Online',
+      importance: AndroidImportance.DEFAULT,
+    });
+
+    await notifee.displayNotification({
+      title: 'Friend Online',
+      body: `${friend.name} is now online`,
+      android: {
+        channelId,
+        largeIcon: friend.image,
+        importance: AndroidImportance.DEFAULT,
+      },
+    });
+  } catch (error) {
+    console.error('Error showing online notification:', error);
+  }
+}, []);

@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import React, { useState } from 'react';
 import { FlashList } from '@shopify/flash-list';
 
 import { Message as MessageType } from '@/types';
@@ -21,7 +21,6 @@ const MessagesContainer: React.FC<Props> = ({
 }) => {
   const [popupVisible, setPopupVisible] = useState(false);
 
-  const togglePopup = () => setPopupVisible(!popupVisible);
   const closePopup = () => setPopupVisible(false);
 
   const handleReply = (replyText, messageId) => {
@@ -33,6 +32,7 @@ const MessagesContainer: React.FC<Props> = ({
     console.log(reaction, messageId);
     //TODO: Handle the reaction logic here
   };
+  
   return (
     <View className="flex-1">
       <FlashList
@@ -48,14 +48,13 @@ const MessagesContainer: React.FC<Props> = ({
         ListHeaderComponent={() => (
           <Header
             name={currentChat?.name || currentChat?.user?.name}
-            created={currentChat?.created}
+            created={currentChat?.createdAt}
             description={currentChat?.description}
             image={currentChat?.user?.image}
             isChannel={isChannel}
           />
         )}
-        estimatedItemSize={100}
-        showsVerticalScrollIndicator={false}
+        estimatedItemSize={59}
       />
       <PopupComponent isVisible={popupVisible} onClose={closePopup} username='Clevery' setMessage={setNewMessage} />
     </View>

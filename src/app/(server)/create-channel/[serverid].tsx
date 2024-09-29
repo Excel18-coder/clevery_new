@@ -23,7 +23,7 @@ const CreateChannel: React.FC = () => {
   const {serverid} = useLocalSearchParams()
   const { 
     mutateAsync: createChannel,
-    isPending:creatingServer ,
+    isPending:creatingChannel,
     error 
   } = useCreateChannel(serverid as string);
 
@@ -50,7 +50,7 @@ const CreateChannel: React.FC = () => {
     }
   };
   
-if(creatingServer)return <Loader loadingText='Creating your channel'/>
+if(creatingChannel)return <Loader loadingText='Creating your channel'/>
 
   return (
     <View className='flex-1 '>
@@ -58,7 +58,7 @@ if(creatingServer)return <Loader loadingText='Creating your channel'/>
         fields={newChannel}
         setFields={setNewChannel}
         handleSubmit={handleSubmit}
-        loading={creatingServer}
+        loading={creatingChannel}
         type='channel'
       /> 
     </View>

@@ -1,15 +1,20 @@
 import { useEffect } from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { SplashScreen, Stack } from 'expo-router';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import * as Notifications from 'expo-notifications';
+import { SplashScreen, Stack } from 'expo-router';
 import * as TaskManager from 'expo-task-manager';
 import { useColorScheme } from 'react-native';
 import { useFonts } from 'expo-font';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { Providers, pusherConnector, useThemeStore } from '../lib';
 
-// import "../../global.css"
-import "./styles.css"
+import { 
+  Providers, 
+  pusherConnector, 
+  useThemeStore 
+} from '@/lib';
+ 
+import "../../global.css"
+// import "./styles.css"
  
 SplashScreen.preventAutoHideAsync();
 
@@ -22,9 +27,9 @@ GoogleSignin.configure({
   accountName: '',
   iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
   googleServicePlistPath: '',
-  openIdRealm: '', 
-  profileImageSize: 120,
+  profileImageSize: 120
 });
+
 export { 
   ErrorBoundary,
 } from 'expo-router'; 
@@ -32,7 +37,7 @@ export {
 export const unstable_settings = {
   initialRouteName: 'index',
 };
-
+ 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     'roboto-regular': require('@/assets/fonts/Roboto-Regular.ttf'),

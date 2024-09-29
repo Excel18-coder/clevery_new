@@ -16,11 +16,12 @@ export const queryKeys = {
 
  export const usePosts = (params?: Omit<PostQuery, 'page'>) => {
   return useInfiniteQuery({
-    queryKey: [...queryKeys.posts, params],
-    queryFn: ({ pageParam = 1 }) => postsApi.getPosts({ ...params!, page: pageParam }),
-    getNextPageParam: (lastPage, allPages) => {
-      const nextPage = allPages.length + 1;
-      return lastPage.length === params?.limit ? nextPage : undefined;
+    queryKey: queryKeys.posts,
+    queryFn: ({ pageParam = 1 }) => postsApi.getPosts({ page: pageParam }),
+    getNextPageParam: (lastPage) => {
+      return lastPage.metadata?.currentPage < lastPage.metadata?.totalPages
+        ? lastPage.metadata?.currentPage + 1
+        : undefined;
     },
     initialPageParam: 1,
     refetchOnMount: false,

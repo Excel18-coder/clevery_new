@@ -1,13 +1,7 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { TextInput, Pressable, Dimensions, NativeSyntheticEvent } from 'react-native';
 import { router } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  FadeIn,
-  FadeOut,
-} from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { HStack, Loader, SearchResults, Suggestions, Text, View } from '@/components';
 import { useCombinedSearch } from '@/lib/actions/hooks/search';
 import { Feather } from '@expo/vector-icons';
@@ -24,13 +18,15 @@ const TABS = [
   { icon: 'file', text: 'Files', key: 'files' },
 ] as const;
 
-interface FileItemProps {
-  name: string;
-  size: string;
-  type: 'pdf' | 'doc' | 'xls';
-}
 type TabKey = typeof TABS[number]['key'];
 
+// Custom hook for debouncing
+const useDebounce = (value: string, delay: number, callback: (debouncedValue: string) => void) => {
+  useEffect(() => {
+    const handler = setTimeout(() => callback(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay, callback]);
+};
 
 // Subcomponents
 const SearchBar = ({ setSearch }: { setSearch: (term: string) => void }) => (
@@ -66,25 +62,29 @@ const SearchTabBar = ({ activeTab, onTabPress }: { activeTab: TabKey; onTabPress
 );
 
 const UserItem = ({ item }: { item: any }) => (
-  <Pressable className='flex-row items-center p-4 rounded-lg mb-2' onPress={() => router.push(item.id)}>
+  <Pressable className='flex-row items-center p-4 rounded-lg mb-2' onPress={() => router.push(`/user/${item.id}`)}>
     <Image
       source={item.image || ''}
       style={{ height: 50, width: 50, borderRadius: 25, marginRight: 10, borderWidth: 1, borderColor: 'gray' }}
     />
     <View>
-      <Text className='text-base font-rmedium '>{item.name}</Text>
+      <Text className='text-base font-rmedium'>{item.name}</Text>
       <Text className='text-sm text-gray-400 font-rthin'>{item.username}</Text>
     </View>
   </Pressable>
 );
+
 // Main component
 const ExploreComponent = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('recents');
-  const { setQuery, results, isLoading, topCreators, topServers } = useCombinedSearch();
+  const { setQuery, results, isLoading, topCreators, topServers, query: inputValue } = useCombinedSearch();
   const translateX = useSharedValue(0);
   const scrollX = useSharedValue(0);
+  const width = Dimensions.get('window').width;
 
-  const { width } = Dimensions.get('window');
+  // Debouncing input
+  useDebounce(inputValue, 300, setQuery);
+
   const handleSetSearch = useCallback((term: string) => {
     setQuery(term);
   }, [setQuery]);
@@ -94,7 +94,7 @@ const ExploreComponent = () => {
     scrollX.value = contentOffsetX;
     const index = Math.round(contentOffsetX / width);
     setActiveTab(TABS[index].key);
-  }, []);
+  }, [width]);
 
   const handleTabPress = useCallback((tab: TabKey) => {
     const index = TABS.findIndex(t => t.key === tab);
@@ -102,18 +102,15 @@ const ExploreComponent = () => {
     setActiveTab(tab);
   }, []);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: translateX.value * -1 }],
-    };
-  });
-
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value * -1 }],
+  }));
 
   const renderContent = useMemo(() => {
     if (isLoading) return <Loader loadingText="Searching for results..." />;
 
     const allResults = [...(results?.posts || []), ...(results?.users || []), ...(results?.servers || [])];
-    
+
     return [
       allResults.length > 0 ? (
         <SearchResults key="all" result={allResults} resultType="all" />
@@ -131,6 +128,7 @@ const ExploreComponent = () => {
         data={results?.users?.length > 0 ? results.users : topCreators}
         renderItem={({ item }) => <UserItem item={item} />}
         keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
+        estimatedItemSize={88}
       />,
       <SearchResults key="posts" result={results?.posts} resultType="posts" />,
       <SearchResults key="servers" result={results?.servers} resultType="servers" />,

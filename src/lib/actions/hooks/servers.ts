@@ -98,6 +98,7 @@ export const useCreateChannel = (serverId: string) => {
     mutationFn: (channelData: CreateChannelData) => serverApi.createChannel(serverId, channelData),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: queryKeys.channels(serverId)});
+      queryClient.invalidateQueries({queryKey: queryKeys.server(serverId)});
     }
   });
 };

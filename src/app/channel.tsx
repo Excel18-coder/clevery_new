@@ -8,6 +8,7 @@ import Feather from '@expo/vector-icons/Feather';
 import { ErrorMessage, Loader, MessageInput, MessagesContainer } from '@/components';
 import useUnifiedMessaging from '@/lib/hooks/messaging';
 import { Text, View } from '@/components/themed';
+import MessagesSkeleton from '@/components/chat/channel-skeleton';
 
 function Channel() {
   
@@ -27,7 +28,7 @@ function Channel() {
   } = useUnifiedMessaging();
 
 
-  if (isLoading) return <Loader loadingText='Loading your conversation' />;
+  if (isLoading) return <MessagesSkeleton />;
   if(error) return <ErrorMessage message='An error Occured while loading your conversation'/>
   
   return (

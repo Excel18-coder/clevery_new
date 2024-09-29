@@ -12,7 +12,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { Feather } from '@expo/vector-icons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Feather from '@expo/vector-icons/Feather';
 import Image from '@/components/image';
 import { Text, View } from '@/components/themed'; 
 import { formatDateString } from '@/lib';
@@ -49,7 +50,7 @@ const MessageSeparator: React.FC<{ message: Message }> = React.memo(({ message }
   if (!message.isSeparator) return null;
 
   return(
-    <RNView className='flex-row items-center my-3'>
+    <RNView className='flex-row items-center my-1'>
       <RNView className='flex-1 h-[0.35px] bg-gray-400' />
       <Text className="font-rregular mx-2 text-[8px]">{message.text}</Text>
       <RNView className='flex-1 h-[0.35px] bg-gray-400' />
@@ -214,7 +215,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, onReply, onReact, pr
   return (
     <>
       <GestureDetector gesture={gesture}>
-      <Animated.View className="flex-row mb-1">
+      <Animated.View className="flex-row ">
         <Animated.View style={[rReplyStyle]} className="absolute left-0 h-full justify-center">
           <View className="bg-blue-500 p-2 rounded-r-lg">
             <Feather name="corner-up-left" size={24} color="white" />
@@ -270,7 +271,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, onReply, onReact, pr
                 className="bg-blue-500 p-2 rounded-lg items-center"
                 onPress={handleReply}
               >
-                <Feather name='send' size={24} color="white" />
+                <FontAwesome name="send" size={12} color="white" />
               </Pressable>
             </Animated.View>
           )}

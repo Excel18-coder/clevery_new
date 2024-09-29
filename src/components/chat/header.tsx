@@ -15,7 +15,7 @@ interface Props {
 }
 
 const Header = ({ name, description, created, isChannel, image }: Props) => {
-
+  
   if (isChannel) {
 
     return (
@@ -69,13 +69,6 @@ const Header = ({ name, description, created, isChannel, image }: Props) => {
         Friends since: {created && formatDateString(created)}
       </Text>
 
-      {/* {!messages?.length && (
-        <View className='h-[80%] mt-[30%] mb-[70%] flex-1 '>
-          <Text className='font-rthin text-sm mb-1.5 mt-1.5'>
-            No Messages yet, send a message to start a conversation with {user?.username}
-          </Text>
-        </View>
-      )} */}
     </View>
   )
 }

@@ -40,9 +40,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "@react-native-google-signin/google-signin",
     [
       'expo-notifications',
-      {
-        sounds: ['./src/assets/Sounds/notification.wav'],
-      },
     ],
   ],
   extra: {

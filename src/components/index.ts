@@ -22,28 +22,21 @@ export {default as InviteFriends} from '@/components/shared/invite'
 export {default as LoadingUsers} from '@/components/shared/loading-users'
 export {default as FormField} from '@/components/shared/form_field'
 export { default as LogoutComponent } from '@/components/profile/log-out'
-// export { default as Badge } from '@/components/badge/user'
-
 
 // Importing components
 export * from '@/components/ui/box';
 export * from '@/components/ui/modal';
 export * from '@/components/ui/input';
-export * from '@/components/ui/checkbox';
-export * from '@/components/ui/switch';
 export * from '@/components/ui/toast';
 export * from '@/components/ui/hstack'
 export * from '@/components/ui/vstack'
 export * from '@/components/ui/select'
 export * from '@/components/ui/lineargradient'
 export * from '@/components/ui/button'
-export * from '@/components/ui/progress'
-export * from '@/components/ui/checkbox'
 export * from '@/components/ui/alert'
 export * from '@/components/ui/alert-dialog'
 export * from '@/components/ui/fab'
 export * from '@/components/ui/icon'
 export * from '@/components/ui/toast'
 export * from '@/components/ui/form-control'
-// export * from '@/components/ui/divider';
 

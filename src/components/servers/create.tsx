@@ -1,4 +1,4 @@
-import { TouchableOpacity } from 'react-native';
+import { Switch, TouchableOpacity } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import Animated, { 
   FadeInDown, 
@@ -15,7 +15,6 @@ import { HStack } from '@/components/ui/hstack';
 import { Select, SelectBackdrop, SelectContent, SelectDragIndicator, SelectDragIndicatorWrapper, SelectIcon, SelectInput, SelectItem, SelectPortal, SelectTrigger } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { ChevronDownIcon } from '../ui/icon';
-import { Switch } from '../ui/switch';
 import { useTheme } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -183,9 +182,9 @@ const Create: React.FC<CreateProps> = ({
             className="font-semibold w-full bg-blue-600 py-3 rounded-lg"
           >
             {loading ? (
-              <Text className="font-pregular text-white">Creating {title}...</Text>
+              <Animated.Text className="font-pregular text-white">Creating {title}...</Animated.Text>
             ) : (
-              <Text className="font-pregular text-white">Create {title}</Text>
+              <Animated.Text className="font-pregular text-white">Create {title}</Animated.Text>
             )}
           </Button>
         </AnimatedVStack>

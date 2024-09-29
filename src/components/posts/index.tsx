@@ -7,7 +7,7 @@ import { HStack } from '../ui/hstack';
 import CommentsPopup from './popup';
 import { 
   checkIsLiked, multiFormatDateString, 
-  showToastMessage, useDeletePost, useLikePost, 
+  useDeletePost, useLikePost, 
   useProfileStore, useSavePost 
 } from '@/lib';
 import { Text, View } from '../themed';
@@ -37,7 +37,6 @@ const AuthorInfo = memo(({ author, timestamp, iscomment }: any) => (
           style={{marginRight:10, borderRadius: 25, borderWidth: 1, borderColor: 'gray', width: 50, height: 50, zIndex: 1 }}
           contentFit='cover'
         />
-        // 'mr-2.5 w-[50px] h-[50px] rounded-3xl'
       )}
     </TouchableOpacity>
     <View className='flex-1'>
@@ -50,13 +49,45 @@ const AuthorInfo = memo(({ author, timestamp, iscomment }: any) => (
   </View>
 ));
 
-const ActionStats = memo(({ author, likesList, postId, userId, isSaved, isLiked, handleLikePost, handleSavePost, handleDeletePost, setCommentsVisible }: any) => (
+
+const Post = memo(({ author, content: caption, createdAt: timestamp, id: postId, comments, images, tags, likes: initialLikes, saves: savesList }: PostType) => {
+  const { profile: { id: userId } } = useProfileStore();
+  const [saves, setSaves] = useState(savesList);
+  const [likes, setLikes] = useState<string[]>(initialLikes);
+  const [isCommentsVisible, setCommentsVisible] = useState(false);
+
+  const { mutateAsync: likePost, isPending:liking } = useLikePost();
+  const { mutateAsync: savePost, isPending:saving } = useSavePost();
+  const { mutateAsync: deletePost } = useDeletePost();
+  
+  //@ts-ignore
+  const isLiked = checkIsLiked(likes.map(like => like.id), userId)
+  const isSaved = checkIsLiked(saves.map(like => like.id), userId)
+
+  const commentedUserImages = useMemo(() => comments?.slice(0, 3).map(comment => comment?.author?.image) || [], [comments]);
+
+  const handleLikePost = useCallback(async() => {
+    //@ts-ignore
+    setLikes(prev => prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, {id:userId}]);
+    await likePost(postId);
+  }, [userId, postId, likePost]);
+
+  const handleSavePost = useCallback(async() => {
+    setSaves(prev => prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]);
+    await savePost(postId);
+  }, [postId, savePost]);
+
+  const handleDeletePost = useCallback(() => {
+    router.push(`/create-post?id=${postId}`);
+  }, [postId]);
+
+  const ActionStats = memo(() => (
   <HStack className='justify-between'>
     <View className='flex-row mb-2.5 mt-5 gap-3'>
       <TouchableOpacity onPress={handleLikePost}>
       <Text className='font-rmedium text-rose-400 justify-evenly text-xs mr-2.5 pt-2'>
         <Ionicons name={isLiked ? 'heart' : 'heart-outline'} size={22} />
-        {likesList?.length || 0}
+        {likes?.length || 0}
       </Text>
     </TouchableOpacity>
     <TouchableOpacity onPress={() => setCommentsVisible(true)}>
@@ -69,42 +100,12 @@ const ActionStats = memo(({ author, likesList, postId, userId, isSaved, isLiked,
     </TouchableOpacity>
     </View>
     {author?.id == userId && (
-      <TouchableOpacity onPress={() => handleDeletePost(postId, userId)} className='ml-auto rounded-[5px]'>
+      <TouchableOpacity onPress={() => handleDeletePost()} className='ml-auto rounded-[5px]'>
         <Feather name="edit" size={20} color="gray" />
       </TouchableOpacity>
     )}
   </HStack>
 ));
-
-const Post = memo(({ author, content: caption, createdAt: timestamp, id: postId, comments, images, tags, likes: initialLikes, saves: savesList }: PostType) => {
-  const { profile: { id: userId } } = useProfileStore();
-  const [saves, setSaves] = useState(savesList);
-  const [likes, setLikes] = useState<string[]>(initialLikes);
-  const [isCommentsVisible, setCommentsVisible] = useState(false);
-
-  const { mutate: likePost } = useLikePost();
-  const { mutate: savePost } = useSavePost();
-  const { mutate: deletePost } = useDeletePost();
-
-  const commentedUserImages = useMemo(() => comments?.slice(0, 3).map(comment => comment?.author?.image) || [], [comments]);
-
-  const handleLikePost = useCallback(() => {
-    setLikes(prev => prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]);
-    likePost(postId);
-    showToastMessage("Post liked");
-  }, [userId, postId, likePost]);
-
-  const handleSavePost = useCallback(() => {
-    setSaves(prev => prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]);
-    savePost(postId);
-    showToastMessage("Post saved");
-  }, [postId, savePost]);
-
-  const handleDeletePost = useCallback(() => {
-    router.push(`/create-post?id=${postId}`);
-  }, [postId]);
-
-  
   return (
     <View className="p-2.5 mb-1">
       <AuthorInfo author={author} timestamp={timestamp} />
@@ -135,20 +136,7 @@ const Post = memo(({ author, content: caption, createdAt: timestamp, id: postId,
           numberofcomments={comments.length}
         />
       )}
-      <ActionStats
-        author={author}
-        postId={postId}
-        // @ts-ignore
-        isLiked={checkIsLiked(likes.map(like => like.id), userId)}
-        likesList={likes}
-        savesList={savesList}
-        userId={userId}
-        isSaved={checkIsLiked(saves.map(like => like.id), userId)}
-        handleLikePost={handleLikePost}
-        handleSavePost={handleSavePost}
-        handleDeletePost={handleDeletePost}
-        setCommentsVisible={setCommentsVisible}
-      />
+      <ActionStats/>
       { isCommentsVisible &&
         <CommentsPopup
         postId={postId}

@@ -1,10 +1,14 @@
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { StyleSheet } from 'react-native';
+import Animated, {
+  FadeInDown, 
+  FadeInUp 
+} from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import LottieView from 'lottie-react-native';
 import { Link, Stack } from 'expo-router';
 
 import { HStack, Text, View, VStack } from '@/components';
+import { Image } from 'expo-image';
 
 export default function NotFoundScreen() {
   return (
@@ -14,61 +18,61 @@ export default function NotFoundScreen() {
         colors={['#f3e7e9', '#e3eeff']}
         style={{ flex: 1 }}
       >
-        <VStack className='flex-1 justify-center items-center p-6'>
+        <VStack style={styles.container}>
           <Animated.View entering={FadeInDown.delay(300).duration(1000)}>
-            <LottieView
-              source={require('@/assets/animations/error.json')}
-              autoPlay
-              loop
-              style={{ width: 200, height: 200 }}
+            <Image
+              source={{uri:'https://cdn.sanity.io/files/mqczcmfz/production/8fb8af8eca62a6df498f3877d8052819709b677b.gif'}}
+              style={styles.image}
+              contentFit='cover'
+              transition={1000}
             />
           </Animated.View>
           
           <Animated.View entering={FadeInUp.delay(600).duration(1000)}>
-            <Text className='font-rbold text-3xl mt-8 text-red-600'>Unexpected Error</Text>
+            <Text style={styles.title}>Unexpected Error</Text>
           </Animated.View>
           
           <Animated.View entering={FadeInUp.delay(900).duration(1000)}>
-            <Text className='font-rregular text-lg mt-2 text-center text-gray-700'>
+            <Text style={styles.subtitle}>
               We're sorry, but Clevery encountered an unexpected issue.
             </Text>
           </Animated.View>
           
-          <Animated.View entering={FadeInUp.delay(1200).duration(1000)} className='w-full'>
-            <View className='mt-6 bg-white p-6 rounded-2xl shadow-lg w-full'>
-              <Text className='font-rmedium text-xl mb-4 text-gray-800'>What you can do:</Text>
-              <HStack className='items-center mb-4'>
-                <View className='bg-blue-100 p-2 rounded-full'>
+          <Animated.View entering={FadeInUp.delay(1200).duration(1000)} style={styles.fullWidth}>
+            <View style={styles.infoBox}>
+              <Text style={styles.infoTitle}>What you can do:</Text>
+              <HStack style={styles.infoItem}>
+                <View style={[styles.iconBackground, { backgroundColor: '#EBF5FF' }]}>
                   <Ionicons name="refresh-circle-outline" size={28} color="#3B82F6" />
                 </View>
-                <Text className='font-rregular text-base ml-4 text-gray-600'>Try refreshing the page</Text>
+                <Text style={styles.infoText}>Try refreshing the page</Text>
               </HStack>
-              <HStack className='items-center mb-4'>
-                <View className='bg-green-100 p-2 rounded-full'>
+              <HStack style={styles.infoItem}>
+                <View style={[styles.iconBackground, { backgroundColor: '#ECFDF5' }]}>
                   <Ionicons name="time-outline" size={28} color="#10B981" />
                 </View>
-                <Text className='font-rregular text-base ml-4 text-gray-600'>Wait a few minutes and try again</Text>
+                <Text style={styles.infoText}>Wait a few minutes and try again</Text>
               </HStack>
-              <HStack className='items-center'>
-                <View className='bg-purple-100 p-2 rounded-full'>
+              <HStack style={styles.infoItem}>
+                <View style={[styles.iconBackground, { backgroundColor: '#F3E8FF' }]}>
                   <Ionicons name="mail-outline" size={28} color="#8B5CF6" />
                 </View>
-                <Text className='font-rregular text-base ml-4 text-gray-600'>Contact support if the issue persists</Text>
+                <Text style={styles.infoText}>Contact support if the issue persists</Text>
               </HStack>
             </View>
           </Animated.View>
           
           <Animated.View entering={FadeInUp.delay(1500).duration(1000)}>
-            <Link href="/" className='mt-8'>
+            <Link href="/" style={styles.link}>
               <LinearGradient
                 colors={['#4F46E5', '#7C3AED']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                className='px-8 py-4 rounded-full'
+                style={styles.button}
               >
-                <HStack className='items-center'>
+                <HStack style={styles.buttonContent}>
                   <Ionicons name="home-outline" size={24} color="white" />
-                  <Text className='font-rmedium text-white text-lg ml-2'>Return to Home</Text>
+                  <Text style={styles.buttonText}>Return to Home</Text>
                 </HStack>
               </LinearGradient>
             </Link>
@@ -78,3 +82,84 @@ export default function NotFoundScreen() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  image: {
+    flex: 1,
+    width: '120%',
+  },
+  title: {
+    fontFamily: 'rbold',
+    fontSize: 30,
+    marginTop: 32,
+    color: '#DC2626',
+  },
+  subtitle: {
+    fontFamily: 'rregular',
+    fontSize: 18,
+    marginTop: 8,
+    textAlign: 'center',
+    color: '#374151',
+  },
+  fullWidth: {
+    width: '100%',
+  },
+  infoBox: {
+    marginTop: 24,
+    backgroundColor: 'white',
+    padding: 24,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    width: '100%',
+  },
+  infoTitle: {
+    fontFamily: 'rmedium',
+    fontSize: 20,
+    marginBottom: 16,
+    color: '#1F2937',
+  },
+  infoItem: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  iconBackground: {
+    padding: 8,
+    borderRadius: 9999,
+  },
+  infoText: {
+    fontFamily: 'rregular',
+    fontSize: 16,
+    marginLeft: 16,
+    color: '#4B5563',
+  },
+  link: {
+    marginTop: 32,
+  },
+  button: {
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: 9999,
+  },
+  buttonContent: {
+    alignItems: 'center',
+  },
+  buttonText: {
+    fontFamily: 'rmedium',
+    color: 'white',
+    fontSize: 18,
+    marginLeft: 8,
+  },
+});
