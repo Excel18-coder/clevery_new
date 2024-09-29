@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Clevery',
   slug: 'clevery',
-  version: '2.0.0',
+  version: '3.0.0',
   orientation: 'portrait',
   icon: './src/assets/images/icon.png',
   scheme: 'com.clevery.app',
