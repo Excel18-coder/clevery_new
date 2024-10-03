@@ -12,21 +12,17 @@ import Animated, {
 import { Button, FormField, Loader, Toast, ToastDescription, ToastTitle, useToast } from "@/components";
 import { useAuth } from "@/lib/contexts/auth";
 import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
-import * as WebBrowser from 'expo-web-browser';
 import { useProfileStore } from "@/lib";
-import { userApi } from "@/lib/actions/users";
-
-WebBrowser.maybeCompleteAuthSession();
 
 const SignIn = () => {
-  const { loading, signIn, user } = useAuth();
-  const {profile, setProfile} = useProfileStore()
+  const { loading, signIn } = useAuth();
+  const { profile } = useProfileStore()
   const [toastId, setToastId] = useState('0')
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
-  WebBrowser.warmUpAsync()
+  
   const toast = useToast()
   const handleToast = () => {
     if (!toast.isActive(toastId)) {
@@ -86,13 +82,7 @@ const SignIn = () => {
 
  const handleGoogleSignIn = async () => {
     await signIn("google");
-    
-    setTimeout(async() => {
-      const user = await userApi.getCurrentUser();
-      console.log(user)
-      setProfile(user);
-      router.replace('/');
-    }, 3000);
+    router.replace('/');
 };
 
   const submit = async () => {

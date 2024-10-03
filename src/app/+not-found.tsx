@@ -4,7 +4,7 @@ import Animated, {
   FadeInUp 
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Link, Stack } from 'expo-router';
 
 import { HStack, Text, View, VStack } from '@/components';

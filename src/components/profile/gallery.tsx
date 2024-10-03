@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, Dimensions, RefreshControl } from 'react-native';
+import { View, Text, Dimensions, RefreshControl, Pressable } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -93,7 +93,7 @@ const GalleryPage: React.FC<GalleryProps> = ({ images = mockImages, onAddImages 
         className="p-2"
         style={{ height: imageHeight }}
       >
-        <TouchableOpacity onPress={() => setSelectedImage(item)} >
+        <Pressable onPress={() => setSelectedImage(item)} >
           <Image
             source={{ uri: item.uri }}
             style={{ aspectRatio, borderRadius: 12}}
@@ -111,7 +111,7 @@ const GalleryPage: React.FC<GalleryProps> = ({ images = mockImages, onAddImages 
               <Text className="font-rregular text-white text-sm ml-1">{item.likes}</Text>
             </View>
           </View>
-        </TouchableOpacity>
+        </Pressable>
       </Animated.View>
     );
   };
@@ -127,13 +127,13 @@ const GalleryPage: React.FC<GalleryProps> = ({ images = mockImages, onAddImages 
         <Text className="font-rregular text-base text-gray-600 text-center mb-6">
           Add some amazing photos to showcase your life and experiences!
         </Text>
-        <TouchableOpacity
+        <Pressable
           onPress={onAddImages}
           className="flex-row items-center bg-blue-500 px-6 py-3 rounded-full"
         >
           <Feather name="plus" size={24} color="#ffffff" />
           <Text className="font-rmedium text-base text-white ml-2">Add Images</Text>
-        </TouchableOpacity>
+        </Pressable>
       </Animated.View>
     </View>
   );
@@ -158,18 +158,18 @@ const GalleryPage: React.FC<GalleryProps> = ({ images = mockImages, onAddImages 
                 <Feather name="heart" size={20} color="#fff" />
                 <Text className="font-rmedium text-white text-lg ml-2">{image.likes} likes</Text>
               </View>
-              <TouchableOpacity className="bg-blue-500 px-4 py-2 rounded-full">
+              <Pressable className="bg-blue-500 px-4 py-2 rounded-full">
                 <Text className="font-rmedium text-white">Share</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </View>
         </View>
-        <TouchableOpacity
+        <Pressable
           onPress={() => setSelectedImage(null)}
           className="absolute top-10 right-5 bg-white bg-opacity-20 p-2 rounded-full"
         >
           <Feather name="x" size={24} color="#fff" />
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </Animated.View>
   );
@@ -207,12 +207,12 @@ const GalleryPage: React.FC<GalleryProps> = ({ images = mockImages, onAddImages 
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" />
             }
           />
-          <TouchableOpacity
+          <Pressable
             onPress={onAddImages}
             className="absolute bottom-6 right-6 bg-blue-500 p-4 rounded-full shadow-lg"
           >
             <Feather name="plus" size={24} color="#ffffff" />
-          </TouchableOpacity>
+          </Pressable>
         </>
       ) : (
         <EmptyGallery />

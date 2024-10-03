@@ -13,8 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useDeleteChannel, useDeleteMembers, useProfileStore, useServer } from '@/lib';
 import { Channel, ServerMember } from '@/types';
-import { AddIcon } from '@/components/ui/icon';
-import { HStack, VStack, Text, AlertDialog, AlertDialogBackdrop, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, Button, ButtonText, Input, InputField, Fab, FabIcon, FabLabel, ErrorMessage, Loader, Toast, ToastDescription, useToast } from '@/components';
+import { HStack, VStack, Text, AlertDialog, AlertDialogBackdrop, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, Button, ButtonText, Input, InputField, ErrorMessage, Loader, Toast, ToastDescription, useToast } from '@/components';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
@@ -327,14 +326,14 @@ const AdminDashboard: React.FC = () => {
         message="Are you sure you want to delete this channel? This action cannot be undone."
       />
 
-      <Fab
+      {/* <Fab
         size="sm"
         onPress={() => router.push(`/create-channel/${serverData?.id}`)}
         className="bg-blue-500 shadow-lg"
       >
         <FabIcon as={AddIcon} />
         <FabLabel className='font-rbold'>New Channel</FabLabel>
-      </Fab>
+      </Fab> */}
     </ScrollView>
   );
 };

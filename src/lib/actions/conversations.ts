@@ -1,8 +1,10 @@
 import axios from 'axios';
+
 import { Conversation, Message, SendMessageData } from '@/types';
-import { endpoint } from '@/lib/env';
-import { handleApiError } from './error';
 import { conversationPaths as apiPaths } from '@/routes';
+import { handleApiError } from './error';
+import { endpoint } from '@/lib/env';
+
 export interface SendMessagePayload {
   conversationId: string;
   message: SendMessageData

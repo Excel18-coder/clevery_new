@@ -1,8 +1,9 @@
-import { View } from '@/components';
-import { useProfileStore } from '@/lib';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Tabs } from 'expo-router';
+
+import { useProfileStore } from '@/lib';
+import { View } from '@/components';
 
 export default function TabLayout() {
   const ProfImage = () => {
@@ -17,8 +18,6 @@ export default function TabLayout() {
       <View>
         <Image
           source={userImage}
-          width={30}
-          height={30}
           style={{height:30, width:30, borderRadius:15, borderColor:'gray', borderWidth:0.5}}
         />
       </View>

@@ -1,10 +1,9 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 
-import useDebounce from '@/lib/hooks/useDebounce';
 import searchApi from '@/lib/actions/search';
 import { useTopServers } from './servers';
-import { useTopCreators } from './users';
+import { useTopCreators, useUsers } from './users';
 
 const DEBOUNCE_DELAY = 300; // milliseconds 
 const MIN_QUERY_LENGTH = 3;
@@ -16,14 +15,8 @@ export const useCombinedSearch = (initialQuery: string = '', initialType: Search
   const [searchType, setSearchType] = useState<SearchType>(initialType);
   const { data: topCreators, isPending: loadingCreators } = useTopCreators();
   const { data: topServers, isPending: loadingServers } = useTopServers();
+  const { data: users, isPending: loadingUsers } = useUsers();
 
-  const debouncedSetQuery = () => useDebounce((value: string) => {
-      if (value?.length >= MIN_QUERY_LENGTH) {
-        setQuery(value);
-      } else {
-        setQuery('');
-      }
-    }, DEBOUNCE_DELAY)
 
   const isQueryValid = query?.length >= MIN_QUERY_LENGTH;
 
@@ -86,5 +79,8 @@ export const useCombinedSearch = (initialQuery: string = '', initialType: Search
     loadingCreators,
     loadingServers,
     isQueryValid,
+    loadingUsers,
+    //@ts-ignore
+    users:users?.users
   };
 };

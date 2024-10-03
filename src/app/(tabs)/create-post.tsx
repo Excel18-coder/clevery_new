@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect, memo } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { ScrollView, TextInput, Image, Pressable, Text as RNText, Alert, Linking, TouchableOpacity } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import Feather from '@expo/vector-icons/Feather';

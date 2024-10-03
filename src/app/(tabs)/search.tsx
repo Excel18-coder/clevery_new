@@ -1,13 +1,17 @@
-import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { TextInput, Pressable, Dimensions, NativeSyntheticEvent } from 'react-native';
+import { NativeScrollEvent } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { Image } from 'expo-image';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withTiming 
+} from 'react-native-reanimated';
+
 import { HStack, Loader, SearchResults, Suggestions, Text, View } from '@/components';
 import { useCombinedSearch } from '@/lib/actions/hooks/search';
-import { Feather } from '@expo/vector-icons';
-import { NativeScrollEvent } from 'react-native';
-import { Image } from 'expo-image';
-import { FlashList } from '@shopify/flash-list';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -77,7 +81,7 @@ const UserItem = ({ item }: { item: any }) => (
 // Main component
 const ExploreComponent = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('recents');
-  const { setQuery, results, isLoading, topCreators, topServers, query: inputValue } = useCombinedSearch();
+  const { users, setQuery, results, isLoading, topCreators, topServers, query: inputValue } = useCombinedSearch();
   const translateX = useSharedValue(0);
   const scrollX = useSharedValue(0);
   const width = Dimensions.get('window').width;
@@ -88,6 +92,7 @@ const ExploreComponent = () => {
   const handleSetSearch = useCallback((term: string) => {
     setQuery(term);
   }, [setQuery]);
+  
 
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>): void => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
@@ -123,12 +128,11 @@ const ExploreComponent = () => {
           onClearSearchHistory={() => handleSetSearch('')}
         />
       ),
-      <FlashList
+      <Animated.FlatList
         key="users"
-        data={results?.users?.length > 0 ? results.users : topCreators}
+        data={results?.users?.length > 0 ? results.users : users}
         renderItem={({ item }) => <UserItem item={item} />}
         keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
-        estimatedItemSize={88}
       />,
       <SearchResults key="posts" result={results?.posts} resultType="posts" />,
       <SearchResults key="servers" result={results?.servers} resultType="servers" />,

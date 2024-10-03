@@ -20,7 +20,7 @@ const Comment = ({ comment, onReply, onLike, currentUser, depth = 0 }: {
   const hasReplies = comment.replies && comment?.replies?.length > 0;
   const isAuthor = comment.authorId === currentUser.id;
   const isLiked = comment.likes?.some(like => like.id === currentUser.id);
-console.log(comment.author.image)
+  
   return (
     <View className={`p-2 mb-4 ml-${depth * 4}`}>
       <HStack space='md' className='items-center'>
@@ -83,20 +83,8 @@ const CommentsPopup = ({ isVisible, onClose, postId,initialComments }) => {
   }, [isVisible]); 
 
   const handleAddComment = async () => {
-    if (newComment.trim() === '') return;
-
-    const newCommentObj: CommentType = {
-      id: Date.now().toString(),
-      text: newComment,
-      authorId: profile.id,
-      postId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      author: profile,
-      likes: [],
-      replies: [],
-    };
-
+    if (newComment.trim()) return;
+    
     try {
       if (replyTo) {
         const response = await sendComment({

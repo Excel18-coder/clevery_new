@@ -13,5 +13,5 @@
     "global.d.ts",
     "**/*.ts",
     "**/*.tsx"
-  ]
+, "metro.config.js"  ]
 }

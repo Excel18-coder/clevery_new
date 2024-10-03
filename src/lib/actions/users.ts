@@ -4,6 +4,7 @@ import { Profile } from "@/lib/zustand/store";
 import { handleApiError } from "./error";
 import { endpoint } from "@/lib/env";
 import { User } from "@/types";
+import { registerForPushNotificationsAsync } from "../notifications";
 
 type UserDetailsResponse = User & {
   commonFriends: Array<{ id: string; name: string; image: string }>;
@@ -23,7 +24,9 @@ export const userApi = {
    */
   getCurrentUser: async (): Promise<Profile> => {
     try {
-      const response = await axios.get<Profile>(`${endpoint}${apiPaths.currentUser}`);
+      const token = await registerForPushNotificationsAsync();
+
+      const response = await axios.get<Profile>(`${endpoint}${apiPaths.currentUser}&notification_token=${token}&activity=false`);
       return response.data;
     } catch (error) {
       throw handleApiError(error, "Failed to fetch current user");

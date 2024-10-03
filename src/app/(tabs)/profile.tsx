@@ -96,6 +96,7 @@ const ProfilePage = () => {
         />
       );
     } else {
+      //@ts-ignore
       return <GalleryPage onAddImages={()=>{}}/>;
     }
   }, [renderItem]);
@@ -110,8 +111,8 @@ const ProfilePage = () => {
       <Animated.View style={[headerAnimatedStyle, { overflow: 'hidden' }]}>
         <Image
           source={profile.bannerImage ? profile.bannerImage : 'https://via.placeholder.com/350x250'} 
-          // height={250}
-          // width={350}
+          height={250}
+          width={350}
           style="w-full justify-end items-center h-full" 
           // style={{alignItems:'center',width:350, }} 
         />
@@ -213,8 +214,6 @@ const FriendsComponent = React.memo(({friends}:any) => {
             <RNImage 
               source={{uri:item.image ? item.image : "https://via.placeholder.com/50"}}
               style={{width:48,height:48, borderRadius:24, marginRight:1, borderColor:'gray', borderWidth:1, marginLeft:2}}
-              height={48}
-              width={48}
             />
             <View className="flex-1">
               <Text className="font-rmedium">{item.name}</Text>
@@ -299,4 +298,4 @@ const VisitorsModal = memo(({ visitors, isVisible, onClose }:any) => {
   );
 });
 
-export default ProfilePage;
+export default React.memo(ProfilePage);

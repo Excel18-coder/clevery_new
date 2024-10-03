@@ -1,8 +1,8 @@
 
 export const env =({
-  androidClient:process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID!,
-  iosClient:process.env.EXPO_PUBLIC_IOS_CLIENT_ID!,
-  expoClientId:process.env.EXPO_PUBLIC_CLIENT_ID,
+  androidClient: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID!,
+  iosClient: process.env.EXPO_PUBLIC_IOS_CLIENT_ID!,
+  expoClientId: process.env.EXPO_PUBLIC_CLIENT_ID,
 })
  
 

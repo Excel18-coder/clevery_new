@@ -1,4 +1,5 @@
 import { ConfigContext, ExpoConfig } from '@expo/config';
+import 'ts-node/register'; // Add this to import TypeScript files
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -39,8 +40,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-font',
     "@react-native-google-signin/google-signin",
     [
-      'expo-notifications',
-    ],
+      "expo-notifications",
+      {
+        "icon": './src/assets/images/icon.png',
+        "color": "#ffffff",
+        "sounds": ["./src/assets/sounds/notification.wav"]
+      }
+    ]
+
   ],
   extra: {
     router: {

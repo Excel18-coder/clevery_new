@@ -10,6 +10,7 @@ import { useProfileStore } from '@/lib/zustand/store';
 import { parseIncomingMessage } from '@/lib/utils';
 import { Conversation, Message } from '@/types';
 import { pusher } from '@/lib/pusher/config';
+import { endpoint } from '../env';
 
 interface MessagingContextValue {
   conversations: Conversation[];
@@ -33,7 +34,14 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = React.memo(({
   const conversationsRef = useRef(conversations);
   const profileIdRef = useRef(profile?.id);
 
+  // const notification =async() => {
+  //   console.log('notification');  
+  //   const notifications = await fetch(`${endpoint}/api/profile/notifications`).then( async res => await res.json());
+  //   console.log(notifications);
+  // }
+
   useEffect(() => {
+    // notification();
     conversationsRef.current = conversations;
     profileIdRef.current = profile?.id;
   }, [conversations, profile?.id]);
@@ -86,7 +94,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = React.memo(({
   const handleAppStateChange = useCallback((nextAppState: AppStateStatus) => {
     if (nextAppState === 'active') {
       subscribeToPusherChannels();
-      refetch().catch(error => console.error('Failed to refetch conversations:', error));
+      refetch().catch(error => console.warn('Failed to refetch conversations:', error));
     } else if (nextAppState === 'background' || nextAppState === 'inactive') {
       unsubscribeFromPusherChannels();
     }

@@ -1,19 +1,6 @@
-import { Platform } from 'react-native';
+import notifee, { AndroidImportance, AndroidStyle, AndroidCategory } from '@notifee/react-native';
 import * as Notifications from 'expo-notifications';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import notifee, { AndroidImportance, AndroidStyle, AndroidCategory, EventType } from '@notifee/react-native';
-import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { useCallback } from 'react';
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
-
+import { Platform } from 'react-native';
 
 export async function registerForPushNotificationsAsync() {
   let token;
@@ -83,20 +70,13 @@ interface NotificationData {
   data?: Record<string, unknown>;
 }
  
-// Zustand store for disabled notification channels
-interface DisabledChannelsState {
-  disabledChannels: NOTIFICATION_CHANNELS[];
-  disableChannel: (channel: NOTIFICATION_CHANNELS) => void;
-  enableChannel: (channel: NOTIFICATION_CHANNELS) => void;
-  isChannelDisabled: (channel: NOTIFICATION_CHANNELS) => boolean;
-}
-  const showDmNotification = useCallback(async (conversationId: string, senderName: string, messageContent: string, senderImage: string): Promise<void> => {
+ export const showDmNotification = async (conversationId: string, senderName: string, messageContent: string, senderImage: string): Promise<void> => {
     try {
       const channelId = await notifee.createChannel({
         id: NOTIFICATION_CHANNELS['DIRECT_MESSAGE'],
         name: 'New Messages',
         importance: AndroidImportance.HIGH,
-        sound: 'default',
+        sound: 'notification',
       });
 
       await notifee.displayNotification({
@@ -139,26 +119,8 @@ interface DisabledChannelsState {
     } catch (error) {
       console.error('Error showing notification:', error);
     }
-  }, []);
+  }
 
-const useDisabledChannelsStore = create<DisabledChannelsState>()(
-  persist(
-    (set, get) => ({
-      disabledChannels: [],
-      disableChannel: (channel) => set((state) => ({
-        disabledChannels: DisabledChannelsSchema.parse([...state.disabledChannels, channel])
-      })),
-      enableChannel: (channel) => set((state) => ({
-        disabledChannels: DisabledChannelsSchema.parse(state.disabledChannels.filter((ch) => ch !== channel))
-      })),
-      isChannelDisabled: (channel) => get().disabledChannels.includes(channel),
-    }),
-    {
-      name: 'disabled-notification-channels',
-      storage: createJSONStorage(() => AsyncStorage),
-    }
-  )
-);
 
 const createDefaultChannelConfigs = (): Record<NOTIFICATION_CHANNELS, NotificationConfig> => {
   const configs: Partial<Record<NOTIFICATION_CHANNELS, NotificationConfig>> = {};
@@ -184,21 +146,61 @@ const createDefaultChannelConfigs = (): Record<NOTIFICATION_CHANNELS, Notificati
 const defaultChannelConfigs = createDefaultChannelConfigs();
 
 export const disableNotificationChannel = (channel: NOTIFICATION_CHANNELS): void => {
-  useDisabledChannelsStore.getState().disableChannel(channel);
+  
 };
 
 export const enableNotificationChannel = (channel: NOTIFICATION_CHANNELS): void => {
-  useDisabledChannelsStore.getState().enableChannel(channel);
+  
 };
+
+export async function handleNotification(notificationData: any) {
+  try {
+    // Create a channel (required for Android)
+    const channelId = await notifee.createChannel({
+      id: 'default',
+      name: 'Default Channel',
+      importance: AndroidImportance.HIGH,
+    });
+
+    // Parse the sender image if it exists
+    let senderImageUrl;
+    try {
+      const bodyData = JSON.parse(notificationData.notification.data.body);
+      senderImageUrl = bodyData.senderImage;
+    } catch (e) {
+      console.log('Error parsing sender image:', e);
+    }
+
+    // Display the notification
+    await notifee.displayNotification({
+      title: notificationData.notification.notification.title,
+      body: notificationData.notification.notification.body,
+      android: {
+        channelId,
+        largeIcon: senderImageUrl, // Will use the sender's image as large icon if available
+        importance: AndroidImportance.HIGH,
+        pressAction: {
+          id: 'default',
+        },
+      },
+      ios: {
+        // iOS specific configuration
+        attachments: senderImageUrl ? [{
+          url: senderImageUrl,
+          thumbnailHidden: false,
+        }] : undefined,
+      },
+      data: notificationData.notification.data, // Pass through all data for handling notification press
+    });
+  } catch (error) {
+    console.error('Error displaying notification:', error);
+  }
+}
 
 export const showNotification = async (
   channel: NOTIFICATION_CHANNELS,
   notificationData: NotificationData
 ): Promise<void> => {
-  if (useDisabledChannelsStore.getState().isChannelDisabled(channel)) {
-    console.log(`Notification channel ${channel} is disabled.`);
-    return;
-  }
 
   try {
     const channelConfig = defaultChannelConfigs[channel];
@@ -213,6 +215,7 @@ export const showNotification = async (
         largeIcon: notificationData?.largeIcon?notificationData?.largeIcon:'',
         importance: channelConfig.importance,
         category: notificationData.category,
+        sound: 'notification',
       },
       //@ts-ignore
       data: notificationData.data,
@@ -498,7 +501,7 @@ export const showOnlineFriendsNotification = async (
 };
 
 
-export  const showOnlineNotification = useCallback(async (friend: {name,image}): Promise<void> => {
+export  const showOnlineNotification = async (friend: {name,image}): Promise<void> => {
   try {
     const channelId = await notifee.createChannel({
       id: NOTIFICATION_CHANNELS['ONLINE_FRIENDS'],
@@ -518,4 +521,4 @@ export  const showOnlineNotification = useCallback(async (friend: {name,image}):
   } catch (error) {
     console.error('Error showing online notification:', error);
   }
-}, []);
+};

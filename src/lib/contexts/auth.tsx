@@ -1,16 +1,16 @@
-import React, { createContext, useContext, useCallback, useEffect } from 'react';
+import { createContext, useContext, useCallback, useEffect, useMemo, Suspense } from 'react';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { router } from 'expo-router';
 import axios, { AxiosError } from 'axios';
+import { router } from 'expo-router';
 
-import { useAuthStore, useProfileStore } from '@/lib/zustand/store';
+import { Profile, useAuthStore, useProfileStore } from '@/lib/zustand/store';
 import { userApi } from '@/lib/actions/users';
 import { endpoint } from '@/lib/env';
 import { Loader } from '@/components';
 
 const API_BASE_URL = endpoint;
 const MAX_RETRY_ATTEMPTS = 3;
-const RETRY_DELAY = 1000; // 1 second
+const RETRY_DELAY = 1000;
 
 interface User {
   id: string;
@@ -38,18 +38,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       const currentAccount = await userApi.getCurrentUser();
+      console.log(currentAccount)
       if (!currentAccount) {
         router.push('sign-up');
       } else {
         setProfile(currentAccount);
       }
     } catch (error) {
-      console.error('Error checking current user:', error);
+      console.warn('Error checking current user:', error);
       router.replace('sign-in');
     } finally {
       setLoading(false);
     }
-  }, [profile?.id, setLoading, setProfile]);
+  }, [profile?.id, setProfile]);
 
   useEffect(() => {
     checkCurrentUser();
@@ -57,16 +58,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const handleGoogleSignIn = useCallback(async () => {
     try {
+      
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       const res = await GoogleSignin.signIn();
       if (!res) throw new Error('Google Sign-In failed');
       
       setLoading(true);
       const { serverAuthCode } = res.data;
-      const tokenResponse = await axios.post(`${API_BASE_URL}/auth/callback/google?code=${serverAuthCode}`);
-      console.log(await tokenResponse.data);
+      console.log(serverAuthCode);
+      const response = await axios.post(`${API_BASE_URL}/auth/callback/google?code=${serverAuthCode}&grant_type=authorization_code`);
+
+      console.log(response.data);
+      
       const user = await userApi.getCurrentUser();
-      console.log('Google auth res user: ', user);
+      console.log(user);
+      handleAuthSuccess(user);
+      
       return { success: true, serverAuthCode };
     } catch (error) {
       console.error('Google Sign-In Error:', error.message);
@@ -74,12 +81,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
-  }, [setLoading]);
+  }, [setLoading]); 
 
-  const handleAuthSuccess = useCallback((userData: User) => {
-    //@ts-ignore
+  const handleAuthSuccess = (userData: Profile) => {
     setProfile(userData);
-  }, [setProfile]);
+  } 
 
   const handleAuthError = useCallback((error: unknown): string => {
     const errorMessage = axios.isAxiosError(error)
@@ -97,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       handleAuthSuccess(response.data);
     } catch (error) {
       if (error instanceof AxiosError && error.response?.status === 429 || 500 && retryCount < MAX_RETRY_ATTEMPTS) {
-        console.log(`Retrying sign-in attempt ${retryCount + 1} of ${MAX_RETRY_ATTEMPTS}`);
+        console.warn(`Retrying sign-in attempt ${retryCount + 1} of ${MAX_RETRY_ATTEMPTS}`);
         await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
         await signInWithCredentials(credentials, retryCount + 1);
       } else {
@@ -151,7 +157,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [setLoading, setProfile, handleAuthError]);
 
-  const contextValue = React.useMemo(() => ({
+  const contextValue = useMemo(() => ({
     user,
     loading,
     signIn,
@@ -160,11 +166,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }), [user, loading, signIn, signUp, signOut]);
 
   return (
-    <React.Suspense fallback={<Loader loadingText="We're creating your space" />}>
+    <Suspense fallback={<Loader loadingText="We're creating your space" />}>
       <AuthContext.Provider value={contextValue}>
         {children}
       </AuthContext.Provider>
-    </React.Suspense>
+    </Suspense>
   );
 };
 

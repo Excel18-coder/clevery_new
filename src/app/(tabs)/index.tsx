@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from 'react';
+import { useState, memo } from 'react';
 import { FlashList } from '@shopify/flash-list';
 import { Pressable, View } from 'react-native';
 
@@ -20,7 +20,7 @@ function Home() {
     refetch,
   } = usePosts()
 
-  const handleRefresh = useCallback(async () => {
+  const handleRefresh = async () => {
     setRefreshing(true);
     try {
       await refetch();
@@ -29,33 +29,34 @@ function Home() {
     } finally {
       setRefreshing(false);
     }
-  }, [refetch]);
+  };
 
-  const handleLoadMore = useCallback(() => {
+  const handleLoadMore = () => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage().catch(error => {
         console.error('Error loading more posts:', error);
       });
     }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  };
 
 
-  const renderItem = useCallback(({ item }: { item: any }) => (
+  const renderItem = ({ item }: { item: any }) => (
     <Post key={item?.id} {...item} />
-  ), []);
+  );
 
-  const handlePress = useCallback(() => {
+  const handlePress = () => {
     // router.navigate('/invitation')
-  }, []);
+  };
 
 
   if (isLoading) return <PostsSkeleton />;
 
+  //@ts-ignore
   if (isError || data?.pages?.posts?.length < 5) return <ErrorMessage message='Something went wrong' onRetry={handleRefresh} />;
 
   const flattenedData = data?.pages?.flatMap(page => page?.posts) || [];
   
-  
+  // console.log(flattenedData)
   return (
     <View className='pt-7.5 flex-1'>
       <Pressable onPress={handlePress}>

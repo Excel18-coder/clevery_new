@@ -34,7 +34,9 @@ export const useCurrentUserWithActivity = () => {
 export const useUsers = (page = 1) => {
   return useQuery({
     queryKey: [...queryKeys.users, page],
-    queryFn: () => userApi.getUsers(page)
+    queryFn: () => userApi.getUsers(page),
+    refetchOnMount: false,
+    refetchOnWindowFocus: false
   });
 };
 

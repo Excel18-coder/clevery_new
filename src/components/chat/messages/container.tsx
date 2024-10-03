@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { FlashList } from '@shopify/flash-list';
 
 import { Message as MessageType } from '@/types';
 import { View } from '@/components/themed';
 import PopupComponent from './popup';
 import MessageItem from './item';
 import Header from '../header';
+import Animated from 'react-native-reanimated';
 
 type Props = {
   currentChat: any
@@ -35,7 +35,7 @@ const MessagesContainer: React.FC<Props> = ({
   
   return (
     <View className="flex-1">
-      <FlashList
+      <Animated.FlatList
         data={messages}
         renderItem={({ item }: { item: any }) => (
           <MessageItem
@@ -54,7 +54,6 @@ const MessagesContainer: React.FC<Props> = ({
             isChannel={isChannel}
           />
         )}
-        estimatedItemSize={59}
       />
       <PopupComponent isVisible={popupVisible} onClose={closePopup} username='Clevery' setMessage={setNewMessage} />
     </View>
