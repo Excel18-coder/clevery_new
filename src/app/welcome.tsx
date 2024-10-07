@@ -226,14 +226,14 @@ const WelcomePage = () => {
 
           <RNView className="flex-row justify-between bg-cyan-600">
             <TouchableOpacity
-              onPress={() => router.navigate('/')}
+              onPress={() => router.push('/')}
               disabled={!termsAccepted}
               className={`bg-blue-500 py-3 z-20 bottom-0 px-6 rounded-full shadow-md ${!termsAccepted ? 'opacity-50' : ''}`}
             >
               <RNText className="font-rbold text-gray-50">Start Exploring</RNText>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.navigate('/editprofile')}
+              onPress={() => router.push('/editprofile')}
               disabled={!termsAccepted}
               className={`bg-gray-700 py-3 z-20 bottom-0 px-6 rounded-full shadow-md ${!termsAccepted ? 'opacity-50' : ''}`}
             >

@@ -149,7 +149,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       setProfile(null);
-      router.navigate('sign-in');
+      router.push('sign-in');
     } catch (error) {
       handleAuthError(error);
     } finally {

@@ -1,8 +1,6 @@
-import { ConfigContext, ExpoConfig } from '@expo/config';
-import 'ts-node/register'; // Add this to import TypeScript files
+import { ExpoConfig } from 'expo/config';
 
-export default ({ config }: ConfigContext): ExpoConfig => ({
-  ...config,
+const config: ExpoConfig = {
   name: 'Clevery',
   slug: 'clevery',
   version: '3.0.0',
@@ -42,12 +40,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "expo-notifications",
       {
-        "icon": './src/assets/images/icon.png',
-        "color": "#ffffff",
-        "sounds": ["./src/assets/sounds/notification.wav"]
+        icon: './src/assets/images/icon.png',
+        color: "#ffffff",
+        sounds: ["./src/assets/sounds/notification.wav"]
       }
     ]
-
   ],
   extra: {
     router: {
@@ -61,6 +58,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   runtimeVersion: {
     policy: 'appVersion',
   },
-});
+};
 
+export default config;
 // eas build -p android --profile preview

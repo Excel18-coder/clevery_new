@@ -16,7 +16,7 @@ export default function ServerList() {
   } = useServers()
   
   const navigateToCreateServer = () => {
-    router.navigate(`/create-server`)
+    router.push(`/create-server`)
   };
 
   if (loading) return <LoadingServers />

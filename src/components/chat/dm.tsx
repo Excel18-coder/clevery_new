@@ -20,11 +20,11 @@ const Chat = () => {
   const { conversations, isLoading } = useMessaging();
 
   const navigate = (userId: string) => {
-    router.navigate(`/channel?id=${userId}`);
+    router.push(`/channel?id=${userId}`);
   };
 
   const navigateToUsers = () => {
-    router.navigate('/users');
+    router.push('/users');
   };
 
   const buttonScale = useSharedValue(1);

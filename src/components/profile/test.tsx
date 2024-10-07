@@ -266,7 +266,7 @@ const Welcome = () => {
           <TouchableOpacity
             onPress={() => {
               console.log('Profile created:', profile);
-              router.navigate('/main-app');
+              router.push('/main-app');
             }}
             disabled={!termsAccepted}
             className={`bg-blue-500 rounded-lg p-4 items-center ${!termsAccepted ? 'opacity-50' : ''}`}

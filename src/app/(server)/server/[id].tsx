@@ -131,7 +131,7 @@ const Server: React.FC = () => {
             <Text className='text-lg font-rbold text-gray-700'>Channels</Text>
             <TouchableOpacity 
               className='p-2 rounded-full bg-blue-500' 
-              onPress={() => router.navigate(`/create-channel/${serverId}`)}
+              onPress={() => router.push(`/create-channel/${serverId}`)}
             >
               <Feather name='plus' color="white" size={20} />
             </TouchableOpacity>

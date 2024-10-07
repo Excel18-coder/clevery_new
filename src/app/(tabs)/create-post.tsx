@@ -146,7 +146,7 @@ const CreateUpdatePost = () => {
         await createPost(postData);
         showNewToast({ title: "Success", description: "Your post has been created." });
       }
-      router.navigate('/');
+      router.push('/');
     } catch (error) {
       showNewToast({ title: "Error", description: "Failed to process your post. Please try again." });
     }
@@ -155,7 +155,7 @@ const CreateUpdatePost = () => {
   const handleDeletePost =async()=>{
     await deletePost(id as string);
     showNewToast({ title: "Success", description: "Your post has been deleted." });
-    router.navigate('/');
+    router.push('/');
   } 
 
   const AnimatedPressable = Animated.createAnimatedComponent(TouchableOpacity);

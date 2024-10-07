@@ -177,8 +177,8 @@ const UserMessages: React.FC = () => {
           @{conversation?.user?.username}
         </Text>
         <View className='flex-row items-center gap-5'>
-          <Feather name="phone-call" size={18} color={'#007aff'} onPress={() => router.navigate("/room")} />
-          <Feather name="video" size={18} color={'#007aff'} onPress={() => router.navigate("/room")} />
+          <Feather name="phone-call" size={18} color={'#007aff'} onPress={() => router.push("/room")} />
+          <Feather name="video" size={18} color={'#007aff'} onPress={() => router.push("/room")} />
         </View>
       </View>
 

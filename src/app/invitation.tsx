@@ -213,7 +213,7 @@ const Welcome = () => {
                 console.log('Profile created:', profile);
                 // Here you would typically send the profile data to your backend
                 // and then navigate to the main app screen
-                router.navigate('/main-app');
+                router.push('/main-app');
               }}
               className="bg-blue-500 rounded-lg p-4 items-center"
             >
