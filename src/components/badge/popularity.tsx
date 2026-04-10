@@ -7,13 +7,14 @@ import Animated, {
   withTiming,
   withRepeat,
   withSequence,
-  withDelay,
   Easing,
   interpolateColor,
 } from 'react-native-reanimated';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedPath = Animated.createAnimatedComponent(Path);
+const AnimatedG = Animated.createAnimatedComponent(G);
+const AnimatedSvgText = Animated.createAnimatedComponent(SvgText);
 
 const BADGE_SIZE = 150;
 
@@ -40,7 +41,9 @@ const BadgeDesigns = {
   },
 };
 
-const getBadgeLevel = (popularity) => {
+type BadgeLevel = keyof typeof BadgeDesigns;
+
+const getBadgeLevel = (popularity: number): BadgeLevel => {
   if (popularity < 20) return 'bronze';
   if (popularity < 40) return 'silver';
   if (popularity < 60) return 'gold';
@@ -48,7 +51,11 @@ const getBadgeLevel = (popularity) => {
   return 'diamond';
 };
 
-const PopularityBadge = ({ popularity }) => {
+interface PopularityBadgeProps {
+  popularity: number;
+}
+
+const PopularityBadge: React.FC<PopularityBadgeProps> = ({ popularity }) => {
   const level = getBadgeLevel(popularity);
   const design = BadgeDesigns[level];
 
@@ -89,11 +96,8 @@ const PopularityBadge = ({ popularity }) => {
     strokeDashoffset: 270 - (progress.value * 270),
   }));
 
-  const iconProps = useAnimatedProps(() => ({
-    transform: [
-      { scale: scale.value },
-      { rotate: `${rotation.value}deg` },
-    ],
+  const iconGroupProps = useAnimatedProps(() => ({
+    transform: `translate(50 50) rotate(${rotation.value}) scale(${scale.value}) translate(-50 -50)`,
   }));
 
   const glowProps = useAnimatedProps(() => ({
@@ -121,18 +125,19 @@ const PopularityBadge = ({ popularity }) => {
           strokeDasharray={270}
           animatedProps={circleProps}
         />
-        <AnimatedPath
-          d={design.icon}
-          fill={design.color}
-          animatedProps={iconProps}
-        />
-        <AnimatedPath
-          d={design.icon}
-          fill="white"
-          animatedProps={glowProps}
-        />
+        <AnimatedG animatedProps={iconGroupProps}>
+          <Path
+            d={design.icon}
+            fill={design.color}
+          />
+          <AnimatedPath
+            d={design.icon}
+            fill="white"
+            animatedProps={glowProps}
+          />
+        </AnimatedG>
         <G>
-          <SvgText
+          <AnimatedSvgText
             x="50"
             y="55"
             fontSize="18"
@@ -141,7 +146,7 @@ const PopularityBadge = ({ popularity }) => {
             animatedProps={textColor}
           >
             {`${Math.round(popularity)}%`}
-          </SvgText>
+          </AnimatedSvgText>
         </G>
       </Svg>
       <Text style={styles.label}>{level.toUpperCase()}</Text>
