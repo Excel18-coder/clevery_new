@@ -238,7 +238,7 @@ const AdminDashboard: React.FC = () => {
   const handleDeleteServer = useCallback(() => {
     setIsDeleteServerOpen(false);
     showToast("Server deleted successfully");
-    router.replace('/servers');
+    router.replace('/');
   }, [showToast]);
 
   if (loadingServer) return <Loader loadingText='Loading Admin Dashboard' subText='Please wait while we load your data' />;

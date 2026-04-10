@@ -43,7 +43,7 @@ const CreateServer = () => {
         members:[],
       });
       console.log(server)
-      router.push(`/servers/${server.id}`)
+      router.push(`/server/${server.id}`)
     } catch (error:any) {
       console.error('Error creating server:', error.message);
       showToastMessage('Error creating server')
@@ -79,6 +79,7 @@ if(creatingServer)return <Loader loadingText='Creating your server'/>
          selectedUsers={selectedUsers} 
          removeUser={removeMember} 
          users={profile?.friends}
+         loading={creatingServer}
         />
       </Modal>
       

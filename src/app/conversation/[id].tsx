@@ -51,6 +51,15 @@ const UserMessages: React.FC = () => {
     mutateAsync: markAsSeen,
   } = useMarkMessagesAsSeen();
 
+  const { openImagePicker, isUploading } = useImageUploader("imageUploader", {
+    /**
+     * Any props here are forwarded to the underlying `useUploadThing` hook.
+     * Refer to the React API reference for more info.
+     */
+    onClientUploadComplete: () => Alert.alert("Upload Completed"),
+    onUploadError: (error) => Alert.alert("Upload Error", error.message),
+  });
+
   useEffect(() => {
     const messageHandler = (message: Message) => {
       setMessages((prev) => {
@@ -99,8 +108,7 @@ const UserMessages: React.FC = () => {
 
   const chooseFile = useCallback(async () => {
     const file = await openImagePicker({
-      // input: , // Matches the input schema from the FileRouter endpoint
-      source: "library", // or "camera"
+      source: "library",
       onInsufficientPermissions: () => {
         Alert.alert(
           "No Permissions",
@@ -112,11 +120,11 @@ const UserMessages: React.FC = () => {
         );
       },
     });
-    console.log(file);
-    // if (file) {
-    //   setNewMessage((prev) => ({ ...prev, file:file[0] }));
-    // }
-  }, []);
+
+    if (file?.[0]?.serverData?.url) {
+      setNewMessage((prev) => ({ ...prev, file: file[0].serverData.url }));
+    }
+  }, [openImagePicker]);
 
   const handleSend = useCallback(async () => {
     const { caption, file } = newMessage;
@@ -143,16 +151,6 @@ const UserMessages: React.FC = () => {
   }, []);
 
   
-  const { openImagePicker, isUploading } = useImageUploader("imageUploader", {
-    /**
-     * Any props here are forwarded to the underlying `useUploadThing` hook.
-     * Refer to the React API reference for more info.
-     */
-    onClientUploadComplete: () => Alert.alert("Upload Completed"),
-    onUploadError: (error) => Alert.alert("Upload Error", error.message),
-  });
-  
-
   const handleMessageChange = useCallback((text: string) => {
     setNewMessage((prev) => ({ ...prev, caption: text }));
   }, [conversation?.id]);
@@ -160,7 +158,7 @@ const UserMessages: React.FC = () => {
   if (loadingConversation) return <Loader loadingText='Loading your conversation' />;
   if (conversationError) return <ErrorMessage message='Network error' onRetry={() => {}} />;
 
-  const sortedMessages = sortMessages({ messages });
+  const sortedMessages = sortMessages(messages);
 
 
   return (
@@ -183,6 +181,7 @@ const UserMessages: React.FC = () => {
       </View>
 
       <MessagesContainer
+        currentChat={conversation}
         messages={sortedMessages}
         setNewMessage={(text) => setNewMessage((prev) => ({ ...prev, caption: text }))}
       />
